@@ -1,50 +1,82 @@
+'use client';
+
 import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils/cn';
+import MuiButton, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
+import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        default: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600',
-        destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600',
-        outline: 'border border-gray-300 bg-white hover:bg-gray-50 focus-visible:ring-gray-400',
-        secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-400',
-        ghost: 'hover:bg-gray-100 focus-visible:ring-gray-400',
-        link: 'text-blue-600 underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 px-3',
-        lg: 'h-11 px-8',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-);
+// Map our variant names to MUI variants
+const variantMap = {
+  default: 'contained' as const,
+  destructive: 'contained' as const,
+  outline: 'outlined' as const,
+  secondary: 'outlined' as const,
+  ghost: 'text' as const,
+  link: 'text' as const,
+};
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
+// Map our size names to MUI sizes
+const sizeMap = {
+  default: 'medium' as const,
+  sm: 'small' as const,
+  lg: 'large' as const,
+  icon: 'medium' as const,
+};
+
+export interface ButtonProps extends Omit<MuiButtonProps, 'variant' | 'size'> {
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  ({ variant = 'default', size = 'default', color, sx, children, ...props }, ref) => {
+    // Handle icon-only buttons
+    if (size === 'icon') {
+      return (
+        <IconButton
+          ref={ref}
+          color={variant === 'destructive' ? 'error' : color}
+          size={sizeMap[size]}
+          sx={sx}
+          {...(props as IconButtonProps)}
+        >
+          {children}
+        </IconButton>
+      );
+    }
+
+    // Determine MUI color based on variant
+    let muiColor = color;
+    if (variant === 'destructive') {
+      muiColor = 'error';
+    } else if (variant === 'default') {
+      muiColor = 'primary';
+    } else if (variant === 'secondary') {
+      muiColor = 'secondary';
+    }
+
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
+      <MuiButton
         ref={ref}
+        variant={variantMap[variant]}
+        size={sizeMap[size]}
+        color={muiColor}
+        sx={{
+          ...(variant === 'link' && {
+            textDecoration: 'underline',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          }),
+          ...sx,
+        }}
         {...props}
-      />
+      >
+        {children}
+      </MuiButton>
     );
   }
 );
+
 Button.displayName = 'Button';
 
-export { Button, buttonVariants };
+export { Button };

@@ -65,6 +65,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { email, password } = parsedCredentials.data;
 
+        // DEVELOPMENT ONLY: Bypass database for test user
+        // WARNING: Remove this before production deployment!
+        if (
+          process.env.NODE_ENV === 'development' &&
+          email === 'dev@test.com' &&
+          password === 'DevTest123!'
+        ) {
+          console.warn('⚠️  DEV MODE: Using development bypass credentials');
+          return {
+            id: 'dev-user-id',
+            email: 'dev@test.com',
+            name: 'Development User',
+            role: 'super_admin',
+          };
+        }
+
         // Get user from database
         const user = await getUser(email);
         if (!user) {

@@ -3,28 +3,26 @@
 import * as React from 'react';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 
-export type InputProps = Omit<TextFieldProps, 'variant'> & {
+export type TextareaProps = Omit<TextFieldProps, 'multiline' | 'variant'> & {
   className?: string;
 };
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type = 'text', ...props }, ref) => {
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, ...props }, ref) => {
     return (
       <TextField
         inputRef={ref}
-        type={type}
+        multiline
+        minRows={3}
         variant="outlined"
         size="small"
         fullWidth
         {...props}
-        sx={{
-          ...props.sx,
-        }}
       />
     );
   }
 );
 
-Input.displayName = 'Input';
+Textarea.displayName = 'Textarea';
 
-export { Input };
+export { Textarea };
