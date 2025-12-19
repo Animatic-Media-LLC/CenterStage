@@ -33,6 +33,33 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       }
     };
 
+    // Extract actual MenuItems from nested Radix-style children
+    const extractMenuItems = (children: React.ReactNode): React.ReactNode => {
+      return React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return null;
+
+        // If this is SelectContent or SelectTrigger, extract their children
+        if (child.type === SelectContent || child.type === SelectTrigger) {
+          return extractMenuItems((child.props as any).children);
+        }
+
+        // If this is SelectItem (MenuItem), return it directly
+        if (child.type === MenuItem || child.type === SelectItem) {
+          return child;
+        }
+
+        // Otherwise, recurse into children
+        const childProps = child.props as any;
+        if (childProps?.children) {
+          return extractMenuItems(childProps.children);
+        }
+
+        return child;
+      });
+    };
+
+    const menuItems = extractMenuItems(children);
+
     const selectElement = (
       <MuiSelect
         ref={ref as any}
@@ -42,7 +69,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         error={error}
         {...props}
       >
-        {children}
+        {menuItems}
       </MuiSelect>
     );
 
@@ -66,7 +93,7 @@ Select.displayName = 'Select';
 export { Select };
 
 // For backward compatibility with Radix-style usage
-export const SelectTrigger = Select;
+export const SelectTrigger = ({ children, ...props }: { children?: React.ReactNode; id?: string }) => <>{children}</>;
 export const SelectValue = ({ placeholder }: { placeholder?: string }) => null;
 export const SelectContent = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 export const SelectItem = MenuItem;

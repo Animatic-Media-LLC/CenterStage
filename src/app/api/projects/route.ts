@@ -37,9 +37,13 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('[API] POST /api/projects - Starting request');
+
     const session = await auth();
+    console.log('[API] Session:', session ? 'authenticated' : 'not authenticated');
 
     if (!session?.user) {
+      console.log('[API] Unauthorized - no session');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -47,11 +51,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('[API] Request body:', JSON.stringify(body, null, 2));
 
     // Validate request body
     const validation = createProjectWithConfigSchema.safeParse(body);
+    console.log('[API] Validation result:', validation.success ? 'success' : 'failed');
 
     if (!validation.success) {
+      console.log('[API] Validation errors:', validation.error.issues);
       return NextResponse.json(
         {
           error: 'Invalid input',
@@ -62,12 +69,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { project, presentationConfig } = validation.data;
+    console.log('[API] Validated project:', project);
+    console.log('[API] Validated presentationConfig:', presentationConfig);
 
     // Ensure slug is unique
+    console.log('[API] Getting existing slugs');
     const existingSlugs = await getAllSlugs();
+    console.log('[API] Existing slugs:', existingSlugs);
+
     const uniqueSlug = slugify(project.slug, existingSlugs);
+    console.log('[API] Unique slug:', uniqueSlug);
 
     // Create project with config
+    console.log('[API] Creating project with config');
     const result = await createProjectWithConfig(
       {
         ...project,
@@ -76,12 +90,17 @@ export async function POST(request: NextRequest) {
       },
       presentationConfig
     );
+    console.log('[API] Project created successfully:', result.project.id);
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    console.error('Create project error:', error);
+    console.error('[API] Create project error:', error);
+    console.error('[API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
