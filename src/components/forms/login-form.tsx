@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Alert from '@mui/material/Alert';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import FormHelperText from '@mui/material/FormHelperText';
+import Box from '@mui/material/Box';
 
 /**
  * Login form validation schema
@@ -80,14 +85,9 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Email Address
-        </label>
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <FormControl fullWidth error={!!fieldErrors.email}>
+        <FormLabel htmlFor="email">Email Address</FormLabel>
         <Input
           id="email"
           name="email"
@@ -98,23 +98,15 @@ export function LoginForm() {
           onChange={handleChange}
           disabled={isLoading}
           placeholder="admin@animatic.com"
-          aria-invalid={!!fieldErrors.email}
-          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+          error={!!fieldErrors.email}
         />
         {fieldErrors.email && (
-          <p id="email-error" className="mt-1 text-sm text-red-600">
-            {fieldErrors.email}
-          </p>
+          <FormHelperText id="email-error">{fieldErrors.email}</FormHelperText>
         )}
-      </div>
+      </FormControl>
 
-      <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Password
-        </label>
+      <FormControl fullWidth error={!!fieldErrors.password}>
+        <FormLabel htmlFor="password">Password</FormLabel>
         <Input
           id="password"
           name="password"
@@ -125,24 +117,17 @@ export function LoginForm() {
           onChange={handleChange}
           disabled={isLoading}
           placeholder="••••••••"
-          aria-invalid={!!fieldErrors.password}
-          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+          error={!!fieldErrors.password}
         />
         {fieldErrors.password && (
-          <p id="password-error" className="mt-1 text-sm text-red-600">
-            {fieldErrors.password}
-          </p>
+          <FormHelperText id="password-error">{fieldErrors.password}</FormHelperText>
         )}
-      </div>
+      </FormControl>
 
       {error && (
-        <div
-          className="rounded-md bg-red-50 border border-red-200 p-4"
-          role="alert"
-          aria-live="polite"
-        >
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
+        <Alert severity="error" role="alert">
+          {error}
+        </Alert>
       )}
 
       <Button
@@ -153,6 +138,6 @@ export function LoginForm() {
       >
         {isLoading ? 'Signing in...' : 'Sign In'}
       </Button>
-    </form>
+    </Box>
   );
 }

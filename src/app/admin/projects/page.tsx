@@ -5,8 +5,12 @@ import { getProjects } from '@/lib/db/projects';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FolderKanban, Plus, Search } from 'lucide-react';
+import { FolderKanban, Plus, Search, Edit, QrCode, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import InputAdornment from '@mui/material/InputAdornment';
 
 /**
  * Projects List Page
@@ -24,106 +28,174 @@ export default async function ProjectsPage() {
   return (
     <AdminLayout userName={session.user.name || undefined}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Manage your feedback animatic projects
-              </p>
-            </div>
-            <Link href="/admin/projects/new">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Projects
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Manage your CenterStage projects
+            </Typography>
+          </Box>
+          <Link href="/admin/projects/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Project
+            </Button>
+          </Link>
+        </Box>
+      </Box>
 
       {/* Main Content */}
-      <div className="px-8 py-6">
+      <Box sx={{ px: 4, py: 3 }}>
         {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search projects..."
-              className="pl-10"
-            />
-          </div>
-        </div>
+        <Box sx={{ mb: 3, maxWidth: 480 }}>
+          <Input
+            type="search"
+            placeholder="Search projects..."
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search className="h-4 w-4 text-gray-400" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        </Box>
 
         {/* Projects Grid */}
         {projects.length === 0 ? (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <FolderKanban className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No projects yet
-              </h3>
-              <p className="text-gray-500 text-center mb-6">
-                Get started by creating your first feedback animatic project.
-              </p>
-              <Link href="/admin/projects/new">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Project
-                </Button>
-              </Link>
+            <CardContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6 }}>
+                <FolderKanban className="h-12 w-12 text-gray-400 mb-4" />
+                <Typography variant="h6" fontWeight="600" gutterBottom>
+                  No projects yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+                  Get started by creating your first CenterStage project.
+                </Typography>
+                <Link href="/admin/projects/new">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Project
+                  </Button>
+                </Link>
+              </Box>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
             {projects.map((project) => (
-              <Link key={project.id} href={`/admin/projects/${project.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Box key={project.id}>
+                <Card sx={{ '&:hover': { boxShadow: 6 }, transition: 'box-shadow 0.3s' }}>
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <Box sx={{ flex: 1 }}>
                         <CardTitle className="text-lg">{project.name}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                           {project.client_name}
-                        </p>
-                      </div>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={project.status}
+                        size="small"
+                        color={
                           project.status === 'active'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'success'
                             : project.status === 'archived'
-                            ? 'bg-gray-100 text-gray-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
+                            ? 'default'
+                            : 'error'
+                        }
+                      />
+                    </Box>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-center justify-between">
-                        <span>Slug:</span>
-                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {project.slug}
-                        </code>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Created:</span>
-                        <span>
-                          {new Date(project.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
+                    {/* Slug */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                        Project Slug
+                      </Typography>
+                      <Box
+                        component="code"
+                        sx={{
+                          fontSize: '0.875rem',
+                          bgcolor: 'grey.100',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                        }}
+                      >
+                        {project.slug}
+                      </Box>
+                    </Box>
+
+                    {/* URLs */}
+                    <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Public Form
+                        </Typography>
+                        <Link
+                          href={`/comment/${project.slug}`}
+                          target="_blank"
+                          className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          /comment/{project.slug}
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Presentation
+                        </Typography>
+                        <Link
+                          href={`/present/${project.slug}`}
+                          target="_blank"
+                          className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          /present/{project.slug}
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      </Box>
+                    </Box>
+
+                    {/* Action Buttons */}
+                    <Box sx={{ display: 'flex', gap: 1, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                      <Link href={`/admin/projects/${project.id}/edit`} style={{ flex: 1 }}>
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </Link>
+                      <Link href={`/admin/projects/${project.id}/qr`}>
+                        <Button variant="outline" size="sm">
+                          <QrCode className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </Box>
                   </CardContent>
                 </Card>
-              </Link>
+              </Box>
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </AdminLayout>
   );
 }

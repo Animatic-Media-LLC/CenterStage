@@ -1,26 +1,30 @@
-import * as React from 'react';
-import { cn } from '@/lib/utils/cn';
+'use client';
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
+import * as React from 'react';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
+
+export type InputProps = Omit<TextFieldProps, 'variant'> & {
+  className?: string;
+};
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type = 'text', ...props }, ref) => {
     return (
-      <input
+      <TextField
+        inputRef={ref}
         type={type}
-        className={cn(
-          'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
-          'placeholder:text-gray-400',
-          'focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          className
-        )}
-        ref={ref}
+        variant="outlined"
+        size="small"
+        fullWidth
         {...props}
+        sx={{
+          ...props.sx,
+        }}
       />
     );
   }
 );
+
 Input.displayName = 'Input';
 
 export { Input };

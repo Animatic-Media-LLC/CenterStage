@@ -536,11 +536,180 @@ Next.js App Router Structure:
 - [ ] Add copy-to-clipboard for URLs
 - [ ] Set up API routes for projects CRUD operations
 
-**Deliverable:** Full project creation and management system
+**Deliverable:** Full project creation and management system ✅ COMPLETE
 
 ---
 
-### Phase 3: Public Submission Form ✓
+### Phase 2.2: Material-UI Component Migration
+**Goal:** Implement Material-UI (MUI) as the primary component library and migrate all existing UI components
+
+#### Background
+Currently using custom Radix UI components with Tailwind styling. This phase replaces all UI components with Material-UI for:
+- Consistent design system across admin and public forms
+- Better accessibility out of the box
+- Rich component ecosystem (inputs, buttons, selects, dialogs, etc.)
+- Built-in theming and responsive design
+- Reduced maintenance burden
+
+#### Tasks
+
+**1. Install Material-UI Dependencies**
+- [ ] Install core MUI packages:
+  ```bash
+  npm install @mui/material @emotion/react @emotion/styled
+  npm install @mui/icons-material  # For icons
+  npm install @mui/x-date-pickers   # If date pickers needed later
+  ```
+- [ ] Configure MUI theme provider in app layout
+- [ ] Set up custom theme (colors, typography, breakpoints)
+- [ ] Configure Emotion for server-side rendering (Next.js App Router)
+
+**2. Create MUI Theme Configuration**
+- [ ] Create `src/lib/theme/mui-theme.ts` with custom theme
+  - Primary color scheme (brand colors)
+  - Secondary colors
+  - Typography (font families, sizes)
+  - Spacing and breakpoints
+  - Component style overrides
+- [ ] Wrap app with `ThemeProvider` in `src/app/layout.tsx`
+- [ ] Create separate themes for admin (professional) and public (user-friendly)
+
+**3. Replace Core UI Components**
+
+**Form Components:**
+- [ ] Replace `src/components/ui/input.tsx` with MUI `TextField`
+- [ ] Replace `src/components/ui/button.tsx` with MUI `Button`
+- [ ] Replace `src/components/ui/select.tsx` with MUI `Select` and `MenuItem`
+- [ ] Replace `src/components/ui/textarea.tsx` with MUI `TextField` (multiline)
+- [ ] Replace `src/components/ui/label.tsx` with MUI `FormLabel` / built-in labels
+- [ ] Replace `src/components/ui/slider.tsx` with MUI `Slider`
+- [ ] Replace checkbox/radio (if any) with MUI `Checkbox` / `Radio`
+- [ ] Add MUI `Switch` for toggle functionality
+
+**Display Components:**
+- [ ] Replace `src/components/ui/card.tsx` with MUI `Card`, `CardContent`, `CardHeader`, `CardActions`
+- [ ] Replace `src/components/ui/dialog.tsx` with MUI `Dialog`, `DialogTitle`, `DialogContent`, `DialogActions`
+- [ ] Replace toast notifications (sonner) with MUI `Snackbar` and `Alert`
+- [ ] Add MUI `Tooltip` for helpful hints
+- [ ] Add MUI `Chip` for status badges
+
+**Custom Components:**
+- [ ] Replace `src/components/ui/color-picker.tsx` with MUI-styled color picker
+  - Option 1: Keep react-colorful but wrap in MUI `Popover`
+  - Option 2: Use `@mui/material` TextField with type="color"
+- [ ] Update QR code display to use MUI components
+
+**4. Update Admin Pages with MUI**
+- [ ] Update `src/app/admin/login/page.tsx`
+  - Use MUI `TextField` for email/password
+  - Use MUI `Button` for submit
+  - Use MUI `Alert` for errors
+- [ ] Update `src/app/admin/dashboard/page.tsx`
+  - Use MUI `Card` for statistics
+  - Use MUI `Grid` for layout
+- [ ] Update `src/app/admin/projects/page.tsx`
+  - Use MUI `Card` for project cards
+  - Use MUI `IconButton` for actions
+  - Use MUI `Chip` for status badges
+- [ ] Update `src/app/admin/projects/new/page.tsx`
+  - Migrate `ProjectForm` to MUI components
+- [ ] Update `src/app/admin/projects/[id]/edit/page.tsx`
+  - Migrate `ProjectEditForm` to MUI components
+- [ ] Update `src/app/admin/projects/[id]/qr/page.tsx`
+  - Use MUI layout components
+
+**5. Update Form Components**
+- [ ] Update `src/components/forms/project-form.tsx`
+  - Replace all inputs with MUI `TextField`
+  - Replace select with MUI `Select`
+  - Replace sliders with MUI `Slider`
+  - Replace color pickers with MUI-wrapped version
+  - Use MUI `FormControl`, `FormLabel`, `FormHelperText`
+- [ ] Update `src/components/forms/project-edit-form.tsx`
+  - Same as project-form.tsx
+  - Update dialog confirmations to MUI `Dialog`
+
+**6. Update Layout Components**
+- [ ] Update `src/components/layout/admin-layout.tsx`
+  - Use MUI `Drawer` for sidebar
+  - Use MUI `AppBar` for top bar (optional)
+  - Use MUI `List`, `ListItem`, `ListItemButton` for navigation
+  - Use MUI `Avatar` for user profile
+  - Use MUI `Divider` for separators
+
+**7. Clean Up Legacy Components**
+- [ ] Remove old Radix UI components from `src/components/ui/`
+  - Keep or remove based on whether fully replaced
+- [ ] Remove unused Radix UI dependencies:
+  ```bash
+  npm uninstall @radix-ui/react-dialog @radix-ui/react-select @radix-ui/react-slider @radix-ui/react-popover
+  ```
+- [ ] Update imports across the codebase
+
+**8. Styling Considerations**
+- [ ] Decide on Tailwind CSS usage alongside MUI
+  - Option 1: Keep Tailwind for utility classes (layout, spacing)
+  - Option 2: Use MUI's `sx` prop and theme exclusively
+  - Recommended: Hybrid approach - MUI for components, Tailwind for layout
+- [ ] Update global styles if needed
+- [ ] Ensure consistent spacing and sizing
+
+**9. Accessibility & Responsiveness**
+- [ ] Verify all forms are keyboard accessible
+- [ ] Test screen reader compatibility
+- [ ] Test on mobile devices (touch targets, responsive layout)
+- [ ] Add proper ARIA labels where needed (MUI provides most automatically)
+
+**10. Testing**
+- [ ] Test all admin pages for visual consistency
+- [ ] Test form validation and error states
+- [ ] Test dialogs and modals
+- [ ] Test color picker functionality
+- [ ] Test slider interactions
+- [ ] Run build to check for TypeScript errors
+- [ ] Visual regression testing (optional)
+
+**11. Documentation**
+- [ ] Update component usage documentation
+- [ ] Document custom MUI theme configuration
+- [ ] Add examples for common patterns
+
+#### Migration Strategy
+
+**Approach:** Incremental migration (safest)
+1. Install MUI and set up theme provider
+2. Create MUI wrapper components that match existing API
+3. Migrate one page/component at a time
+4. Test after each migration
+5. Remove old components once all migrations complete
+
+**Alternative Approach:** Big bang migration (faster but riskier)
+1. Install MUI
+2. Replace all components in one pass
+3. Fix all TypeScript errors
+4. Comprehensive testing
+
+**Recommended:** Incremental migration for this project
+
+#### Breaking Changes to Consider
+- MUI components may have different prop names than current components
+- Event handlers may need adjustments (`onChange` signatures)
+- Styling approach changes (CSS modules → MUI `sx` prop)
+- Form validation integration may need updates
+
+#### Deliverables
+✅ All admin pages using MUI components
+✅ Consistent theme across application
+✅ All forms functional with MUI inputs
+✅ No Radix UI dependencies remaining (or kept only where beneficial)
+✅ Build passes with no errors
+✅ Documentation updated
+
+**Estimated Effort:** 8-12 hours
+
+---
+
+### Phase 3: Public Submission Form
 **Goal:** Build and deploy the public-facing form for user submissions
 
 - [ ] Create public form page (`/comment/[slug]`)

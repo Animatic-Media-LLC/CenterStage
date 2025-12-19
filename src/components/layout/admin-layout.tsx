@@ -37,16 +37,16 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar - Fixed height, no scroll */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen overflow-hidden">
         {/* Logo/Brand */}
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">Feedback Animatic</h1>
+        <div className="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
+          <h1 className="text-xl font-bold text-gray-900">CenterStage</h1>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -70,7 +70,7 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -96,8 +96,8 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto h-screen">
         <div className="h-full">{children}</div>
       </main>
     </div>

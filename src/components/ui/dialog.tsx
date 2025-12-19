@@ -1,112 +1,95 @@
 'use client';
 
 import * as React from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
+import MuiDialog, { DialogProps as MuiDialogProps } from '@mui/material/Dialog';
+import MuiDialogTitle from '@mui/material/DialogTitle';
+import MuiDialogContent from '@mui/material/DialogContent';
+import MuiDialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
+import IconButton from '@mui/material/IconButton';
 import { X } from 'lucide-react';
+import Box from '@mui/material/Box';
 
-import { cn } from '@/lib/utils/cn';
+export interface DialogProps extends Omit<MuiDialogProps, 'onClose'> {
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
+}
 
-const Dialog = DialogPrimitive.Root;
+// Main Dialog component with backward compatibility
+const Dialog: React.FC<DialogProps> = ({
+  open,
+  onOpenChange,
+  onClose,
+  children,
+  ...props
+}) => {
+  const handleClose = () => {
+    if (onClose) onClose();
+    if (onOpenChange) onOpenChange(false);
+  };
 
-const DialogTrigger = DialogPrimitive.Trigger;
-
-const DialogPortal = DialogPrimitive.Portal;
-
-const DialogClose = DialogPrimitive.Close;
-
-const DialogOverlay = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      'fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
-    )}
-    {...props}
-  />
-));
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
-
-const DialogContent = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200 bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
-        className
-      )}
-      {...props}
-    >
+  return (
+    <MuiDialog open={open || false} onClose={handleClose} {...props}>
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
-DialogContent.displayName = DialogPrimitive.Content.displayName;
+    </MuiDialog>
+  );
+};
 
-const DialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex flex-col space-y-1.5 text-center sm:text-left',
-      className
-    )}
-    {...props}
-  />
+// Dialog content with close button
+const DialogContent = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<typeof MuiDialogContent>>(
+  ({ children, ...props }, ref) => (
+    <MuiDialogContent ref={ref} {...props}>
+      {children}
+    </MuiDialogContent>
+  )
 );
-DialogHeader.displayName = 'DialogHeader';
+DialogContent.displayName = 'DialogContent';
 
-const DialogFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
-      className
-    )}
-    {...props}
-  />
+// Dialog title with close button
+const DialogTitle = React.forwardRef<HTMLHeadingElement, React.ComponentPropsWithoutRef<typeof MuiDialogTitle> & { onClose?: () => void }>(
+  ({ children, onClose, ...props }, ref) => (
+    <MuiDialogTitle ref={ref} {...props}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {children}
+        {onClose && (
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            sx={{ ml: 2 }}
+            size="small"
+          >
+            <X className="h-4 w-4" />
+          </IconButton>
+        )}
+      </Box>
+    </MuiDialogTitle>
+  )
+);
+DialogTitle.displayName = 'DialogTitle';
+
+// Dialog actions (footer)
+const DialogFooter = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<typeof MuiDialogActions>>(
+  (props, ref) => <MuiDialogActions ref={ref} {...props} />
 );
 DialogFooter.displayName = 'DialogFooter';
 
-const DialogTitle = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={cn(
-      'text-lg font-semibold leading-none tracking-tight',
-      className
-    )}
-    {...props}
-  />
-));
-DialogTitle.displayName = DialogPrimitive.Title.displayName;
+// Dialog description
+const DialogDescription = React.forwardRef<HTMLParagraphElement, React.ComponentPropsWithoutRef<typeof DialogContentText>>(
+  (props, ref) => <DialogContentText ref={ref} {...props} />
+);
+DialogDescription.displayName = 'DialogDescription';
 
-const DialogDescription = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description
-    ref={ref}
-    className={cn('text-sm text-gray-500', className)}
-    {...props}
-  />
-));
-DialogDescription.displayName = DialogPrimitive.Description.displayName;
+// Dialog header (for grouping title and description)
+const DialogHeader = ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <Box {...props}>{children}</Box>
+);
+DialogHeader.displayName = 'DialogHeader';
+
+// For backward compatibility
+const DialogTrigger = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+const DialogClose = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+const DialogPortal = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+const DialogOverlay = () => null;
 
 export {
   Dialog,

@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CenterStage
+
+A Next.js application for managing interactive feedback and presentation displays. Users can submit feedback with photos via QR codes, which are reviewed by administrators and displayed on presentation screens.
+
+This is a [Next.js](https://nextjs.org) project built with TypeScript, Material-UI, Supabase, and NextAuth.
 
 ## Getting Started
 

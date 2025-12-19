@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -14,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Feedback Animatic - Admin Dashboard",
-  description: "Manage feedback animatic projects and submissions",
+  title: "CenterStage - Admin Dashboard",
+  description: "Manage CenterStage projects and submissions",
 };
 
 export default function RootLayout({
@@ -28,8 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Toaster position="top-right" />
+        <AppRouterCacheProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster position="top-right" />
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

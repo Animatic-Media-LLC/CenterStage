@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { LoginForm } from '@/components/forms/login-form';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
 /**
  * Admin Login Page
@@ -14,33 +17,42 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'grey.50',
+        px: { xs: 2, sm: 3 },
+      }}
+    >
+      <Box sx={{ maxWidth: 480, width: '100%' }}>
         {/* Logo and Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Animatic Media
-          </h1>
-          <h2 className="mt-6 text-xl font-semibold text-gray-900">
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h3" component="h1" fontWeight="bold" gutterBottom>
+            CenterStage
+          </Typography>
+          <Typography variant="h5" component="h2" sx={{ mt: 3, mb: 1 }}>
             Administration Portal
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Sign in to manage projects and submissions
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Login Form Card */}
-        <div className="bg-white py-8 px-6 shadow-lg rounded-lg border border-gray-200">
+        <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
           <LoginForm />
-        </div>
+        </Paper>
 
         {/* Footer */}
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="caption" color="text.secondary">
             &copy; {new Date().getFullYear()} Animatic Media. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </div>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 }

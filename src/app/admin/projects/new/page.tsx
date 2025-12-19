@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 /**
  * New Project Page
- * Create a new feedback animatic project
+ * Create a new CenterStage project
  */
 export default async function NewProjectPage() {
   const session = await auth();
@@ -35,7 +35,7 @@ export default async function NewProjectPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Create New Project</h1>
             <p className="text-sm text-gray-600 mt-1">
-              Set up a new feedback animatic project with custom presentation settings
+              Set up a new CenterStage project with custom presentation settings
             </p>
           </div>
         </div>

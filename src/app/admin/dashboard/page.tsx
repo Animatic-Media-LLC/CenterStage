@@ -5,6 +5,8 @@ import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FolderKanban, FileText, CheckCircle, Clock } from 'lucide-react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 /**
  * Admin Dashboard Page
@@ -20,41 +22,56 @@ export default async function DashboardPage() {
   return (
     <AdminLayout userName={session.user.name || undefined}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Welcome back, {session.user.name}!
-              </p>
-            </div>
-            <Link href="/admin/projects/new">
-              <Button>
-                <FolderKanban className="h-4 w-4 mr-2" />
-                New Project
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Dashboard
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Welcome back, {session.user.name}!
+            </Typography>
+          </Box>
+          <Link href="/admin/projects/new">
+            <Button>
+              <FolderKanban className="h-4 w-4 mr-2" />
+              New Project
+            </Button>
+          </Link>
+        </Box>
+      </Box>
 
       {/* Main Content */}
-      <div className="px-8 py-6">
+      <Box sx={{ px: 4, py: 3 }}>
         {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              lg: 'repeat(4, 1fr)',
+            },
+            gap: 3,
+            mb: 4,
+          }}
+        >
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Total Projects
-              </CardTitle>
-              <FolderKanban className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-gray-500 mt-1">All time</p>
-            </CardContent>
-          </Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Total Projects
+                </CardTitle>
+                <FolderKanban className="h-4 w-4 text-gray-400" />
+              </CardHeader>
+              <CardContent>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  0
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                  All time
+                </Typography>
+              </CardContent>
+            </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -64,8 +81,12 @@ export default async function DashboardPage() {
               <Clock className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-gray-500 mt-1">Currently active</p>
+              <Typography variant="h4" component="div" fontWeight="bold">
+                0
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                Currently active
+              </Typography>
             </CardContent>
           </Card>
 
@@ -77,8 +98,12 @@ export default async function DashboardPage() {
               <FileText className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-gray-500 mt-1">Awaiting review</p>
+              <Typography variant="h4" component="div" fontWeight="bold">
+                0
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                Awaiting review
+              </Typography>
             </CardContent>
           </Card>
 
@@ -90,11 +115,15 @@ export default async function DashboardPage() {
               <CheckCircle className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-gray-500 mt-1">Ready to present</p>
+              <Typography variant="h4" component="div" fontWeight="bold">
+                0
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                Ready to present
+              </Typography>
             </CardContent>
           </Card>
-        </div>
+        </Box>
 
         {/* Recent Activity */}
         <Card>
@@ -102,12 +131,12 @@ export default async function DashboardPage() {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-500 text-center py-8">
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
               No recent activity to display.
-            </p>
+            </Typography>
           </CardContent>
         </Card>
-      </div>
+      </Box>
     </AdminLayout>
   );
 }
