@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AVAILABLE_FONTS, DEFAULT_FONT_FAMILY } from '@/lib/constants/fonts';
 
 /**
  * Project creation validation schema
@@ -56,48 +57,39 @@ export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
  * Uses snake_case to match database field names
  */
 export const presentationConfigSchema = z.object({
-  font_family: z.string()
-    .min(1, 'Font family is required')
-    .default('Inter')
-    .optional(),
+  font_family: z.enum(AVAILABLE_FONTS)
+    .default(DEFAULT_FONT_FAMILY),
 
   font_size: z.number()
     .int('Font size must be an integer')
     .min(16, 'Font size must be at least 16px')
     .max(72, 'Font size must be at most 72px')
-    .default(24)
-    .optional(),
+    .default(24),
 
   text_color: z.string()
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Text color must be a valid hex color (e.g., #FFFFFF)')
-    .default('#FFFFFF')
-    .optional(),
+    .default('#FFFFFF'),
 
   outline_color: z.string()
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Outline color must be a valid hex color (e.g., #000000)')
-    .default('#000000')
-    .optional(),
+    .default('#000000'),
 
   background_color: z.string()
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Background color must be a valid hex color (e.g., #1a1a1a)')
-    .default('#1a1a1a')
-    .optional(),
+    .default('#1a1a1a'),
 
   transition_duration: z.number()
     .int('Transition duration must be an integer')
     .min(1, 'Transition duration must be at least 1 second')
     .max(30, 'Transition duration must be at most 30 seconds')
-    .default(5)
-    .optional(),
+    .default(5),
 
   animation_style: z.enum(['fade', 'slide', 'zoom'])
-    .default('fade')
-    .optional(),
+    .default('fade'),
 
   layout_template: z.string()
     .min(1, 'Layout template is required')
-    .default('standard')
-    .optional(),
+    .default('standard'),
 });
 
 export type PresentationConfigInput = z.infer<typeof presentationConfigSchema>;

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Database } from '@/types/database.types';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -12,7 +13,8 @@ type PresentationConfigInsert = Database['public']['Tables']['presentation_confi
  * Get all projects for the current user
  */
 export async function getProjects(userId: string): Promise<Project[]> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -32,7 +34,8 @@ export async function getProjects(userId: string): Promise<Project[]> {
  * Get all active projects
  */
 export async function getActiveProjects(userId: string): Promise<Project[]> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -53,7 +56,8 @@ export async function getActiveProjects(userId: string): Promise<Project[]> {
  * Get a single project by ID
  */
 export async function getProjectById(id: string): Promise<Project | null> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -76,7 +80,8 @@ export async function getProjectById(id: string): Promise<Project | null> {
  * Get a project by slug
  */
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -99,7 +104,8 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
  * Check if a slug already exists
  */
 export async function slugExists(slug: string, excludeId?: string): Promise<boolean> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   let query = supabase
     .from('projects')
@@ -124,7 +130,8 @@ export async function slugExists(slug: string, excludeId?: string): Promise<bool
  * Get all existing slugs
  */
 export async function getAllSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -144,7 +151,8 @@ export async function getAllSlugs(): Promise<string[]> {
 export async function createProject(
   project: ProjectInsert
 ): Promise<Project> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -167,9 +175,15 @@ export async function createProjectWithConfig(
   project: ProjectInsert,
   config: Omit<PresentationConfigInsert, 'project_id'>
 ): Promise<{ project: Project; config: PresentationConfig }> {
-  const supabase = await createClient();
+  console.log('[DB] createProjectWithConfig - Starting');
+  console.log('[DB] Project data:', JSON.stringify(project, null, 2));
+  console.log('[DB] Config data:', JSON.stringify(config, null, 2));
+
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   // Create project first
+  console.log('[DB] Inserting project into database');
   const { data: projectData, error: projectError } = await supabase
     .from('projects')
     .insert(project as never)
@@ -177,28 +191,38 @@ export async function createProjectWithConfig(
     .single();
 
   if (projectError) {
-    console.error('Failed to create project:', projectError);
-    throw new Error('Failed to create project');
+    console.error('[DB] Failed to create project:', projectError);
+    console.error('[DB] Error details:', JSON.stringify(projectError, null, 2));
+    throw new Error(`Failed to create project: ${projectError.message}`);
   }
 
   const typedProjectData = projectData as Project;
+  console.log('[DB] Project created with ID:', typedProjectData.id);
 
   // Create presentation config
+  console.log('[DB] Inserting presentation config');
+  const configToInsert = {
+    ...config,
+    project_id: typedProjectData.id,
+  };
+  console.log('[DB] Config to insert:', JSON.stringify(configToInsert, null, 2));
+
   const { data: configData, error: configError } = await supabase
     .from('presentation_config')
-    .insert({
-      ...config,
-      project_id: typedProjectData.id,
-    } as never)
+    .insert(configToInsert as never)
     .select()
     .single();
 
   if (configError) {
-    console.error('Failed to create presentation config:', configError);
+    console.error('[DB] Failed to create presentation config:', configError);
+    console.error('[DB] Error details:', JSON.stringify(configError, null, 2));
     // Try to rollback project creation
+    console.log('[DB] Rolling back project creation');
     await supabase.from('projects').delete().eq('id', typedProjectData.id);
-    throw new Error('Failed to create presentation config');
+    throw new Error(`Failed to create presentation config: ${configError.message}`);
   }
+
+  console.log('[DB] Presentation config created successfully');
 
   return {
     project: typedProjectData,
@@ -213,7 +237,8 @@ export async function updateProject(
   id: string,
   updates: ProjectUpdate
 ): Promise<Project> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -234,7 +259,8 @@ export async function updateProject(
  * Archive a project
  */
 export async function archiveProject(id: string): Promise<Project> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -258,7 +284,8 @@ export async function archiveProject(id: string): Promise<Project> {
  * Delete a project (soft delete by setting status)
  */
 export async function deleteProject(id: string): Promise<Project> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -279,7 +306,8 @@ export async function deleteProject(id: string): Promise<Project> {
  * Permanently delete a project (hard delete)
  */
 export async function permanentlyDeleteProject(id: string): Promise<void> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { error } = await supabase
     .from('projects')
@@ -296,7 +324,8 @@ export async function permanentlyDeleteProject(id: string): Promise<void> {
  * Get presentation config for a project
  */
 export async function getPresentationConfig(projectId: string): Promise<PresentationConfig | null> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('presentation_config')
@@ -322,7 +351,8 @@ export async function updatePresentationConfig(
   projectId: string,
   updates: Partial<Omit<PresentationConfigInsert, 'project_id'>>
 ): Promise<PresentationConfig> {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('presentation_config')

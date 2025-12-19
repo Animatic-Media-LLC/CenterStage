@@ -2,12 +2,15 @@
 
 import * as React from 'react';
 import { HexColorPicker, HexColorInput } from 'react-colorful';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import FormLabel from '@mui/material/FormLabel';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils/cn';
 
 interface ColorPickerProps {
   value: string;
@@ -23,29 +26,46 @@ export function ColorPicker({
   disabled = false,
 }: ColorPickerProps) {
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <Box className={className} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
       <Popover>
         <PopoverTrigger asChild>
-          <button
-            type="button"
+          <IconButton
             disabled={disabled}
-            className={cn(
-              'h-10 w-10 rounded-md border-2 border-gray-300 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-              className
-            )}
-            style={{ backgroundColor: value }}
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 1,
+              border: 2,
+              borderColor: 'grey.300',
+              backgroundColor: value,
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                backgroundColor: value,
+              },
+              '&:disabled': {
+                cursor: 'not-allowed',
+                opacity: 0.5,
+              },
+            }}
             aria-label="Pick a color"
           />
         </PopoverTrigger>
         <PopoverContent className="w-auto p-3" align="start">
           <HexColorPicker color={value} onChange={onChange} />
-          <div className="mt-3">
-            <label
+          <Box sx={{ mt: 3 }}>
+            <FormLabel
               htmlFor="hex-input"
-              className="block text-xs font-medium text-gray-700 mb-1"
+              sx={{
+                display: 'block',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1,
+              }}
             >
               Hex Color
-            </label>
+            </FormLabel>
             <HexColorInput
               id="hex-input"
               color={value}
@@ -53,19 +73,25 @@ export function ColorPicker({
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               prefixed
             />
-          </div>
+          </Box>
         </PopoverContent>
       </Popover>
-      <div className="flex-1">
-        <input
+      <Box sx={{ flex: 1 }}>
+        <TextField
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="#000000"
+          size="small"
+          fullWidth
+          sx={{
+            '& .MuiInputBase-root': {
+              height: 40,
+            },
+          }}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

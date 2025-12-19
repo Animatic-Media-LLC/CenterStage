@@ -153,7 +153,6 @@ export default async function ProjectsPage() {
                           href={`/comment/${project.slug}`}
                           target="_blank"
                           className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
                         >
                           /comment/{project.slug}
                           <ExternalLink className="h-3 w-3" />
@@ -167,7 +166,6 @@ export default async function ProjectsPage() {
                           href={`/present/${project.slug}`}
                           target="_blank"
                           className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
                         >
                           /present/{project.slug}
                           <ExternalLink className="h-3 w-3" />
@@ -177,13 +175,13 @@ export default async function ProjectsPage() {
 
                     {/* Action Buttons */}
                     <Box sx={{ display: 'flex', gap: 1, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                      <Link href={`/admin/projects/${project.id}/edit`} style={{ flex: 1 }}>
+                      <Link href={`/admin/projects/${project.slug}/edit`} style={{ flex: 1 }}>
                         <Button variant="outline" size="sm" className="w-full">
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
                       </Link>
-                      <Link href={`/admin/projects/${project.id}/qr`}>
+                      <Link href={`/admin/projects/${project.slug}/qr`}>
                         <Button variant="outline" size="sm">
                           <QrCode className="h-4 w-4" />
                         </Button>

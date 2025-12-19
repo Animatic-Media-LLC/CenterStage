@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { Download, Copy, Check } from 'lucide-react';
 import { generateQRCode, generateQRCodeSVG, downloadDataUrl, downloadSVG } from '@/lib/utils/qr-code';
-import { toast } from 'sonner';
+import { useSnackbar } from '@/components/providers/snackbar-provider';
 
 interface QRCodeDisplayProps {
   project: {
@@ -19,6 +19,7 @@ interface QRCodeDisplayProps {
 }
 
 export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
+  const { success, error: showError } = useSnackbar();
   const [commentQR, setCommentQR] = useState<string>('');
   const [presentQR, setPresentQR] = useState<string>('');
   const [darkColor, setDarkColor] = useState('#000000');
@@ -50,7 +51,7 @@ export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
       setPresentQR(presentDataUrl);
     } catch (error) {
       console.error('Error generating QR codes:', error);
-      toast.error('Failed to generate QR codes');
+      showError('Failed to generate QR codes');
     } finally {
       setIsGenerating(false);
     }
@@ -70,10 +71,10 @@ export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
       const dataUrl = await generateQRCode(url, options);
       const filename = `${project.slug}-${type}-qr.png`;
       downloadDataUrl(dataUrl, filename);
-      toast.success('QR code downloaded');
+      success('QR code downloaded');
     } catch (error) {
       console.error('Error downloading PNG:', error);
-      toast.error('Failed to download QR code');
+      showError('Failed to download QR code');
     }
   };
 
@@ -91,17 +92,17 @@ export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
       const svg = await generateQRCodeSVG(url, options);
       const filename = `${project.slug}-${type}-qr.svg`;
       downloadSVG(svg, filename);
-      toast.success('QR code downloaded');
+      success('QR code downloaded');
     } catch (error) {
       console.error('Error downloading SVG:', error);
-      toast.error('Failed to download QR code');
+      showError('Failed to download QR code');
     }
   };
 
   const handleCopyUrl = (url: string) => {
     navigator.clipboard.writeText(url);
     setCopiedUrl(url);
-    toast.success('URL copied to clipboard');
+    success('URL copied to clipboard');
     setTimeout(() => setCopiedUrl(null), 2000);
   };
 
