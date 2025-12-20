@@ -147,7 +147,7 @@ export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
           <div className="flex flex-col md:flex-row gap-6">
             {/* QR Code Preview */}
             <div className="flex-shrink-0">
-              {isGenerating ? (
+              {isGenerating || !commentQR ? (
                 <div className="w-64 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                   <p className="text-gray-500">Generating...</p>
                 </div>
@@ -221,7 +221,7 @@ export function QRCodeDisplay({ project }: QRCodeDisplayProps) {
           <div className="flex flex-col md:flex-row gap-6">
             {/* QR Code Preview */}
             <div className="flex-shrink-0">
-              {isGenerating ? (
+              {isGenerating || !presentQR ? (
                 <div className="w-64 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                   <p className="text-gray-500">Generating...</p>
                 </div>

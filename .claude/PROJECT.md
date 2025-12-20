@@ -142,7 +142,7 @@ This project will consist of 4 separate endpoints, an administration portal will
     - Quick links to Review page and Presentation page
     - Edit/Archive/Delete buttons
 
-#### Project Creation/Edit (`/admin/projects/new`, `/admin/projects/[id]/edit`)
+#### Project Creation/Edit (`/admin/projects/new`, `/admin/projects/[slug]/edit`)
 - **Features:**
   - **Project Details Section:**
     - Project name (required)
@@ -178,7 +178,7 @@ This project will consist of 4 separate endpoints, an administration portal will
     - Archive project button (for edit page)
     - Delete project button (with confirmation modal)
 
-#### QR Code Management (`/admin/projects/[id]/qr`)
+#### QR Code Management (`/admin/projects/[slug]/qr`)
 - **Features:**
   - Large QR code preview
   - Download in multiple formats:
@@ -439,7 +439,7 @@ Next.js App Router Structure:
     /dashboard/page.tsx
     /projects
       /new/page.tsx
-      /[id]
+      /[slug]
         /edit/page.tsx
         /qr/page.tsx
     layout.tsx (with auth protection)
@@ -456,9 +456,9 @@ Next.js App Router Structure:
   /api
     /auth/[...nextauth]/route.ts (NextAuth handlers)
     /projects/route.ts
-    /projects/[id]/route.ts
+    /projects/[slug]/route.ts
     /submissions/route.ts
-    /submissions/[id]/route.ts
+    /submissions/[slug]/route.ts
     /qr-code/route.ts
 ```
 
