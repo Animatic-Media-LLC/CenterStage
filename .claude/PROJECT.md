@@ -519,7 +519,7 @@ Next.js App Router Structure:
   - [x] Transition timing slider
   - [x] Animation style selector
   - [x] Live preview component
-- [x] Build project edit page (`/admin/projects/[id]/edit`)
+- [x] Build project edit page (`/admin/projects/[slub]/edit`)
   - [x] Load existing project data
   - [x] Update functionality
   - [x] Archive project feature
@@ -530,7 +530,7 @@ Next.js App Router Structure:
   - [x] Quick action buttons
 - [x] Implement QR code generation
   - [x] API route for QR code creation
-  - [x] QR code display page (`/admin/projects/[id]/qr`)
+  - [x] QR code display page (`/admin/projects/[slub]/qr`)
   - [x] Download functionality (PNG, SVG, PDF)
   - [x] Store QR codes in Supabase Storage
 - [x] Add copy-to-clipboard for URLs
@@ -612,9 +612,9 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
   - Use MUI `Chip` for status badges
 - [x] Update `src/app/admin/projects/new/page.tsx`
   - Migrate `ProjectForm` to MUI components
-- [x] Update `src/app/admin/projects/[id]/edit/page.tsx`
+- [x] Update `src/app/admin/projects/[slub]/edit/page.tsx`
   - Migrate `ProjectEditForm` to MUI components
-- [x] Update `src/app/admin/projects/[id]/qr/page.tsx`
+- [x] Update `src/app/admin/projects/[slub]/qr/page.tsx`
   - Use MUI layout components
 
 **5. Update Form Components**

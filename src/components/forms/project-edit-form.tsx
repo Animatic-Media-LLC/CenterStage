@@ -15,39 +15,59 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { ColorPicker } from '@/components/ui/color-picker';
 import {
-  createProjectSchema,
+  updateProjectSchema,
   presentationConfigSchema,
-  type CreateProjectInput,
+  type UpdateProjectInput,
   type PresentationConfigInput,
 } from '@/lib/validations/project';
 import { slugify, isValidSlug } from '@/lib/utils/slugify';
 import { AVAILABLE_FONTS, DEFAULT_FONT_FAMILY, type FontFamily } from '@/lib/constants/fonts';
 import { FontPreview } from '@/components/ui/font-preview';
 
-interface ProjectFormProps {
+interface ProjectEditFormProps {
+  project: {
+    id: string;
+    name: string;
+    client_name: string;
+    slug: string;
+  };
+  presentationConfig: {
+    font_family: string;
+    font_size: number;
+    text_color: string;
+    outline_color: string;
+    background_color: string;
+    transition_duration: number;
+    animation_style: string;
+    layout_template: string;
+  } | null;
   existingSlugs: string[];
 }
 
-export function ProjectForm({ existingSlugs }: ProjectFormProps) {
+export function ProjectEditForm({ project, presentationConfig, existingSlugs }: ProjectEditFormProps) {
   const router = useRouter();
   const { success, error: showError } = useSnackbar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [projectName, setProjectName] = useState('');
-  const [clientName, setClientName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [projectName, setProjectName] = useState(project.name);
+  const [clientName, setClientName] = useState(project.client_name);
+  const [slug, setSlug] = useState(project.slug);
   const [slugTouched, setSlugTouched] = useState(false);
 
-  // Presentation config state
-  const [fontFamily, setFontFamily] = useState<FontFamily>(DEFAULT_FONT_FAMILY);
-  const [fontSize, setFontSize] = useState(24);
-  const [textColor, setTextColor] = useState('#15598a');
-  const [outlineColor, setOutlineColor] = useState('#000000');
-  const [backgroundColor, setBackgroundColor] = useState('#e0ecf6');
-  const [transitionDuration, setTransitionDuration] = useState(5);
-  const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>('fade');
-  const [layoutTemplate, setLayoutTemplate] = useState('standard');
+  // Presentation config state - initialize with existing values
+  const [fontFamily, setFontFamily] = useState<FontFamily>(
+    (presentationConfig?.font_family as FontFamily) || DEFAULT_FONT_FAMILY
+  );
+  const [fontSize, setFontSize] = useState(presentationConfig?.font_size || 24);
+  const [textColor, setTextColor] = useState(presentationConfig?.text_color || '#15598a');
+  const [outlineColor, setOutlineColor] = useState(presentationConfig?.outline_color || '#000000');
+  const [backgroundColor, setBackgroundColor] = useState(presentationConfig?.background_color || '#e0ecf6');
+  const [transitionDuration, setTransitionDuration] = useState(presentationConfig?.transition_duration || 5);
+  const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>(
+    (presentationConfig?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade'
+  );
+  const [layoutTemplate, setLayoutTemplate] = useState(presentationConfig?.layout_template || 'standard');
 
   // Auto-generate slug when project name changes (if user hasn't manually edited it)
   const handleProjectNameChange = (value: string) => {
@@ -70,14 +90,14 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
     try {
       // Prepare project data
-      const projectData: CreateProjectInput = {
+      const projectData: UpdateProjectInput = {
         name: projectName,
         client_name: clientName,
         slug: slug,
       };
 
       // Prepare presentation config data
-      const presentationConfig: PresentationConfigInput = {
+      const presentationConfigData: PresentationConfigInput = {
         font_family: fontFamily,
         font_size: fontSize,
         text_color: textColor,
@@ -89,10 +109,10 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
       };
 
       // Validate project data
-      const projectValidation = createProjectSchema.safeParse(projectData);
+      const projectValidation = updateProjectSchema.safeParse(projectData);
       if (!projectValidation.success) {
         const fieldErrors: Record<string, string> = {};
-        projectValidation.error.issues.forEach((issue) => {
+        projectValidation.error.issues.forEach((issue: z.ZodIssue) => {
           const path = issue.path.join('.');
           fieldErrors[path] = issue.message;
         });
@@ -102,10 +122,10 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
       }
 
       // Validate presentation config
-      const configValidation = presentationConfigSchema.safeParse(presentationConfig);
+      const configValidation = presentationConfigSchema.safeParse(presentationConfigData);
       if (!configValidation.success) {
         const fieldErrors: Record<string, string> = {};
-        configValidation.error.issues.forEach((issue) => {
+        configValidation.error.issues.forEach((issue: z.ZodIssue) => {
           const path = issue.path.join('.');
           fieldErrors[path] = issue.message;
         });
@@ -115,14 +135,14 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
       }
 
       // Submit to API
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      const response = await fetch(`/api/projects/${project.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           project: projectData,
-          presentationConfig: presentationConfig,
+          presentationConfig: presentationConfigData,
         }),
       });
 
@@ -136,17 +156,17 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
           });
           setErrors(fieldErrors);
         } else {
-          showError(errorData.error || 'Failed to create project');
+          showError(errorData.error || 'Failed to update project');
         }
         setIsSubmitting(false);
         return;
       }
 
       const result = await response.json();
-      success('Project created successfully!');
-      router.push(`/admin/projects/${result.project.id}`);
+      success('Project updated successfully!');
+      router.push(`/admin/projects/${result.project.slug}/edit`);
     } catch (error) {
-      console.error('Create project error:', error);
+      console.error('Update project error:', error);
       showError('An unexpected error occurred');
       setIsSubmitting(false);
     }
@@ -339,7 +359,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create Project'}
+          {isSubmitting ? 'Updating...' : 'Update Project'}
         </Button>
       </div>
     </form>
