@@ -4,18 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useSnackbar } from '@/components/providers/snackbar-provider';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import FormHelperText from '@mui/material/FormHelperText';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
-  SelectContent,
   SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -28,6 +22,7 @@ import {
 } from '@/lib/validations/project';
 import { slugify, isValidSlug } from '@/lib/utils/slugify';
 import { AVAILABLE_FONTS, DEFAULT_FONT_FAMILY, type FontFamily } from '@/lib/constants/fonts';
+import { FontPreview } from '@/components/ui/font-preview';
 
 interface ProjectFormProps {
   existingSlugs: string[];
@@ -47,9 +42,9 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
   // Presentation config state
   const [fontFamily, setFontFamily] = useState<FontFamily>(DEFAULT_FONT_FAMILY);
   const [fontSize, setFontSize] = useState(24);
-  const [textColor, setTextColor] = useState('#FFFFFF');
+  const [textColor, setTextColor] = useState('#15598a');
   const [outlineColor, setOutlineColor] = useState('#000000');
-  const [backgroundColor, setBackgroundColor] = useState('#1a1a1a');
+  const [backgroundColor, setBackgroundColor] = useState('#e0ecf6');
   const [transitionDuration, setTransitionDuration] = useState(5);
   const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>('fade');
   const [layoutTemplate, setLayoutTemplate] = useState('standard');
@@ -149,7 +144,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
       const result = await response.json();
       success('Project created successfully!');
-      router.push(`/admin/projects/${result.project.slug}/edit`);
+      router.push(`/admin/projects/${result.project.id}`);
     } catch (error) {
       console.error('Create project error:', error);
       showError('An unexpected error occurred');
@@ -158,66 +153,64 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Project Details Card */}
       <Card>
         <CardHeader>
           <CardTitle>Project Details</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box>
-              <Label htmlFor="name">Project Name</Label>
-              <Input
-                id="name"
-                value={projectName}
-                onChange={(e) => handleProjectNameChange(e.target.value)}
-                placeholder="e.g., Summer Campaign 2024"
-                error={!!errors.name}
-              />
-              {errors.name && (
-                <FormHelperText error>{errors.name}</FormHelperText>
-              )}
-            </Box>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="name">Project Name</Label>
+            <Input
+              id="name"
+              value={projectName}
+              onChange={(e) => handleProjectNameChange(e.target.value)}
+              placeholder="e.g., Summer Campaign 2024"
+              className={errors.name ? 'border-red-500' : ''}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+            )}
+          </div>
 
-            <Box>
-              <Label htmlFor="client_name">Client Name</Label>
-              <Input
-                id="client_name"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="e.g., Acme Corporation"
-                error={!!errors.client_name}
-              />
-              {errors.client_name && (
-                <FormHelperText error>{errors.client_name}</FormHelperText>
-              )}
-            </Box>
+          <div>
+            <Label htmlFor="client_name">Client Name</Label>
+            <Input
+              id="client_name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="e.g., Acme Corporation"
+              className={errors.client_name ? 'border-red-500' : ''}
+            />
+            {errors.client_name && (
+              <p className="text-sm text-red-600 mt-1">{errors.client_name}</p>
+            )}
+          </div>
 
-            <Box>
-              <Label htmlFor="slug">
-                Slug
-                <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                  (URL-friendly identifier)
-                </Typography>
-              </Label>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={(e) => handleSlugChange(e.target.value)}
-                placeholder="e.g., summer-campaign-2024"
-                error={!!errors.slug}
-              />
-              {errors.slug && (
-                <FormHelperText error>{errors.slug}</FormHelperText>
-              )}
-              {slug && isValidSlug(slug) && !errors.slug && (
-                <FormHelperText>
-                  Preview URL: /submit/{slug}
-                </FormHelperText>
-              )}
-            </Box>
-          </Box>
+          <div>
+            <Label htmlFor="slug">
+              Slug
+              <span className="text-gray-500 text-xs ml-2">
+                (URL-friendly identifier)
+              </span>
+            </Label>
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="e.g., summer-campaign-2024"
+              className={errors.slug ? 'border-red-500' : ''}
+            />
+            {errors.slug && (
+              <p className="text-sm text-red-600 mt-1">{errors.slug}</p>
+            )}
+            {slug && isValidSlug(slug) && !errors.slug && (
+              <p className="text-sm text-gray-500 mt-1">
+                Preview URL: /submit/{slug}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -226,109 +219,92 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
         <CardHeader>
           <CardTitle>Presentation Configuration</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-            gap: 3
-          }}>
-            <Box>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="font_family">Font Family</Label>
               <Select
+                id="font_family"
                 value={fontFamily}
                 onValueChange={(value) => setFontFamily(value as FontFamily)}
               >
-                <SelectTrigger id="font_family">
-                  <SelectValue placeholder="Select a font" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_FONTS.map((font) => (
-                    <SelectItem key={font} value={font}>
-                      {font}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+                {AVAILABLE_FONTS.map((font) => (
+                  <SelectItem key={font} value={font}>
+                    {font}
+                  </SelectItem>
+                ))}
               </Select>
-            </Box>
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="font_size">Font Size: {fontSize}px</Label>
-              <Box sx={{ mt: 2 }}>
-                <Slider
-                  id="font_size"
-                  min={16}
-                  max={72}
-                  step={1}
-                  value={[fontSize]}
-                  onValueChange={(value) => setFontSize(value[0])}
-                />
-              </Box>
-            </Box>
+              <Slider
+                id="font_size"
+                min={16}
+                max={72}
+                step={1}
+                value={[fontSize]}
+                onValueChange={(value) => setFontSize(value[0])}
+                className="mt-2"
+              />
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="text_color">Text Color</Label>
-              <Box sx={{ mt: 2 }}>
-                <ColorPicker
-                  value={textColor}
-                  onChange={setTextColor}
-                />
-              </Box>
-            </Box>
+              <ColorPicker
+                value={textColor}
+                onChange={setTextColor}
+                className="mt-2"
+              />
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="outline_color">Outline Color</Label>
-              <Box sx={{ mt: 2 }}>
-                <ColorPicker
-                  value={outlineColor}
-                  onChange={setOutlineColor}
-                />
-              </Box>
-            </Box>
+              <ColorPicker
+                value={outlineColor}
+                onChange={setOutlineColor}
+                className="mt-2"
+              />
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="background_color">Background Color</Label>
-              <Box sx={{ mt: 2 }}>
-                <ColorPicker
-                  value={backgroundColor}
-                  onChange={setBackgroundColor}
-                />
-              </Box>
-            </Box>
+              <ColorPicker
+                value={backgroundColor}
+                onChange={setBackgroundColor}
+                className="mt-2"
+              />
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="transition_duration">Transition Duration: {transitionDuration}s</Label>
-              <Box sx={{ mt: 2 }}>
-                <Slider
-                  id="transition_duration"
-                  min={1}
-                  max={30}
-                  step={1}
-                  value={[transitionDuration]}
-                  onValueChange={(value) => setTransitionDuration(value[0])}
-                />
-              </Box>
-            </Box>
+              <Slider
+                id="transition_duration"
+                min={1}
+                max={30}
+                step={1}
+                value={[transitionDuration]}
+                onValueChange={(value) => setTransitionDuration(value[0])}
+                className="mt-2"
+              />
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="animation_style">Animation Style</Label>
               <Select
+                id="animation_style"
                 value={animationStyle}
                 onValueChange={(value) =>
                   setAnimationStyle(value as 'fade' | 'slide' | 'zoom')
                 }
               >
-                <SelectTrigger id="animation_style">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fade">Fade</SelectItem>
-                  <SelectItem value="slide">Slide</SelectItem>
-                  <SelectItem value="zoom">Zoom</SelectItem>
-                </SelectContent>
+                <SelectItem value="fade">Fade</SelectItem>
+                <SelectItem value="slide">Slide</SelectItem>
+                <SelectItem value="zoom">Zoom</SelectItem>
               </Select>
-            </Box>
+            </div>
 
-            <Box>
+            <div>
               <Label htmlFor="layout_template">Layout Template</Label>
               <Input
                 id="layout_template"
@@ -336,13 +312,24 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
                 onChange={(e) => setLayoutTemplate(e.target.value)}
                 placeholder="standard"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
+
+          {/* Font Preview */}
+          <div className="mt-6">
+            <FontPreview
+              fontFamily={fontFamily}
+              fontSize={fontSize}
+              textColor={textColor}
+              outlineColor={outlineColor}
+              backgroundColor={backgroundColor}
+            />
+          </div>
         </CardContent>
       </Card>
 
       {/* Form Actions */}
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+      <div className="flex gap-4 justify-end">
         <Button
           type="button"
           variant="outline"
@@ -354,7 +341,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Creating...' : 'Create Project'}
         </Button>
-      </Box>
-    </Box>
+      </div>
+    </form>
   );
 }

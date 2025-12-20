@@ -175,11 +175,6 @@ export async function createProjectWithConfig(
   project: ProjectInsert,
   config: Omit<PresentationConfigInsert, 'project_id'>
 ): Promise<{ project: Project; config: PresentationConfig }> {
-  console.log('[DB] createProjectWithConfig - Starting');
-  console.log('[DB] Project data:', JSON.stringify(project, null, 2));
-  console.log('[DB] Config data:', JSON.stringify(config, null, 2));
-
-  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
   const supabase = createAdminClient();
 
   // Create project first

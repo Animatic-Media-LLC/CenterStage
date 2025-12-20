@@ -9,9 +9,9 @@ import { QRCodeDisplay } from '@/components/admin/qr-code-display';
 import { ArrowLeft } from 'lucide-react';
 
 interface QRCodePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -25,10 +25,8 @@ export default async function QRCodePage({ params }: QRCodePageProps) {
     redirect('/admin/login');
   }
 
-  // Await params in Next.js 15+
+  // Await params and fetch project data
   const { slug } = await params;
-
-  // Fetch project data
   const project = await getProjectBySlug(slug);
 
   if (!project || project.created_by !== session.user.id) {

@@ -7,9 +7,9 @@ import { ProjectEditForm } from '@/components/forms/project-edit-form';
 import { ArrowLeft } from 'lucide-react';
 
 interface EditProjectPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -23,17 +23,15 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     redirect('/admin/login');
   }
 
-  // Await params in Next.js 15+
+  // Await params and fetch project data
   const { slug } = await params;
-
-  // Fetch project data
   const project = await getProjectBySlug(slug);
 
   if (!project || project.created_by !== session.user.id) {
     redirect('/admin/projects');
   }
 
-  // Fetch presentation config
+  // Fetch presentation config (using project.id since it's the database key)
   const presentationConfig = await getPresentationConfig(project.id);
 
   // Get existing slugs (excluding current project's slug)

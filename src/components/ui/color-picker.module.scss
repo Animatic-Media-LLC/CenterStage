@@ -1,0 +1,93 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.colorButtonWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.colorButton {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 0.375rem;
+  border: 2px solid #d1d5db;
+  transition: all 0.2s;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3b82f6;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.inputWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  height: 2.5rem;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.popoverContent {
+  width: auto;
+  padding: 0.75rem;
+}
+
+.hexInputContainer {
+  margin-top: 0.75rem;
+}
+
+.hexInputLabel {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.hexInput {
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+}

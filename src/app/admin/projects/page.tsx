@@ -183,7 +183,7 @@ export default async function ProjectsPage() {
                       </Link>
                       <Link href={`/admin/projects/${project.slug}/qr`}>
                         <Button variant="outline" size="sm">
-                          <QrCode className="h-4 w-4" />
+                          <QrCode className="h-6 w-6" />
                         </Button>
                       </Link>
                     </Box>
