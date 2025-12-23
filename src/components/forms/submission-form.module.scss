@@ -1,0 +1,99 @@
+.successContainer {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.successIcon {
+  font-size: 80px;
+  color: var(--success-color, #4caf50);
+  margin-bottom: 1rem;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.fieldContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.errorText {
+  margin-top: 0.25rem;
+  display: block;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.photoPreviewContainer {
+  margin-top: 1rem;
+}
+
+.photoPreview {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.removePhotoButton {
+  margin-top: 0.5rem;
+}
+
+.uploadBox {
+  margin-top: 1rem;
+  border: 2px dashed #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+
+  &.error {
+    border-color: #ef4444;
+  }
+}
+
+.uploadIcon {
+  margin: 0 auto 0.5rem;
+  color: #9ca3af;
+}
+
+.uploadText {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.uploadHint {
+  margin-top: 0.5rem;
+  display: block;
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.submitButton {
+  width: 100%;
+}
+
+.buttonIcon {
+  margin-right: 0.5rem;
+}
+
+.submissionCard {
+  background-color: rgba(255,255,255,0.75) !important;
+}

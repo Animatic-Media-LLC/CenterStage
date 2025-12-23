@@ -23,6 +23,9 @@ import {
 import { slugify, isValidSlug } from '@/lib/utils/slugify';
 import { AVAILABLE_FONTS, DEFAULT_FONT_FAMILY, type FontFamily } from '@/lib/constants/fonts';
 import { FontPreview } from '@/components/ui/font-preview';
+import { uploadBackgroundImage } from '@/lib/utils/file-upload';
+import { CloudUpload } from 'lucide-react';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface ProjectEditFormProps {
   project: {
@@ -37,6 +40,7 @@ interface ProjectEditFormProps {
     text_color: string;
     outline_color: string;
     background_color: string;
+    background_image_url: string | null;
     transition_duration: number;
     animation_style: string;
     layout_template: string;
@@ -63,6 +67,10 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
   const [textColor, setTextColor] = useState(presentationConfig?.text_color || '#15598a');
   const [outlineColor, setOutlineColor] = useState(presentationConfig?.outline_color || '#000000');
   const [backgroundColor, setBackgroundColor] = useState(presentationConfig?.background_color || '#e0ecf6');
+  const [existingBackgroundImageUrl, setExistingBackgroundImageUrl] = useState(presentationConfig?.background_image_url || null);
+  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null);
+  const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [transitionDuration, setTransitionDuration] = useState(presentationConfig?.transition_duration || 5);
   const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>(
     (presentationConfig?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade'
@@ -83,12 +91,67 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
     setSlug(value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'));
   };
 
+  // Handle background image selection
+  const handleBackgroundImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setErrors({ ...errors, background_image_url: 'Background image must be less than 5MB' });
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'];
+    if (!allowedTypes.includes(file.type)) {
+      setErrors({ ...errors, background_image_url: 'Only JPEG, PNG, WebP, and HEIC images are allowed' });
+      return;
+    }
+
+    setBackgroundImageFile(file);
+    setErrors({ ...errors, background_image_url: '' });
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setBackgroundImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Remove background image
+  const handleRemoveBackgroundImage = () => {
+    setBackgroundImageFile(null);
+    setBackgroundImagePreview(null);
+    setExistingBackgroundImageUrl(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
 
     try {
+      let backgroundImageUrl = existingBackgroundImageUrl || '';
+
+      // Upload new background image if one was selected
+      if (backgroundImageFile) {
+        setIsUploadingBackground(true);
+        try {
+          const result = await uploadBackgroundImage(backgroundImageFile, slug);
+          backgroundImageUrl = result.url;
+        } catch (uploadError) {
+          const errorMessage = uploadError instanceof Error ? uploadError.message : 'Failed to upload background image';
+          setErrors({ background_image_url: errorMessage });
+          setIsSubmitting(false);
+          setIsUploadingBackground(false);
+          return;
+        }
+        setIsUploadingBackground(false);
+      }
+
       // Prepare project data
       const projectData: UpdateProjectInput = {
         name: projectName,
@@ -103,6 +166,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
         text_color: textColor,
         outline_color: outlineColor,
         background_color: backgroundColor,
+        background_image_url: backgroundImageUrl,
         transition_duration: transitionDuration,
         animation_style: animationStyle,
         layout_template: layoutTemplate,
@@ -164,7 +228,12 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
       const result = await response.json();
       success('Project updated successfully!');
-      router.push(`/admin/projects/${result.project.slug}/edit`);
+      setIsSubmitting(false);
+
+      // Only redirect if slug changed
+      if (result.project.slug !== project.slug) {
+        router.push(`/admin/projects/${result.project.slug}/edit`);
+      }
     } catch (error) {
       console.error('Update project error:', error);
       showError('An unexpected error occurred');
@@ -295,7 +364,60 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                 className="mt-2"
               />
             </div>
+          </div>
 
+          {/* Background Image Upload */}
+          <div className="mt-4">
+            <Label>Background Image (Optional)</Label>
+            <p className="text-sm text-gray-500 mb-2">
+              Upload a background image for the presentation page (Max 5MB)
+            </p>
+
+            {backgroundImagePreview || existingBackgroundImageUrl ? (
+              <div className="space-y-2">
+                <img
+                  src={backgroundImagePreview || existingBackgroundImageUrl || ''}
+                  alt="Background preview"
+                  className="w-full max-h-64 object-cover rounded-lg border"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRemoveBackgroundImage}
+                  disabled={isSubmitting}
+                >
+                  Remove Background Image
+                </Button>
+              </div>
+            ) : (
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:bg-gray-50 ${
+                  errors.background_image_url ? 'border-red-500' : 'border-gray-300'
+                }`}
+                onClick={() => document.getElementById('background-image-input-edit')?.click()}
+              >
+                <input
+                  id="background-image-input-edit"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/heic"
+                  onChange={handleBackgroundImageChange}
+                  disabled={isSubmitting}
+                  className="hidden"
+                />
+                <CloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
+                <p className="text-gray-600">Click to upload background image</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  JPEG, PNG, WebP, HEIC (Max 5MB)
+                </p>
+              </div>
+            )}
+
+            {errors.background_image_url && (
+              <p className="text-sm text-red-600 mt-1">{errors.background_image_url}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <Label htmlFor="transition_duration">Transition Duration: {transitionDuration}s</Label>
               <Slider
@@ -354,12 +476,21 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
           type="button"
           variant="outline"
           onClick={() => router.back()}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploadingBackground}
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Updating...' : 'Update Project'}
+        <Button type="submit" disabled={isSubmitting || isUploadingBackground}>
+          {isUploadingBackground ? (
+            <>
+              <CircularProgress size={20} className="mr-2" />
+              Uploading Background...
+            </>
+          ) : isSubmitting ? (
+            'Updating...'
+          ) : (
+            'Update Project'
+          )}
         </Button>
       </div>
     </form>

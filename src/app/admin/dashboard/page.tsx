@@ -4,9 +4,12 @@ import { auth } from '@/auth';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FolderKanban, FileText, CheckCircle, Clock } from 'lucide-react';
+import { FolderKanban, FileText, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import { getDashboardStats, getRecentPendingSubmissions } from '@/lib/db/submissions';
+import { formatDistanceToNow } from 'date-fns';
 
 /**
  * Admin Dashboard Page
@@ -18,6 +21,12 @@ export default async function DashboardPage() {
   if (!session?.user) {
     redirect('/admin/login');
   }
+
+  // Fetch dashboard statistics
+  const stats = await getDashboardStats(session.user.id);
+
+  // Fetch recent pending submissions
+  const recentSubmissions = await getRecentPendingSubmissions(session.user.id, 10);
 
   return (
     <AdminLayout userName={session.user.name || undefined}>
@@ -65,7 +74,7 @@ export default async function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <Typography variant="h4" component="div" fontWeight="bold">
-                  0
+                  {stats.totalProjects}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                   All time
@@ -82,7 +91,7 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Typography variant="h4" component="div" fontWeight="bold">
-                0
+                {stats.activeProjects}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                 Currently active
@@ -99,7 +108,7 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Typography variant="h4" component="div" fontWeight="bold">
-                0
+                {stats.pendingSubmissions}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                 Awaiting review
@@ -116,7 +125,7 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Typography variant="h4" component="div" fontWeight="bold">
-                0
+                {stats.approvedSubmissions}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                 Ready to present
@@ -127,13 +136,81 @@ export default async function DashboardPage() {
 
         {/* Recent Activity */}
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Pending Submissions</CardTitle>
+            {recentSubmissions.length > 0 && (
+              <Typography variant="caption" color="text.secondary">
+                Showing {recentSubmissions.length} most recent
+              </Typography>
+            )}
           </CardHeader>
           <CardContent>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              No recent activity to display.
-            </Typography>
+            {recentSubmissions.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                No pending submissions to display.
+              </Typography>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {recentSubmissions.map((submission: any) => (
+                  <Box
+                    key={submission.id}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      p: 2,
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                      },
+                    }}
+                  >
+                    <Box sx={{ flex: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {submission.full_name}
+                        </Typography>
+                        {submission.social_handle && (
+                          <Typography variant="caption" color="text.secondary">
+                            {submission.social_handle}
+                          </Typography>
+                        )}
+                        <Chip
+                          label={submission.projects.name}
+                          size="small"
+                          sx={{ ml: 1 }}
+                          variant="outlined"
+                        />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
+                        {submission.comment}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                        {formatDistanceToNow(new Date(submission.created_at), { addSuffix: true })}
+                      </Typography>
+                    </Box>
+                    <Link href={`/admin/projects/${submission.projects.slug}/review`}>
+                      <Button variant="ghost" size="sm">
+                        Review
+                        <ArrowRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </Link>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </CardContent>
         </Card>
       </Box>
