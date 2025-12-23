@@ -78,6 +78,11 @@ export const presentationConfigSchema = z.object({
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Background color must be a valid hex color (e.g., #1a1a1a)')
     .default('#1a1a1a'),
 
+  background_image_url: z.string()
+    .url('Background image must be a valid URL')
+    .optional()
+    .or(z.literal('')),
+
   transition_duration: z.number()
     .int('Transition duration must be an integer')
     .min(1, 'Transition duration must be at least 1 second')
