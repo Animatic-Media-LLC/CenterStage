@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import { Search, Calendar } from 'lucide-react';
 import { SubmissionCard } from './submission-card';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -14,6 +20,8 @@ import type { Database } from '@/types/database.types';
 type Submission = Database['public']['Tables']['submissions']['Row'];
 type SubmissionStatus = 'pending' | 'approved' | 'declined' | 'deleted' | 'archived';
 
+type DateFilter = 'all' | 'today' | 'week' | 'month' | 'custom';
+
 interface ReviewInterfaceProps {
   projectId: string;
   projectSlug: string;
@@ -24,6 +32,10 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
 
   // Fetch submissions for the active tab
   const fetchSubmissions = async (status: SubmissionStatus) => {
@@ -133,6 +145,84 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
     return submissions.length;
   };
 
+  // Helper function to check if a date is within the filter range
+  const isDateInRange = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    switch (dateFilter) {
+      case 'all':
+        return true;
+
+      case 'today': {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return date >= today;
+      }
+
+      case 'week': {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date >= weekAgo;
+      }
+
+      case 'month': {
+        const monthAgo = new Date(now);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return date >= monthAgo;
+      }
+
+      case 'custom': {
+        if (!customStartDate && !customEndDate) return true;
+
+        if (customStartDate && customEndDate) {
+          const start = new Date(customStartDate);
+          const end = new Date(customEndDate);
+          end.setHours(23, 59, 59, 999); // Include the entire end date
+          return date >= start && date <= end;
+        }
+
+        if (customStartDate) {
+          const start = new Date(customStartDate);
+          return date >= start;
+        }
+
+        if (customEndDate) {
+          const end = new Date(customEndDate);
+          end.setHours(23, 59, 59, 999);
+          return date <= end;
+        }
+
+        return true;
+      }
+
+      default:
+        return true;
+    }
+  };
+
+  // Filter submissions based on search query and date range
+  const filteredSubmissions = useMemo(() => {
+    let filtered = submissions;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((submission) => {
+        const nameMatch = submission.full_name?.toLowerCase().includes(query);
+        const handleMatch = submission.social_handle?.toLowerCase().includes(query);
+        const commentMatch = submission.comment?.toLowerCase().includes(query);
+        return nameMatch || handleMatch || commentMatch;
+      });
+    }
+
+    // Apply date filter
+    filtered = filtered.filter((submission) =>
+      isDateInRange(submission.created_at)
+    );
+
+    return filtered;
+  }, [submissions, searchQuery, dateFilter, customStartDate, customEndDate]);
+
   return (
     <div>
       {error && (
@@ -140,6 +230,71 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           {error}
         </Alert>
       )}
+
+      {/* Search and Filter Bar */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {/* Search */}
+        <Box sx={{ flex: 1, minWidth: 250 }}>
+          <TextField
+            fullWidth
+            placeholder="Search by name, handle, or comment..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+          />
+        </Box>
+
+        {/* Date Filter */}
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <Select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+            displayEmpty
+            startAdornment={
+              <InputAdornment position="start">
+                <Calendar className="h-4 w-4 text-gray-400" />
+              </InputAdornment>
+            }
+          >
+            <MenuItem value="all">All Time</MenuItem>
+            <MenuItem value="today">Today</MenuItem>
+            <MenuItem value="week">Last 7 Days</MenuItem>
+            <MenuItem value="month">Last 30 Days</MenuItem>
+            <MenuItem value="custom">Custom Range</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* Custom Date Range */}
+        {dateFilter === 'custom' && (
+          <>
+            <TextField
+              type="date"
+              size="small"
+              label="Start Date"
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 150 }}
+            />
+            <TextField
+              type="date"
+              size="small"
+              label="End Date"
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 150 }}
+            />
+          </>
+        )}
+      </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs
@@ -227,9 +382,18 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
             {activeTab === 'deleted' && 'Deleted submissions will appear here.'}
           </Typography>
         </Box>
+      ) : filteredSubmissions.length === 0 ? (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            No matches found
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Try adjusting your search query
+          </Typography>
+        </Box>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {submissions.map((submission) => (
+          {filteredSubmissions.map((submission) => (
             <SubmissionCard
               key={submission.id}
               submission={submission}
