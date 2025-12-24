@@ -83,6 +83,9 @@ export const presentationConfigSchema = z.object({
     .optional()
     .or(z.literal('')),
 
+  allow_video_uploads: z.boolean()
+    .default(true),
+
   transition_duration: z.number()
     .int('Transition duration must be an integer')
     .min(1, 'Transition duration must be at least 1 second')

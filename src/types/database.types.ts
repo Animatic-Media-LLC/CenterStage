@@ -98,6 +98,7 @@ export interface Database {
           outline_color: string
           background_color: string
           background_image_url: string | null
+          allow_video_uploads: boolean
           transition_duration: number
           animation_style: 'fade' | 'slide' | 'zoom'
           layout_template: string
@@ -113,6 +114,7 @@ export interface Database {
           outline_color?: string
           background_color?: string
           background_image_url?: string | null
+          allow_video_uploads?: boolean
           transition_duration?: number
           animation_style?: 'fade' | 'slide' | 'zoom'
           layout_template?: string
@@ -128,6 +130,7 @@ export interface Database {
           outline_color?: string
           background_color?: string
           background_image_url?: string | null
+          allow_video_uploads?: boolean
           transition_duration?: number
           animation_style?: 'fade' | 'slide' | 'zoom'
           layout_template?: string

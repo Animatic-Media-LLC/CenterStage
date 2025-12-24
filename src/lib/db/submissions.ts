@@ -289,3 +289,36 @@ export async function getRecentPendingSubmissions(userId: string, limit: number 
 
   return data;
 }
+
+/**
+ * Get pending submission counts for multiple projects (admin only)
+ * Returns a map of project IDs to pending submission counts
+ */
+export async function getPendingCountsForProjects(projectIds: string[]): Promise<Record<string, number>> {
+  if (projectIds.length === 0) {
+    return {};
+  }
+
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from('submissions')
+    .select('project_id')
+    .in('project_id', projectIds)
+    .eq('status', 'pending');
+
+  if (error) {
+    console.error('Get pending counts error:', error);
+    return {};
+  }
+
+  // Count submissions by project
+  const counts: Record<string, number> = {};
+  projectIds.forEach(id => counts[id] = 0);
+
+  data.forEach((submission: { project_id: string }) => {
+    counts[submission.project_id] = (counts[submission.project_id] || 0) + 1;
+  });
+
+  return counts;
+}

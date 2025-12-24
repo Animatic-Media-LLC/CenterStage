@@ -2,10 +2,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjects } from '@/lib/db/projects';
+import { getPendingCountsForProjects } from '@/lib/db/submissions';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FolderKanban, Plus, Search, Edit, QrCode, ExternalLink } from 'lucide-react';
+import { FolderKanban, Plus, Search, Edit, QrCode, ExternalLink, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -24,6 +25,10 @@ export default async function ProjectsPage() {
   }
 
   const projects = await getProjects(session.user.id);
+
+  // Get pending submission counts for all projects
+  const projectIds = projects.map(p => p.id);
+  const pendingCounts = await getPendingCountsForProjects(projectIds);
 
   return (
     <AdminLayout userName={session.user.name || undefined}>
@@ -179,6 +184,12 @@ export default async function ProjectsPage() {
                         <Button variant="outline" size="sm" className="w-full">
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
+                        </Button>
+                      </Link>
+                      <Link href={`/admin/projects/${project.slug}/review`} style={{ flex: 1 }}>
+                        <Button variant="outline" size="sm" className="w-full">
+                          <FileText className="h-4 w-4 mr-1" />
+                          Review {pendingCounts[project.id] > 0 && `(${pendingCounts[project.id]})`}
                         </Button>
                       </Link>
                       <Link href={`/admin/projects/${project.slug}/qr`}>

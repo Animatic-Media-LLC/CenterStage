@@ -26,6 +26,8 @@ import { FontPreview } from '@/components/ui/font-preview';
 import { uploadBackgroundImage } from '@/lib/utils/file-upload';
 import { CloudUpload } from 'lucide-react';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 interface ProjectEditFormProps {
   project: {
@@ -41,6 +43,7 @@ interface ProjectEditFormProps {
     outline_color: string;
     background_color: string;
     background_image_url: string | null;
+    allow_video_uploads: boolean;
     transition_duration: number;
     animation_style: string;
     layout_template: string;
@@ -71,6 +74,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null);
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [allowVideoUploads, setAllowVideoUploads] = useState(presentationConfig?.allow_video_uploads ?? true);
   const [transitionDuration, setTransitionDuration] = useState(presentationConfig?.transition_duration || 5);
   const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>(
     (presentationConfig?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade'
@@ -167,6 +171,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
         outline_color: outlineColor,
         background_color: backgroundColor,
         background_image_url: backgroundImageUrl,
+        allow_video_uploads: allowVideoUploads,
         transition_duration: transitionDuration,
         animation_style: animationStyle,
         layout_template: layoutTemplate,
@@ -454,6 +459,25 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                 onChange={(e) => setLayoutTemplate(e.target.value)}
                 placeholder="standard"
               />
+            </div>
+          </div>
+
+          {/* Media Upload Options */}
+          <div className="mt-4">
+            <Label>Media Upload Options</Label>
+            <div className="mt-2">
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={allowVideoUploads}
+                    onChange={(e) => setAllowVideoUploads(e.target.checked)}
+                  />
+                }
+                label="Allow video uploads on submission form"
+              />
+              <p className="text-sm text-gray-500 ml-8">
+                When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
+              </p>
             </div>
           </div>
 

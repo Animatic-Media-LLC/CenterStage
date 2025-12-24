@@ -34,6 +34,7 @@ export default async function CommentPage({ params }: CommentPageProps) {
   const fontSize = config?.font_size || 24;
   const textColor = config?.text_color || '#15598a';
   const backgroundColor = config?.background_color || '#e0ecf6';
+  const allowVideoUploads = config?.allow_video_uploads ?? true;
 
   return (
     <Box
@@ -76,7 +77,11 @@ export default async function CommentPage({ params }: CommentPageProps) {
         </Box>
 
         {/* Submission Form */}
-        <SubmissionForm projectId={project.id} projectSlug={project.slug} />
+        <SubmissionForm
+          projectId={project.id}
+          projectSlug={project.slug}
+          allowVideoUploads={allowVideoUploads}
+        />
       </Container>
     </Box>
   );
