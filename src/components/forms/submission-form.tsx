@@ -24,9 +24,10 @@ import styles from './submission-form.module.scss';
 interface SubmissionFormProps {
   projectId: string;
   projectSlug: string;
+  allowVideoUploads?: boolean;
 }
 
-export function SubmissionForm({ projectId, projectSlug }: SubmissionFormProps) {
+export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = true }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -73,8 +74,14 @@ export function SubmissionForm({ projectId, projectSlug }: SubmissionFormProps) 
       return;
     }
 
+    // Check if videos are allowed for this project
+    if (isVideo && !allowVideoUploads) {
+      setErrors({ ...errors, media: 'Video uploads are not allowed for this project. Please upload a photo instead.' });
+      return;
+    }
+
     if (!isImage && !isVideo) {
-      setErrors({ ...errors, media: 'Only images and videos are allowed' });
+      setErrors({ ...errors, media: allowVideoUploads ? 'Only images and videos are allowed' : 'Only images are allowed' });
       return;
     }
 
@@ -287,7 +294,7 @@ export function SubmissionForm({ projectId, projectSlug }: SubmissionFormProps) 
 
             {/* Photo/Video Upload */}
             <div className={styles.fieldContainer}>
-              <Label>Photo or Video (Optional)</Label>
+              <Label>{allowVideoUploads ? 'Photo or Video (Optional)' : 'Photo (Optional)'}</Label>
 
               {mediaPreview ? (
                 <div className={styles.photoPreviewContainer}>
@@ -322,7 +329,9 @@ export function SubmissionForm({ projectId, projectSlug }: SubmissionFormProps) 
                   <input
                     id="media-input"
                     type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,video/mp4,video/quicktime,video/webm,video/x-m4v"
+                    accept={allowVideoUploads
+                      ? "image/jpeg,image/jpg,image/png,image/webp,image/heic,video/mp4,video/quicktime,video/webm,video/x-m4v"
+                      : "image/jpeg,image/jpg,image/png,image/webp,image/heic"}
                     onChange={handleMediaChange}
                     disabled={isSubmitting}
                     className={styles.hiddenInput}
@@ -330,10 +339,14 @@ export function SubmissionForm({ projectId, projectSlug }: SubmissionFormProps) 
                   />
                   <CloudUpload size={48} className={styles.uploadIcon} />
                   <div className={styles.uploadText}>
-                    Click to upload or capture photo/video
+                    {allowVideoUploads
+                      ? 'Click to upload or capture photo/video'
+                      : 'Click to upload or capture photo'}
                   </div>
                   <span className={styles.uploadHint}>
-                    Images: JPEG, PNG, WebP, HEIC | Videos: MP4, MOV, WebM (Max 10MB)
+                    {allowVideoUploads
+                      ? 'Images: JPEG, PNG, WebP, HEIC | Videos: MP4, MOV, WebM (Max 10MB)'
+                      : 'Images: JPEG, PNG, WebP, HEIC (Max 10MB)'}
                   </span>
                 </div>
               )}

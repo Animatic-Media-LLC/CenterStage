@@ -2,9 +2,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjectBySlug, getPresentationConfig, getAllSlugs } from '@/lib/db/projects';
+import { getPendingCountsForProjects } from '@/lib/db/submissions';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ProjectEditForm } from '@/components/forms/project-edit-form';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface EditProjectPageProps {
   params: Promise<{
@@ -38,6 +40,9 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   const allSlugs = await getAllSlugs();
   const existingSlugs = allSlugs.filter((s) => s !== project.slug);
 
+  // Get pending submission count for this project
+  const pendingCounts = await getPendingCountsForProjects([project.id]);
+
   return (
     <AdminLayout userName={session.user.name || undefined}>
       {/* Header */}
@@ -50,11 +55,19 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Projects
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Project</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Update project details and presentation settings
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Edit Project</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Update project details and presentation settings
+              </p>
+            </div>
+            <Link href={`/admin/projects/${slug}/review`}>
+              <Button variant="outline">
+                <FileText className="h-4 w-4 mr-2" />
+                Review Submissions {pendingCounts[project.id] > 0 && `(${pendingCounts[project.id]})`}
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
