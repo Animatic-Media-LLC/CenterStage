@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useScreenSize } from '@/hooks/use-screen-size';
 import type { Database } from '@/types/database.types';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
@@ -28,6 +30,8 @@ export function PresentationSlide({
   isExiting,
 }: PresentationSlideProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const screenSize = useScreenSize();
 
   // Trigger animation on mount and when submission changes
   useEffect(() => {
@@ -44,6 +48,10 @@ export function PresentationSlide({
     } else {
       // For entering slides, start invisible then trigger entrance
       setIsVisible(false);
+      // Load video immediately when slide is entering
+      if (submission.video_url) {
+        setShouldLoadVideo(true);
+      }
       const enterTimer = setTimeout(() => {
         setIsVisible(true);
       }, 50);
@@ -52,7 +60,7 @@ export function PresentationSlide({
         clearTimeout(enterTimer);
       };
     }
-  }, [submission.id, isExiting]);
+  }, [submission.id, isExiting, submission.video_url]);
 
   // Determine layout based on media presence
   const hasMedia = Boolean(submission.photo_url || submission.video_url);
@@ -74,6 +82,45 @@ export function PresentationSlide({
   };
 
   const fontSizeMultiplier = getCommentFontSizeMultiplier();
+
+  // Calculate responsive scaling factors based on screen size
+  const getResponsiveScaling = () => {
+    // Base scaling factor
+    let scaleFactor = 1;
+    let paddingScale = 1;
+    let maxWidthPercent = hasMedia ? 90 : 70;
+
+    // 4K displays (3840x2160 or higher)
+    if (screenSize.is4K) {
+      scaleFactor = 1.5; // Increase font sizes by 50%
+      paddingScale = 1.5; // Increase padding
+    }
+    // 1080p displays (1920x1080)
+    else if (screenSize.is1080p) {
+      scaleFactor = 1; // Standard scaling
+      paddingScale = 1;
+    }
+    // Portrait orientation
+    else if (screenSize.isPortrait) {
+      scaleFactor = 0.85; // Slightly smaller text
+      paddingScale = 0.75; // Less padding
+      maxWidthPercent = 95; // Wider cards in portrait
+    }
+    // Ultra-wide displays
+    else if (screenSize.isUltraWide) {
+      maxWidthPercent = 60; // Narrower cards on ultra-wide
+    }
+    // Smaller screens (< 1920px)
+    else if (screenSize.width < 1920) {
+      scaleFactor = 0.8;
+      paddingScale = 0.8;
+      maxWidthPercent = hasMedia ? 95 : 85;
+    }
+
+    return { scaleFactor, paddingScale, maxWidthPercent };
+  };
+
+  const { scaleFactor, paddingScale, maxWidthPercent } = getResponsiveScaling();
 
   // Animation styles
   const getAnimationStyle = () => {
@@ -149,18 +196,18 @@ export function PresentationSlide({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '4rem 2rem',
+        padding: `${4 * paddingScale}rem ${2 * paddingScale}rem`,
         pointerEvents: isExiting ? 'none' : 'auto',
       }}
     >
       {/* Card Container */}
       <div
         style={{
-          maxWidth: hasMedia ? '90vw' : '70vw',
+          maxWidth: `${maxWidthPercent}vw`,
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '1.5rem',
-          border: `6px solid ${config.outlineColor}`,
-          padding: '3rem',
+          borderRadius: `${1.5 * paddingScale}rem`,
+          border: `${6 * paddingScale}px solid ${config.outlineColor}`,
+          padding: `${3 * paddingScale}rem`,
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
           backdropFilter: 'blur(10px)',
           ...getAnimationStyle(),
@@ -170,35 +217,43 @@ export function PresentationSlide({
         {hasMedia && (
           <div
             style={{
-              marginBottom: hasText ? '2rem' : '1rem',
+              marginBottom: hasText ? `${2 * paddingScale}rem` : `${1 * paddingScale}rem`,
               display: 'flex',
               justifyContent: 'center',
             }}
           >
             {submission.photo_url && (
-              <img
-                src={submission.photo_url}
-                alt="Submission"
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '50vh',
-                  objectFit: 'contain',
-                  borderRadius: '0.75rem',
-                }}
-              />
+              <div style={{ position: 'relative', maxWidth: '100%', maxHeight: screenSize.isPortrait ? '40vh' : '50vh' }}>
+                <Image
+                  src={submission.photo_url}
+                  alt="Submission"
+                  width={1920}
+                  height={1080}
+                  priority={!isExiting}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: screenSize.isPortrait ? '40vh' : '50vh',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    borderRadius: `${0.75 * paddingScale}rem`,
+                  }}
+                />
+              </div>
             )}
-            {submission.video_url && (
+            {submission.video_url && shouldLoadVideo && (
               <video
                 src={submission.video_url}
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="auto"
                 style={{
                   maxWidth: '100%',
-                  maxHeight: '50vh',
+                  maxHeight: screenSize.isPortrait ? '40vh' : '50vh',
                   objectFit: 'contain',
-                  borderRadius: '0.75rem',
+                  borderRadius: `${0.75 * paddingScale}rem`,
                 }}
               />
             )}
@@ -216,11 +271,11 @@ export function PresentationSlide({
             <blockquote
               style={{
                 ...textStyle,
-                fontSize: (hasMedia ? config.fontSize * 1.2 : config.fontSize * 1.8) * fontSizeMultiplier,
+                fontSize: (hasMedia ? config.fontSize * 1.2 : config.fontSize * 1.8) * fontSizeMultiplier * scaleFactor,
                 lineHeight: 1.6,
-                marginBottom: '1.5rem',
+                marginBottom: `${1.5 * paddingScale}rem`,
                 fontStyle: 'italic',
-                margin: '0 0 1.5rem 0',
+                margin: `0 0 ${1.5 * paddingScale}rem 0`,
               }}
             >
               &ldquo;{submission.comment}&rdquo;
@@ -231,18 +286,18 @@ export function PresentationSlide({
           <div
             style={{
               ...textStyle,
-              fontSize: hasMedia ? config.fontSize * 0.9 : config.fontSize * 1.2,
+              fontSize: (hasMedia ? config.fontSize * 0.9 : config.fontSize * 1.2) * scaleFactor,
               fontWeight: 600,
             }}
           >
-            <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: `${0.5 * paddingScale}rem` }}>
               &mdash; {submission.full_name}
             </div>
             {submission.social_handle && (
               <div
                 style={{
                   ...textStyle,
-                  fontSize: hasMedia ? config.fontSize * 0.7 : config.fontSize * 0.9,
+                  fontSize: (hasMedia ? config.fontSize * 0.7 : config.fontSize * 0.9) * scaleFactor,
                   opacity: 0.8,
                 }}
               >
