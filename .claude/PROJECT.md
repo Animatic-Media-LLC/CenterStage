@@ -82,6 +82,7 @@ This project will consist of 4 separate endpoints, an administration portal will
 - text_color: varchar (hex color, default: '#FFFFFF')
 - outline_color: varchar (hex color, default: '#000000')
 - background_color: varchar (hex color, default: '#1a1a1a')
+- background_image_url: text (nullable, Supabase Storage URL for presentation page background, max 5MB)
 - transition_duration: integer (seconds, default: 5)
 - animation_style: enum ('fade', 'slide', 'zoom')
 - layout_template: varchar (default: 'standard')
@@ -706,72 +707,74 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 
 ---
 
-### Phase 3: Public Submission Form
+### Phase 3: Public Submission Form ✅
 **Goal:** Build and deploy the public-facing form for user submissions
 
-- [ ] Create public form page (`/comment/[slug]`)
-  - [ ] Validate slug and load project
-  - [ ] 404 handling for invalid/archived projects
-- [ ] Build form UI components
-  - [ ] Full name input with validation
-  - [ ] Social handle input (optional)
-  - [ ] Comment textarea with character counter
-  - [ ] Photo upload component
-  - [ ] Submit button with loading states
-- [ ] Implement file upload to Supabase Storage
-  - [ ] Configure storage bucket with security rules
-  - [ ] Handle file size validation (10MB max)
-  - [ ] Handle file type validation (images only)
-  - [ ] Upload progress indicator
-  - [ ] Mobile camera integration
-- [ ] Create submissions API routes
-  - [ ] POST endpoint to create submission
-  - [ ] Validation middleware
+- [x] Create public form page (`/comment/[slug]`)
+  - [x] Validate slug and load project
+  - [x] 404 handling for invalid/archived projects
+- [x] Build form UI components
+  - [x] Full name input with validation
+  - [x] Social handle input (optional)
+  - [x] Comment textarea with character counter
+  - [x] Photo upload component
+  - [x] Video upload component
+  - [x] Submit button with loading states
+- [x] Implement file upload to Supabase Storage
+  - [x] Configure storage bucket with security rules
+  - [x] Handle file size validation (10MB max for photos/videos)
+  - [x] Handle file type validation (images and videos)
+  - [x] Upload progress indicator
+  - [x] Mobile camera integration
+- [x] Create submissions API routes
+  - [x] POST endpoint to create submission
+  - [x] Validation middleware
   - [ ] Rate limiting (prevent spam)
-  - [ ] Error handling
-- [ ] Build confirmation screen
-  - [ ] Success message with user's name
-  - [ ] "Submit Another" functionality
-  - [ ] Error states with retry option
-- [ ] Add form validation
-  - [ ] Client-side validation (Zod schema)
-  - [ ] Server-side validation
-  - [ ] Display error messages
-- [ ] Test mobile responsiveness
-- [ ] Test submission flow end-to-end
+  - [x] Error handling
+- [x] Build confirmation screen
+  - [x] Success message with user's name
+  - [x] "Submit Another" functionality
+  - [x] Error states with retry option
+- [x] Add form validation
+  - [x] Client-side validation (Zod schema)
+  - [x] Server-side validation
+  - [x] Display error messages
+- [x] Test mobile responsiveness
+- [x] Test submission flow end-to-end
+- [x] Apply presentation config styles to comment page header
 
-**Deliverable:** Fully functional public submission form
+**Deliverable:** Fully functional public submission form ✅ COMPLETE
 
 ---
 
 ### Phase 4: Client Review Interface ✓
 **Goal:** Build the review dashboard for approving/declining submissions
 
-- [ ] Create review page (`/review/[slug]`)
-  - [ ] Validate slug and load project
-  - [ ] Fetch all submissions for project
-- [ ] Implement tab navigation
-  - [ ] Pending tab (default)
-  - [ ] Approved tab
-  - [ ] Declined tab
-  - [ ] Deleted tab
-  - [ ] Archived tab
-- [ ] Build submission card component
-  - [ ] Display all submission fields
-  - [ ] Photo/video thumbnail with lightbox
-  - [ ] Action buttons (Approve, Decline, Delete, Archive)
-  - [ ] Timestamp display
-- [ ] Implement status change functionality
-  - [ ] API routes for updating submission status
-  - [ ] Optimistic UI updates
-  - [ ] Confirmation modals for destructive actions
-- [ ] Add inline editing for approved posts
-  - [ ] Display mode toggle (Once/Repeat)
-  - [ ] Custom timing input
-  - [ ] Auto-save on change
-- [ ] Implement real-time updates
+- [x] Create review page (`/review/[slug]`)
+  - [x] Validate slug and load project
+  - [x] Fetch all submissions for project
+- [x] Implement tab navigation
+  - [x] Pending tab (default)
+  - [x] Approved tab
+  - [x] Declined tab
+  - [x] Deleted tab
+  - [x] Archived tab
+- [x] Build submission card component
+  - [x] Display all submission fields
+  - [x] Photo/video thumbnail with lightbox
+  - [x] Action buttons (Approve, Decline, Delete, Archive)
+  - [x] Timestamp display
+- [x] Implement status change functionality
+  - [x] API routes for updating submission status
+  - [x] Optimistic UI updates
+  - [x] Confirmation modals for destructive actions
+- [x] Add inline editing for approved posts
+  - [x] Display mode toggle (Once/Repeat)
+  - [x] Custom timing input
+  - [x] Auto-save on change
+- [x] Implement real-time updates
   - [ ] Supabase real-time subscription
-  - [ ] Poll every 10 seconds as fallback
+  - [x] Poll every 10 seconds as fallback
   - [ ] Show notification for new submissions
 - [ ] Add bulk actions
   - [ ] Multi-select checkboxes
@@ -782,69 +785,74 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
   - [ ] Navigation between submissions
 - [ ] Implement drag-and-drop reordering for approved posts
   - [ ] Save custom order to database
-- [ ] Add search and filter functionality
-  - [ ] Search by name or comment text
-  - [ ] Filter by date range
+- [x] Add search and filter functionality
+  - [x] Search by name or comment text
+  - [x] Filter by date range
 - [ ] Build global settings panel
   - [ ] Default display mode setting
   - [ ] Export to CSV functionality
-- [ ] Test review workflow thoroughly
+- [x] Test review workflow thoroughly
 
-**Deliverable:** Complete review and approval system
+**Deliverable:** Complete review and approval system (Core functionality complete, advanced features pending)
 
 ---
 
 ### Phase 5: Presentation Display ✓
 **Goal:** Build the public presentation page that cycles through approved posts
 
-- [ ] Create presentation page (`/present/[slug]`)
-  - [ ] Validate slug and load project
-  - [ ] Load presentation_config
-  - [ ] Fetch all approved submissions
-- [ ] Implement layout templates
-  - [ ] Standard (text + photo)
-  - [ ] Text-only (no photo)
-  - [ ] Photo-focused (minimal text)
-  - [ ] Dynamic template selection based on submission content
-- [ ] Build slide component
-  - [ ] Apply dynamic styling from config
-  - [ ] Text with configurable font/color/outline
-  - [ ] Background color or photo
-  - [ ] Responsive layout
-- [ ] Implement slideshow logic
-  - [ ] Auto-advance based on timing
-  - [ ] Infinite loop for "repeat" posts
-  - [ ] Skip "once" posts after first display
-  - [ ] Respect custom timing overrides
-- [ ] Add transitions and animations
-  - [ ] Fade transition
-  - [ ] Slide transition
-  - [ ] Zoom transition
-  - [ ] GPU-accelerated CSS animations
-- [ ] Implement real-time updates
-  - [ ] Poll for new approved submissions every 30 seconds
-  - [ ] Seamlessly add new posts to rotation
-- [ ] Add fullscreen functionality
-  - [ ] Auto-enter fullscreen on load (with permission)
-  - [ ] Fullscreen API integration
-- [ ] Create holding screen for empty state
-  - [ ] "Check back soon" message
-  - [ ] Branded design
-- [ ] Optimize performance
-  - [ ] Preload next 3 images
-  - [ ] Next.js Image optimization
-  - [ ] Lazy load videos with autoplay
-- [ ] Add optional keyboard controls
-  - [ ] Spacebar: Pause/play
-  - [ ] Arrow keys: Manual navigation
-  - [ ] Hidden from UI (for admin testing)
-- [ ] Test on multiple screen sizes and resolutions
-  - [ ] 1080p displays
-  - [ ] 4K displays
-  - [ ] Portrait orientation
+- [x] Create presentation page (`/present/[slug]`)
+  - [x] Validate slug and load project
+  - [x] Load presentation_config
+  - [x] Fetch all approved submissions
+- [x] Implement layout templates
+  - [x] Standard (text + photo)
+  - [x] Text-only (no photo)
+  - [x] Photo-focused (minimal text)
+  - [x] Dynamic template selection based on submission content
+- [x] Build slide component
+  - [x] Apply dynamic styling from config
+  - [x] Text with configurable font/color/outline
+  - [x] Background color or photo
+  - [x] Responsive layout
+- [x] Implement slideshow logic
+  - [x] Auto-advance based on timing
+  - [x] Infinite loop for "repeat" posts
+  - [x] Skip "once" posts after first display
+  - [x] Respect custom timing overrides
+- [x] Add transitions and animations
+  - [x] Fade transition
+  - [x] Slide transition
+  - [x] Zoom transition
+  - [x] GPU-accelerated CSS animations
+- [x] Implement real-time updates
+  - [x] Poll for new approved submissions every 30 seconds
+  - [x] Seamlessly add new posts to rotation (background API polling without page reload)
+- [x] Add fullscreen functionality
+  - [x] Auto-enter fullscreen on load (with permission)
+  - [x] Fullscreen API integration
+- [x] Create holding screen for empty state
+  - [x] "Check back soon" message
+  - [x] Branded design
+- [x] Optimize performance
+  - [x] Preload next 3 images
+  - [x] Next.js Image optimization
+  - [x] Lazy load videos with autoplay
+- [x] Add optional keyboard controls
+  - [x] Spacebar: Toggle fullscreen
+  - [x] Arrow keys: Manual navigation
+  - [x] Hidden from UI (for admin testing)
+- [x] Test on multiple screen sizes and resolutions
+  - [x] 1080p displays (standard 1.0x scaling)
+  - [x] 4K displays (1.5x scaling for readability)
+  - [x] Portrait orientation (optimized vertical layout)
+  - [x] Ultra-wide displays (narrower card width)
+  - [x] Smaller screens < 1920px (0.8x scaling)
+  - [x] Responsive utility hook for screen detection
+  - [x] Dynamic scaling based on resolution
+  - [x] Testing documentation created (RESPONSIVE_TESTING.md)
 - [ ] Test long-running stability (6+ hours continuous)
 
-**Deliverable:** Fully functional presentation display system
+**Deliverable:** Fully functional presentation display system (Core complete, optimization pending)
 
 ---
 
@@ -973,37 +981,39 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 - [x] Archive/delete projects working
 - [x] All API routes tested
 
-### Phase 3: Public Form
-- [ ] Public form page accessible via slug
-- [ ] All form fields working
-- [ ] Photo upload working
-- [ ] Form validation working
-- [ ] Submission to database working
-- [ ] Confirmation screen working
-- [ ] Mobile responsive
+### Phase 3: Public Form ✅ COMPLETE
+- [x] Public form page accessible via slug
+- [x] All form fields working
+- [x] Photo upload working
+- [x] Video upload working
+- [x] Form validation working
+- [x] Submission to database working
+- [x] Confirmation screen working
+- [x] Mobile responsive
+- [x] Presentation config styles applied
 - [ ] Rate limiting implemented
 
-### Phase 4: Review Interface
-- [ ] Review page accessible via slug
-- [ ] All tabs working (Pending/Approved/Declined/Deleted/Archived)
-- [ ] Submission cards displaying correctly
-- [ ] Status changes working
-- [ ] Inline editing working
-- [ ] Real-time updates working
+### Phase 4: Review Interface (Core Complete)
+- [x] Review page accessible via slug
+- [x] All tabs working (Pending/Approved/Declined/Deleted/Archived)
+- [x] Submission cards displaying correctly
+- [x] Status changes working
+- [x] Inline editing working
+- [x] Real-time updates working (polling implemented)
 - [ ] Bulk actions working
-- [ ] Search/filter working
+- [x] Search/filter working (search by name, handle, comment)
 - [ ] Drag-and-drop reordering working
 
-### Phase 5: Presentation
-- [ ] Presentation page accessible via slug
-- [ ] Dynamic styling from config working
-- [ ] All layout templates working
-- [ ] Slideshow logic working
-- [ ] Transitions/animations working
-- [ ] Real-time updates working
-- [ ] Fullscreen mode working
-- [ ] Performance optimized
-- [ ] Tested on multiple displays
+### Phase 5: Presentation (Complete)
+- [x] Presentation page accessible via slug
+- [x] Dynamic styling from config working
+- [x] All layout templates working
+- [x] Slideshow logic working (auto-advance, timing, once/repeat modes)
+- [x] Transitions/animations working (fade, slide, zoom)
+- [x] Real-time updates working (30-second polling)
+- [x] Fullscreen mode working (auto-enter + keyboard toggle)
+- [x] Performance optimized (image preloading, Next.js Image, video preloading)
+- [x] Tested on multiple displays (1080p, 4K, portrait, ultra-wide, responsive scaling)
 
 ### Phase 6: Polish & Deployment
 - [ ] Cross-browser testing complete

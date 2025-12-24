@@ -9,7 +9,11 @@
       "Bash(npm uninstall:*)",
       "Bash(timeout 5 npm run dev:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(if [ -f .env.local ])",
+      "Bash(then echo \"=== Environment variables \\(values hidden\\) ===\")",
+      "Bash(else echo \".env.local file not found\")",
+      "Bash(fi)"
     ]
   }
 }
