@@ -76,13 +76,13 @@ export function SubmissionCard({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex gap-6">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           {/* Media Preview */}
           {hasMedia && (
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-full sm:w-auto">
               {submission.photo_url && (
-                <div className="relative w-48 h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative w-full sm:w-48 h-48 bg-gray-100 rounded-lg overflow-hidden">
                   <img
                     src={submission.photo_url}
                     alt="Submission"
@@ -99,7 +99,7 @@ export function SubmissionCard({
                 </div>
               )}
               {submission.video_url && (
-                <div className="relative w-48 h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative w-full sm:w-48 h-48 bg-gray-100 rounded-lg overflow-hidden">
                   <video
                     src={submission.video_url}
                     className="w-full h-full object-cover"
@@ -169,7 +169,7 @@ export function SubmissionCard({
                 <Typography variant="caption" fontWeight="bold" className="block mb-2">
                   Display Settings
                 </Typography>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-gray-600 block mb-1">Display Mode</label>
                     <Select

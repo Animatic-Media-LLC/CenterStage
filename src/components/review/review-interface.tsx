@@ -286,7 +286,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
       {/* Search and Filter Bar */}
       <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         {/* Search */}
-        <Box sx={{ flex: 1, minWidth: 250 }}>
+        <Box sx={{ flex: 1, minWidth: { xs: '100%', sm: 250 } }}>
           <TextField
             fullWidth
             placeholder="Search by name, handle, or comment..."
@@ -304,7 +304,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
         </Box>
 
         {/* Date Filter */}
-        <FormControl size="small" sx={{ minWidth: 150 }}>
+        <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 150 }, flex: { xs: 1, sm: 'initial' } }}>
           <Select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value as DateFilter)}
@@ -333,7 +333,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
               value={customStartDate}
               onChange={(e) => setCustomStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ minWidth: 150 }}
+              sx={{ minWidth: { xs: '100%', sm: 150 }, flex: { xs: 1, sm: 'initial' } }}
             />
             <TextField
               type="date"
@@ -342,7 +342,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
               value={customEndDate}
               onChange={(e) => setCustomEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ minWidth: 150 }}
+              sx={{ minWidth: { xs: '100%', sm: 150 }, flex: { xs: 1, sm: 'initial' } }}
             />
           </>
         )}

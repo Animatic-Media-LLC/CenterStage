@@ -49,15 +49,17 @@
 
 .uploadBox {
   margin-top: 1rem;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed #d1d5db;
   border-radius: 0.5rem;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: #ffffff;
+  transition: all 0.2s;
 
   &:hover {
     background-color: #f9fafb;
+    border-color: #3b82f6;
   }
 
   &.error {
@@ -67,12 +69,13 @@
 
 .uploadIcon {
   margin: 0 auto 0.5rem;
-  color: #9ca3af;
+  color: #3b82f6;
 }
 
 .uploadText {
-  color: #6b7280;
-  font-size: 0.875rem;
+  color: #1f2937;
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
 
 .uploadHint {
@@ -96,4 +99,13 @@
 
 .submissionCard {
   background-color: rgba(255,255,255,0.75) !important;
+}
+
+// Ensure all input fields have white backgrounds
+.submissionCard :global(input[type="text"]),
+.submissionCard :global(input[type="email"]),
+.submissionCard :global(textarea),
+.submissionCard :global(.MuiOutlinedInput-root),
+.submissionCard :global(.MuiInputBase-root) {
+  background-color: #ffffff !important;
 }

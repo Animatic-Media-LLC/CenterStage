@@ -110,6 +110,9 @@ export const presentationConfigSchema = z.object({
 
   randomize_order: z.boolean()
     .default(false),
+
+  require_email: z.boolean()
+    .default(false),
 });
 
 export type PresentationConfigInput = z.infer<typeof presentationConfigSchema>;

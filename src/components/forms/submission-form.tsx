@@ -26,9 +26,11 @@ interface SubmissionFormProps {
   projectSlug: string;
   allowVideoUploads?: boolean;
   maxVideoDuration?: number;
+  requireEmail?: boolean;
+  buttonColor?: string;
 }
 
-export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = true, maxVideoDuration = 12 }: SubmissionFormProps) {
+export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = true, maxVideoDuration = 12, requireEmail = false, buttonColor = '#3b82f6' }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -37,6 +39,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
   // Form state
   const [fullName, setFullName] = useState('');
   const [socialHandle, setSocialHandle] = useState('');
+  const [email, setEmail] = useState('');
   const [comment, setComment] = useState('');
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
@@ -186,6 +189,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
       const submissionData: SubmissionInput = {
         full_name: fullName,
         social_handle: socialHandle,
+        email: email,
         comment: comment,
         photo_url: photoUrl,
         video_url: videoUrl,
@@ -240,6 +244,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
     setIsUploading(false);
     setFullName('');
     setSocialHandle('');
+    setEmail('');
     setComment('');
     setMediaFile(null);
     setMediaPreview(null);
@@ -318,6 +323,32 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 </span>
               )}
             </div>
+
+            {/* Email (Conditional) */}
+            {requireEmail && (
+              <div className={styles.fieldContainer}>
+                <Label htmlFor="email">
+                  Email Address <span className={styles.required}>*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your.email@example.com"
+                  className={errors.email ? 'border-red-500' : ''}
+                  disabled={isSubmitting}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Your email will NOT be posted publicly
+                </p>
+                {errors.email && (
+                  <span className={styles.errorText}>
+                    {errors.email}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Comment */}
             <div className={styles.fieldContainer}>
@@ -418,6 +449,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
               disabled={isSubmitting || isUploading}
               size="lg"
               className={styles.submitButton}
+              style={{ backgroundColor: buttonColor, color: '#ffffff' }}
             >
               {isUploading ? (
                 <>
@@ -430,7 +462,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   Submitting...
                 </>
               ) : (
-                'Submit Feedback'
+                'Submit'
               )}
             </Button>
           </div>

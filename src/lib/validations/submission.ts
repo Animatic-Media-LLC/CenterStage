@@ -18,6 +18,12 @@ export const submissionSchema = z.object({
     .optional()
     .or(z.literal('')),
 
+  email: z
+    .string()
+    .email('Invalid email address')
+    .optional()
+    .or(z.literal('')),
+
   comment: z
     .string()
     .min(10, 'Comment must be at least 10 characters')

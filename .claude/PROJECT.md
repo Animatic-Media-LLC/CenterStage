@@ -949,16 +949,23 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 
 ---
 
+### Phase 5.3: Final Admin Cleanup ✓
+
+- [x] Create a section in the project edit page for Submission Configuration. This will have the following configurable controls moved or added to this section:
+  - [x] Media Upload Options (existing feature)
+  - [x] a new control, "Require Email" toggle that will turn on and off the visibility of the end-user to show them an email field.
+    - [x] If toggled on, it will be required on the comment form to the end-user.
+    - [x] if toggled on, it needs to also show this message below it: "Your email will NOT be posted publicly"
+
+---
+
 ### Phase 6: Polish, Testing & Deployment ✓
 **Goal:** Finalize the application, fix bugs, and deploy to production
-
-- [ ] Cross-browser testing
-  - [ ] Chrome, Firefox, Safari, Edge
-  - [ ] Mobile browsers (iOS Safari, Chrome Android)
-- [ ] Responsive design review
-  - [ ] Test all pages on mobile, tablet, desktop
-  - [ ] Ensure all admin pages work on mobile view correctly
-  - [ ] Fix layout issues
+- [x] The Photo or Video section on the comment form container should have a white background all the time, not transparent and white when you hover over it. The icon and text should stand out more to draw more focus to the upload feature.
+- [x] Responsive design review
+  - [x] Test all pages on mobile, tablet, desktop
+  - [x] Ensure all admin pages work on mobile view correctly
+  - [x] Fix layout issues
 - [ ] Accessibility audit
   - [ ] Keyboard navigation
   - [ ] Screen reader compatibility (where applicable)
@@ -1012,14 +1019,30 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 
 **Deliverable:** Production-ready application deployed and documented
 
+### Phase 6.2 
+**Goal:** Ability to manage projects on a user by user basis
+
+- [ ] Multi-team support
+  - [ ] Team-based permissions
+  - [ ] Ability for super users to have the ability to add, remove, and assign users access to certain projects. This allows the 3rd party partners to manage thier own sites with thier own password. Passwords are generated automatically and sotred to the Db when the super user creates thier account.
+
+  - [ ] There should be the ability to view or change any user's password and email credentials
+
 ---
 
 ### Phase 7: Future Enhancements (Post-MVP)
 **Goal:** Additional features for future iterations
 
-- [ ] Multi-team support
-  - [ ] Team management interface
-  - [ ] Team-based permissions
+#### Section A: Download/Export options
+- [ ] Download Comment Information
+  - [ ] When reviewing user's commented posts (any status - IE: Pending, Approved, Declined Archived) in the admin, the admin user should have an option to donwload the image locally.
+  - [ ] From the /review page on the admin site, there should be a button to download all of the images that were uploaded to that project in a zip file.
+  - On the comment /review page, add a button to export all comments.
+    - [ ] Once clicked, there should be dialog pop-up that allows the user to check off which subissions type (pending, approved, declined, archived) you want exported (no images or video uploaded in this export) - Pending and Approved are selected by default.
+    - [ ] The export should be in a xls format for download, to let the admin take offline.
+    - [ ] It should include: Full Name, date posted, date approved (if available), social handle, comment, email (if configured to be shown)
+
+#### Section B: Other Enhancements
 - [ ] Advanced analytics dashboard
   - [ ] Submission metrics over time
   - [ ] Popular presentation times
@@ -1051,6 +1074,8 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 - [ ] Multi-language support
   - [ ] Internationalization (i18n)
   - [ ] Language selector
+
+
 
 ---
 

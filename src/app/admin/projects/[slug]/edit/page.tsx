@@ -47,7 +47,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     <AdminLayout userName={session.user.name || undefined}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6">
+        <div className="px-4 sm:px-8 py-6">
           <Link
             href="/admin/projects"
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
@@ -55,15 +55,15 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Projects
           </Link>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Edit Project</h1>
               <p className="text-sm text-gray-600 mt-1">
                 Update project details and presentation settings
               </p>
             </div>
-            <Link href={`/admin/projects/${slug}/review`}>
-              <Button variant="outline">
+            <Link href={`/admin/projects/${slug}/review`} className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
                 Review Submissions {pendingCounts[project.id] > 0 && `(${pendingCounts[project.id]})`}
               </Button>
@@ -73,7 +73,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
       </div>
 
       {/* Main Content */}
-      <div className="px-8 py-6 max-w-4xl">
+      <div className="px-4 sm:px-8 py-6 max-w-4xl">
         <ProjectEditForm
           project={{
             id: project.id,

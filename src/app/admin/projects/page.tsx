@@ -186,7 +186,7 @@ export default async function ProjectsPage() {
                     </Box>
 
                     {/* Action Buttons */}
-                    <Box sx={{ display: 'flex', gap: 1, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, pt: 2, borderTop: 1, borderColor: 'divider' }}>
                       <Link href={`/admin/projects/${project.slug}/edit`} style={{ flex: 1 }}>
                         <Button variant="outline" size="sm" className="w-full">
                           <Edit className="h-4 w-4 mr-1" />
@@ -199,8 +199,8 @@ export default async function ProjectsPage() {
                           Review {pendingCounts[project.id] > 0 && `(${pendingCounts[project.id]})`}
                         </Button>
                       </Link>
-                      <Link href={`/admin/projects/${project.slug}/qr`}>
-                        <Button variant="outline" size="sm">
+                      <Link href={`/admin/projects/${project.slug}/qr`} className="sm:w-auto w-full">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
                           <QrCode className="h-6 w-6" />
                         </Button>
                       </Link>
