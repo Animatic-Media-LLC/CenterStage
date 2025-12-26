@@ -31,6 +31,7 @@ interface ReviewInterfaceProps {
 export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps) {
   const { success: showSuccess } = useSnackbar();
   const previousPendingCount = useRef<number>(0);
+  const activeTabRef = useRef<SubmissionStatus>('pending');
 
   const [activeTab, setActiveTab] = useState<SubmissionStatus>('pending');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -65,8 +66,8 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
         const newCount = newPendingCount - previousPendingCount.current;
         showSuccess(`${newCount} new pending submission${newCount > 1 ? 's' : ''} received`);
 
-        // Refresh pending tab if it's active
-        if (activeTab === 'pending') {
+        // Refresh pending tab if it's active (use ref to get current value)
+        if (activeTabRef.current === 'pending') {
           fetchSubmissions('pending');
         }
       }
@@ -102,6 +103,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
 
   // Fetch submissions and counts when tab changes
   useEffect(() => {
+    activeTabRef.current = activeTab; // Keep ref in sync
     fetchSubmissions(activeTab);
     fetchTabCounts();
   }, [activeTab, projectId]);
@@ -113,7 +115,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
     }, 12000); // 12 seconds
 
     return () => clearInterval(pollInterval);
-  }, [projectId, activeTab]);
+  }, [projectId]);
 
   // Handle status change for a submission
   const handleStatusChange = async (submissionId: string, newStatus: SubmissionStatus) => {
