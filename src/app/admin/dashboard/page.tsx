@@ -32,7 +32,15 @@ export default async function DashboardPage() {
     <AdminLayout userName={session.user.name || undefined}>
       {/* Header */}
       <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{
+          px: { xs: 2, sm: 4 },
+          py: 3,
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          justifyContent: 'space-between',
+          gap: 2
+        }}>
           <Box>
             <Typography variant="h4" component="h1" fontWeight="bold">
               Dashboard
@@ -42,7 +50,7 @@ export default async function DashboardPage() {
             </Typography>
           </Box>
           <Link href="/admin/projects/new">
-            <Button>
+            <Button className="w-full sm:w-auto">
               <FolderKanban className="h-4 w-4 mr-2" />
               New Project
             </Button>
@@ -51,7 +59,7 @@ export default async function DashboardPage() {
       </Box>
 
       {/* Main Content */}
-      <Box sx={{ px: 4, py: 3 }}>
+      <Box sx={{ px: { xs: 2, sm: 4 }, py: 3 }}>
         {/* Stats Grid */}
         <Box
           sx={{
@@ -65,14 +73,20 @@ export default async function DashboardPage() {
             mb: 4,
           }}
         >
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Total Projects
-                </CardTitle>
-                <FolderKanban className="h-4 w-4 text-gray-400" />
+          <Link href="/admin/projects" className="block">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                {/* Desktop: Icon on right, mobile: Count inline with title */}
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    <span className="md:hidden">{stats.totalProjects} </span>
+                    Total Projects
+                  </CardTitle>
+                  <FolderKanban className="hidden md:block h-4 w-4 text-gray-400" />
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="hidden md:block">
+                {/* Desktop: Show large number */}
                 <Typography variant="h4" component="div" fontWeight="bold">
                   {stats.totalProjects}
                 </Typography>
@@ -81,32 +95,41 @@ export default async function DashboardPage() {
                 </Typography>
               </CardContent>
             </Card>
+          </Link>
+
+          <Link href="/admin/projects" className="block">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    <span className="md:hidden">{stats.activeProjects} </span>
+                    Active Projects
+                  </CardTitle>
+                  <Clock className="hidden md:block h-4 w-4 text-gray-400" />
+                </div>
+              </CardHeader>
+              <CardContent className="hidden md:block">
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {stats.activeProjects}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                  Currently active
+                </Typography>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Active Projects
-              </CardTitle>
-              <Clock className="h-4 w-4 text-gray-400" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  <span className="md:hidden">{stats.pendingSubmissions} </span>
+                  Pending Submissions
+                </CardTitle>
+                <FileText className="hidden md:block h-4 w-4 text-gray-400" />
+              </div>
             </CardHeader>
-            <CardContent>
-              <Typography variant="h4" component="div" fontWeight="bold">
-                {stats.activeProjects}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                Currently active
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Pending Submissions
-              </CardTitle>
-              <FileText className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="hidden md:block">
               <Typography variant="h4" component="div" fontWeight="bold">
                 {stats.pendingSubmissions}
               </Typography>
@@ -117,13 +140,16 @@ export default async function DashboardPage() {
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Approved Submissions
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-gray-400" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  <span className="md:hidden">{stats.approvedSubmissions} </span>
+                  Approved Submissions
+                </CardTitle>
+                <CheckCircle className="hidden md:block h-4 w-4 text-gray-400" />
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="hidden md:block">
               <Typography variant="h4" component="div" fontWeight="bold">
                 {stats.approvedSubmissions}
               </Typography>

@@ -60,6 +60,7 @@ interface ProjectEditFormProps {
     animation_style: string;
     layout_template: string;
     randomize_order?: boolean;
+    require_email?: boolean;
   } | null;
   existingSlugs: string[];
 }
@@ -96,6 +97,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
   );
   const [layoutTemplate, setLayoutTemplate] = useState(presentationConfig?.layout_template || 'standard');
   const [randomizeOrder, setRandomizeOrder] = useState(presentationConfig?.randomize_order ?? false);
+  const [requireEmail, setRequireEmail] = useState(presentationConfig?.require_email ?? false);
 
   // Archive/Delete dialog state
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
@@ -202,6 +204,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
         animation_style: animationStyle,
         layout_template: layoutTemplate,
         randomize_order: randomizeOrder,
+        require_email: requireEmail,
       };
 
       // Validate project data
@@ -581,65 +584,6 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
           </div>
 
-          {/* Media Upload Options */}
-          <div className="mt-4">
-            <Label>Media Upload Options</Label>
-            <div className="mt-2 space-y-4">
-              <div>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={allowVideoUploads}
-                      onChange={(e) => setAllowVideoUploads(e.target.checked)}
-                    />
-                  }
-                  label="Allow video uploads on submission form"
-                />
-                <p className="text-sm text-gray-500 ml-8">
-                  When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
-                </p>
-              </div>
-
-              {allowVideoUploads && (
-                <div className="ml-8 space-y-4">
-                  <div>
-                    <Label htmlFor="max_video_duration">Max video length (seconds)</Label>
-                    <div className="flex items-center gap-4 mt-2">
-                      <input
-                        id="max_video_duration"
-                        type="number"
-                        min={1}
-                        max={60}
-                        value={maxVideoDuration}
-                        onChange={(e) => setMaxVideoDuration(parseInt(e.target.value) || 12)}
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <span className="text-sm text-gray-600">{maxVideoDuration}s</span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Maximum allowed video duration. Videos longer than this will be rejected. (1-60 seconds)
-                    </p>
-                  </div>
-
-                  <div>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={allowVideoFinish}
-                          onChange={(e) => setAllowVideoFinish(e.target.checked)}
-                        />
-                      }
-                      label="Allow videos to finish before transition"
-                    />
-                    <p className="text-sm text-gray-500 ml-8">
-                      When enabled, if a video is longer than the transition duration, the slide will remain visible until the video finishes playing. When disabled, videos will loop or be cut off at the transition time.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Presentation Options */}
           <div className="mt-4">
             <Label>Presentation Options</Label>
@@ -657,6 +601,84 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                 When enabled, submissions will be shuffled once when the presentation loads. The order remains consistent during the session and re-shuffles on each new page load.
               </p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Submission Configuration Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Submission Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Media Upload Options */}
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={allowVideoUploads}
+                  onChange={(e) => setAllowVideoUploads(e.target.checked)}
+                />
+              }
+              label="Allow video uploads on submission form"
+            />
+            <p className="text-sm text-gray-500 ml-8">
+              When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
+            </p>
+          </div>
+
+          {allowVideoUploads && (
+            <div className="ml-8 space-y-4">
+              <div>
+                <Label htmlFor="max_video_duration">Max video length (seconds)</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <input
+                    id="max_video_duration"
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={maxVideoDuration}
+                    onChange={(e) => setMaxVideoDuration(parseInt(e.target.value) || 12)}
+                    className="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <span className="text-sm text-gray-600">{maxVideoDuration}s</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  Maximum allowed video duration. Videos longer than this will be rejected. (1-60 seconds)
+                </p>
+              </div>
+
+              <div>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={allowVideoFinish}
+                      onChange={(e) => setAllowVideoFinish(e.target.checked)}
+                    />
+                  }
+                  label="Allow videos to finish before transition"
+                />
+                <p className="text-sm text-gray-500 ml-8">
+                  When enabled, if a video is longer than the transition duration, the slide will remain visible until the video finishes playing. When disabled, videos will loop or be cut off at the transition time.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Require Email */}
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={requireEmail}
+                  onChange={(e) => setRequireEmail(e.target.checked)}
+                />
+              }
+              label="Require email address"
+            />
+            <p className="text-sm text-gray-500 ml-8">
+              When enabled, users must provide their email address when submitting. Email addresses are collected but not displayed publicly.
+            </p>
           </div>
         </CardContent>
       </Card>

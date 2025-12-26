@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Settings, LogOut, Menu, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 
@@ -31,15 +32,48 @@ const navItems = [
 
 export function AdminLayout({ children, userName }: AdminLayoutProps) {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/admin/login' });
   };
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar - Fixed height, no scroll */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen overflow-hidden">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className={cn(
+          "md:hidden fixed top-4 z-50 p-2 bg-white rounded-md shadow-lg border border-gray-200 transition-all duration-300",
+          isMobileMenuOpen ? "right-4" : "left-4"
+        )}
+        aria-label="Toggle menu"
+      >
+        {isMobileMenuOpen ? (
+          <X className="h-6 w-6 text-gray-700" />
+        ) : (
+          <Menu className="h-6 w-6 text-gray-700" />
+        )}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={closeMobileMenu}
+        />
+      )}
+
+      {/* Sidebar - Hidden on mobile, slide in when menu open */}
+      <aside className={cn(
+        "w-64 bg-white border-r border-gray-200 flex flex-col h-screen overflow-hidden transition-transform duration-300 z-40",
+        "fixed md:relative",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
         {/* Logo/Brand */}
         <div className="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
           <h1 className="text-xl font-bold text-gray-900">CenterStage</h1>
@@ -55,6 +89,7 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={closeMobileMenu}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                   isActive
@@ -98,7 +133,7 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
 
       {/* Main Content - Scrollable */}
       <main className="flex-1 overflow-y-auto h-screen">
-        <div className="h-full">{children}</div>
+        <div className="h-full pt-16 md:pt-0">{children}</div>
       </main>
     </div>
   );

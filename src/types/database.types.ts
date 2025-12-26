@@ -105,6 +105,7 @@ export interface Database {
           layout_template: string
           randomize_order: boolean
           allow_video_finish: boolean
+          require_email: boolean
           created_at: string
           updated_at: string
         }
@@ -124,6 +125,7 @@ export interface Database {
           layout_template?: string
           randomize_order?: boolean
           allow_video_finish?: boolean
+          require_email?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -143,6 +145,7 @@ export interface Database {
           layout_template?: string
           randomize_order?: boolean
           allow_video_finish?: boolean
+          require_email?: boolean
           created_at?: string
           updated_at?: string
         }

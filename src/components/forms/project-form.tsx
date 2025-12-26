@@ -154,6 +154,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
         animation_style: animationStyle,
         layout_template: layoutTemplate,
         randomize_order: false,
+        require_email: false,
       };
 
       // Validate project data
