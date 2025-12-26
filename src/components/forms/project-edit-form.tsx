@@ -24,10 +24,18 @@ import { slugify, isValidSlug } from '@/lib/utils/slugify';
 import { AVAILABLE_FONTS, DEFAULT_FONT_FAMILY, type FontFamily } from '@/lib/constants/fonts';
 import { FontPreview } from '@/components/ui/font-preview';
 import { uploadBackgroundImage } from '@/lib/utils/file-upload';
-import { CloudUpload } from 'lucide-react';
+import { CloudUpload, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ProjectEditFormProps {
   project: {
@@ -35,6 +43,8 @@ interface ProjectEditFormProps {
     name: string;
     client_name: string;
     slug: string;
+    status: 'active' | 'archived' | 'deleted';
+    archived_at: string | null;
   };
   presentationConfig: {
     font_family: string;
@@ -44,9 +54,12 @@ interface ProjectEditFormProps {
     background_color: string;
     background_image_url: string | null;
     allow_video_uploads: boolean;
+    max_video_duration?: number;
+    allow_video_finish?: boolean;
     transition_duration: number;
     animation_style: string;
     layout_template: string;
+    randomize_order?: boolean;
   } | null;
   existingSlugs: string[];
 }
@@ -75,11 +88,22 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [allowVideoUploads, setAllowVideoUploads] = useState(presentationConfig?.allow_video_uploads ?? true);
+  const [maxVideoDuration, setMaxVideoDuration] = useState(presentationConfig?.max_video_duration || 12);
+  const [allowVideoFinish, setAllowVideoFinish] = useState(presentationConfig?.allow_video_finish ?? false);
   const [transitionDuration, setTransitionDuration] = useState(presentationConfig?.transition_duration || 5);
   const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>(
     (presentationConfig?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade'
   );
   const [layoutTemplate, setLayoutTemplate] = useState(presentationConfig?.layout_template || 'standard');
+  const [randomizeOrder, setRandomizeOrder] = useState(presentationConfig?.randomize_order ?? false);
+
+  // Archive/Delete dialog state
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showReactivateDialog, setShowReactivateDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Auto-generate slug when project name changes (if user hasn't manually edited it)
   const handleProjectNameChange = (value: string) => {
@@ -172,9 +196,12 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
         background_color: backgroundColor,
         background_image_url: backgroundImageUrl,
         allow_video_uploads: allowVideoUploads,
+        max_video_duration: maxVideoDuration,
+        allow_video_finish: allowVideoFinish,
         transition_duration: transitionDuration,
         animation_style: animationStyle,
         layout_template: layoutTemplate,
+        randomize_order: randomizeOrder,
       };
 
       // Validate project data
@@ -243,6 +270,87 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
       console.error('Update project error:', error);
       showError('An unexpected error occurred');
       setIsSubmitting(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    setIsArchiving(true);
+    try {
+      const response = await fetch(`/api/projects/${project.id}/archive`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showError(errorData.error || 'Failed to archive project');
+        setIsArchiving(false);
+        return;
+      }
+
+      success('Project archived successfully!');
+      setShowArchiveDialog(false);
+      setIsArchiving(false);
+      router.refresh();
+    } catch (error) {
+      console.error('Archive project error:', error);
+      showError('An unexpected error occurred');
+      setIsArchiving(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    setIsArchiving(true);
+    try {
+      const response = await fetch(`/api/projects/${project.id}/archive`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showError(errorData.error || 'Failed to reactivate project');
+        setIsArchiving(false);
+        return;
+      }
+
+      success('Project reactivated successfully!');
+      setShowReactivateDialog(false);
+      setIsArchiving(false);
+      router.refresh();
+    } catch (error) {
+      console.error('Reactivate project error:', error);
+      showError('An unexpected error occurred');
+      setIsArchiving(false);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/projects/${project.id}/permanent-delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          confirmation: deleteConfirmation,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showError(errorData.error || 'Failed to delete project');
+        setIsDeleting(false);
+        return;
+      }
+
+      success('Project permanently deleted');
+      setShowDeleteDialog(false);
+      setIsDeleting(false);
+      router.push('/admin/projects');
+    } catch (error) {
+      console.error('Delete project error:', error);
+      showError('An unexpected error occurred');
+      setIsDeleting(false);
     }
   };
 
@@ -371,6 +479,17 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
           </div>
 
+          {/* Font Preview */}
+          <div className="mt-6">
+            <FontPreview
+              fontFamily={fontFamily}
+              fontSize={fontSize}
+              textColor={textColor}
+              outlineColor={outlineColor}
+              backgroundColor={backgroundColor}
+            />
+          </div>
+
           {/* Background Image Upload */}
           <div className="mt-4">
             <Label>Background Image (Optional)</Label>
@@ -465,31 +584,142 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
           {/* Media Upload Options */}
           <div className="mt-4">
             <Label>Media Upload Options</Label>
+            <div className="mt-2 space-y-4">
+              <div>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={allowVideoUploads}
+                      onChange={(e) => setAllowVideoUploads(e.target.checked)}
+                    />
+                  }
+                  label="Allow video uploads on submission form"
+                />
+                <p className="text-sm text-gray-500 ml-8">
+                  When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
+                </p>
+              </div>
+
+              {allowVideoUploads && (
+                <div className="ml-8 space-y-4">
+                  <div>
+                    <Label htmlFor="max_video_duration">Max video length (seconds)</Label>
+                    <div className="flex items-center gap-4 mt-2">
+                      <input
+                        id="max_video_duration"
+                        type="number"
+                        min={1}
+                        max={60}
+                        value={maxVideoDuration}
+                        onChange={(e) => setMaxVideoDuration(parseInt(e.target.value) || 12)}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <span className="text-sm text-gray-600">{maxVideoDuration}s</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Maximum allowed video duration. Videos longer than this will be rejected. (1-60 seconds)
+                    </p>
+                  </div>
+
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={allowVideoFinish}
+                          onChange={(e) => setAllowVideoFinish(e.target.checked)}
+                        />
+                      }
+                      label="Allow videos to finish before transition"
+                    />
+                    <p className="text-sm text-gray-500 ml-8">
+                      When enabled, if a video is longer than the transition duration, the slide will remain visible until the video finishes playing. When disabled, videos will loop or be cut off at the transition time.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Presentation Options */}
+          <div className="mt-4">
+            <Label>Presentation Options</Label>
             <div className="mt-2">
               <FormControlLabel
                 control={
                   <Switch
-                    checked={allowVideoUploads}
-                    onChange={(e) => setAllowVideoUploads(e.target.checked)}
+                    checked={randomizeOrder}
+                    onChange={(e) => setRandomizeOrder(e.target.checked)}
                   />
                 }
-                label="Allow video uploads on submission form"
+                label="Randomize post order"
               />
               <p className="text-sm text-gray-500 ml-8">
-                When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
+                When enabled, submissions will be shuffled once when the presentation loads. The order remains consistent during the session and re-shuffles on each new page load.
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Font Preview */}
-          <div className="mt-6">
-            <FontPreview
-              fontFamily={fontFamily}
-              fontSize={fontSize}
-              textColor={textColor}
-              outlineColor={outlineColor}
-              backgroundColor={backgroundColor}
-            />
+      {/* Danger Zone - Archive/Delete Actions */}
+      <Card className="border-red-200">
+        <CardHeader>
+          <CardTitle className="text-red-600">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div>
+              <h4 className="font-medium text-gray-900">
+                {project.status === 'archived' ? 'Reactivate Project' : 'Archive Project'}
+              </h4>
+              <p className="text-sm text-gray-500 mt-1">
+                {project.status === 'archived'
+                  ? 'Make this project active again and accessible to the public.'
+                  : 'Hide this project from public access. You can reactivate it later.'}
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                project.status === 'archived'
+                  ? setShowReactivateDialog(true)
+                  : setShowArchiveDialog(true)
+              }
+              disabled={isSubmitting || isUploadingBackground}
+              className={project.status === 'archived' ? 'border-blue-500 text-blue-600' : 'border-orange-500 text-orange-600'}
+            >
+              {project.status === 'archived' ? (
+                <>
+                  <ArchiveRestore className="h-4 w-4 mr-2" />
+                  Reactivate
+                </>
+              ) : (
+                <>
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
+            <div>
+              <h4 className="font-medium text-red-900">Delete Project Permanently</h4>
+              <p className="text-sm text-red-700 mt-1">
+                This action cannot be undone. All submissions and media will be permanently deleted.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isSubmitting || isUploadingBackground}
+              className="border-red-500 text-red-600 hover:bg-red-100"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Forever
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -517,6 +747,136 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
           )}
         </Button>
       </div>
+
+      {/* Archive Confirmation Dialog */}
+      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Archive Project</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to archive "{project.name}"? The project will be hidden from
+              public access, but you can reactivate it at any time.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowArchiveDialog(false)}
+              disabled={isArchiving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleArchive}
+              disabled={isArchiving}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {isArchiving ? (
+                <>
+                  <CircularProgress size={20} className="mr-2" />
+                  Archiving...
+                </>
+              ) : (
+                'Archive Project'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reactivate Confirmation Dialog */}
+      <Dialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reactivate Project</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to reactivate "{project.name}"? The project will be accessible
+              to the public again.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowReactivateDialog(false)}
+              disabled={isArchiving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleReactivate}
+              disabled={isArchiving}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isArchiving ? (
+                <>
+                  <CircularProgress size={20} className="mr-2" />
+                  Reactivating...
+                </>
+              ) : (
+                'Reactivate Project'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Delete Project Permanently</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the project, all
+              submissions, and all associated media files.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="delete-confirmation">
+              Type <strong>{project.name}</strong> to confirm deletion
+            </Label>
+            <Input
+              id="delete-confirmation"
+              value={deleteConfirmation}
+              onChange={(e) => setDeleteConfirmation(e.target.value)}
+              placeholder={project.name}
+              className="mt-2"
+              disabled={isDeleting}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setDeleteConfirmation('');
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handlePermanentDelete}
+              disabled={isDeleting || deleteConfirmation !== project.name}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? (
+                <>
+                  <CircularProgress size={20} className="mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Forever'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

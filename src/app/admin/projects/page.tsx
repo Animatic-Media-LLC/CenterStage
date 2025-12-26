@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FolderKanban, Plus, Search, Edit, QrCode, ExternalLink, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { CopyUrlButton } from '@/components/admin/copy-url-button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
@@ -154,27 +155,33 @@ export default async function ProjectsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Public Form
                         </Typography>
-                        <Link
-                          href={`/comment/${project.slug}`}
-                          target="_blank"
-                          className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                        >
-                          /comment/{project.slug}
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Link
+                            href={`/comment/${project.slug}`}
+                            target="_blank"
+                            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            /comment/{project.slug}
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                          <CopyUrlButton url={`/comment/${project.slug}`} label="Copy comment form URL" />
+                        </Box>
                       </Box>
                       <Box>
                         <Typography variant="caption" color="text.secondary">
                           Presentation
                         </Typography>
-                        <Link
-                          href={`/present/${project.slug}`}
-                          target="_blank"
-                          className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                        >
-                          /present/{project.slug}
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Link
+                            href={`/present/${project.slug}`}
+                            target="_blank"
+                            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            /present/{project.slug}
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                          <CopyUrlButton url={`/present/${project.slug}`} label="Copy presentation URL" />
+                        </Box>
                       </Box>
                     </Box>
 

@@ -99,9 +99,12 @@ export interface Database {
           background_color: string
           background_image_url: string | null
           allow_video_uploads: boolean
+          max_video_duration: number
           transition_duration: number
           animation_style: 'fade' | 'slide' | 'zoom'
           layout_template: string
+          randomize_order: boolean
+          allow_video_finish: boolean
           created_at: string
           updated_at: string
         }
@@ -115,9 +118,12 @@ export interface Database {
           background_color?: string
           background_image_url?: string | null
           allow_video_uploads?: boolean
+          max_video_duration?: number
           transition_duration?: number
           animation_style?: 'fade' | 'slide' | 'zoom'
           layout_template?: string
+          randomize_order?: boolean
+          allow_video_finish?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -131,9 +137,12 @@ export interface Database {
           background_color?: string
           background_image_url?: string | null
           allow_video_uploads?: boolean
+          max_video_duration?: number
           transition_duration?: number
           animation_style?: 'fade' | 'slide' | 'zoom'
           layout_template?: string
+          randomize_order?: boolean
+          allow_video_finish?: boolean
           created_at?: string
           updated_at?: string
         }

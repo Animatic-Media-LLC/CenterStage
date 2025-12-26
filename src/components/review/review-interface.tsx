@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TextField from '@mui/material/TextField';
@@ -15,6 +15,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
+import { useSnackbar } from '@/components/providers/snackbar-provider';
 import type { Database } from '@/types/database.types';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
@@ -28,6 +29,9 @@ interface ReviewInterfaceProps {
 }
 
 export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps) {
+  const { success: showSuccess } = useSnackbar();
+  const previousPendingCount = useRef<number>(0);
+
   const [activeTab, setActiveTab] = useState<SubmissionStatus>('pending');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +40,43 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [tabCounts, setTabCounts] = useState({
+    pending: 0,
+    approved: 0,
+    declined: 0,
+    archived: 0,
+    deleted: 0,
+  });
+
+  // Fetch tab counts
+  const fetchTabCounts = async (showNotification = false) => {
+    try {
+      const response = await fetch(`/api/submissions/counts?projectId=${projectId}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tab counts');
+      }
+
+      const data = await response.json();
+      const newPendingCount = data.counts.pending;
+
+      // Show notification if there are new pending submissions
+      if (showNotification && previousPendingCount.current > 0 && newPendingCount > previousPendingCount.current) {
+        const newCount = newPendingCount - previousPendingCount.current;
+        showSuccess(`${newCount} new pending submission${newCount > 1 ? 's' : ''} received`);
+
+        // Refresh pending tab if it's active
+        if (activeTab === 'pending') {
+          fetchSubmissions('pending');
+        }
+      }
+
+      previousPendingCount.current = newPendingCount;
+      setTabCounts(data.counts);
+    } catch (err) {
+      console.error('Error fetching tab counts:', err);
+    }
+  };
 
   // Fetch submissions for the active tab
   const fetchSubmissions = async (status: SubmissionStatus) => {
@@ -59,10 +100,20 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
     }
   };
 
-  // Fetch submissions when tab changes
+  // Fetch submissions and counts when tab changes
   useEffect(() => {
     fetchSubmissions(activeTab);
+    fetchTabCounts();
   }, [activeTab, projectId]);
+
+  // Poll for new pending submissions every 12 seconds
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      fetchTabCounts(true); // Pass true to enable notifications
+    }, 12000); // 12 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [projectId, activeTab]);
 
   // Handle status change for a submission
   const handleStatusChange = async (submissionId: string, newStatus: SubmissionStatus) => {
@@ -81,6 +132,9 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
 
       // Remove the submission from current view (it moved to another tab)
       setSubmissions(prev => prev.filter(s => s.id !== submissionId));
+
+      // Refresh tab counts
+      fetchTabCounts();
     } catch (err) {
       console.error('Error updating submission:', err);
       setError('Failed to update submission. Please try again.');
@@ -134,15 +188,13 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
 
       // Remove from state
       setSubmissions(prev => prev.filter(s => s.id !== submissionId));
+
+      // Refresh tab counts
+      fetchTabCounts();
     } catch (err) {
       console.error('Error deleting submission:', err);
       setError('Failed to delete submission. Please try again.');
     }
-  };
-
-  const getTabCount = (status: SubmissionStatus) => {
-    // This could be enhanced with real-time counts from the API
-    return submissions.length;
   };
 
   // Helper function to check if a date is within the filter range
@@ -305,7 +357,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           <Tab
             label={
               <Badge
-                badgeContent={activeTab === 'pending' ? submissions.length : 0}
+                badgeContent={tabCounts.pending}
                 color="primary"
                 sx={{ '& .MuiBadge-badge': { right: -10 } }}
               >
@@ -317,7 +369,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           <Tab
             label={
               <Badge
-                badgeContent={activeTab === 'approved' ? submissions.length : 0}
+                badgeContent={tabCounts.approved}
                 color="success"
                 sx={{ '& .MuiBadge-badge': { right: -10 } }}
               >
@@ -329,7 +381,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           <Tab
             label={
               <Badge
-                badgeContent={activeTab === 'declined' ? submissions.length : 0}
+                badgeContent={tabCounts.declined}
                 color="error"
                 sx={{ '& .MuiBadge-badge': { right: -10 } }}
               >
@@ -341,7 +393,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           <Tab
             label={
               <Badge
-                badgeContent={activeTab === 'archived' ? submissions.length : 0}
+                badgeContent={tabCounts.archived}
                 color="default"
                 sx={{ '& .MuiBadge-badge': { right: -10 } }}
               >
@@ -353,7 +405,7 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
           <Tab
             label={
               <Badge
-                badgeContent={activeTab === 'deleted' ? submissions.length : 0}
+                badgeContent={tabCounts.deleted}
                 color="default"
                 sx={{ '& .MuiBadge-badge': { right: -10 } }}
               >

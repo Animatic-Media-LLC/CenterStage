@@ -21,9 +21,35 @@ export default async function CommentPage({ params }: CommentPageProps) {
   // Fetch project
   const project = await getProjectBySlug(slug);
 
-  // 404 if project not found or not active
-  if (!project || project.status !== 'active') {
+  // 404 if project not found
+  if (!project) {
     redirect('/404');
+  }
+
+  // Show message if project is not active
+  if (project.status !== 'active') {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: '#f3f4f6',
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box sx={{ textAlign: 'center', p: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600, color: '#374151' }}>
+              Project Not Available
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#6b7280', mt: 2 }}>
+              This project is no longer accepting submissions.
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    );
   }
 
   // Fetch presentation config
@@ -35,6 +61,7 @@ export default async function CommentPage({ params }: CommentPageProps) {
   const textColor = config?.text_color || '#15598a';
   const backgroundColor = config?.background_color || '#e0ecf6';
   const allowVideoUploads = config?.allow_video_uploads ?? true;
+  const maxVideoDuration = config?.max_video_duration || 12;
 
   return (
     <Box
@@ -81,6 +108,7 @@ export default async function CommentPage({ params }: CommentPageProps) {
           projectId={project.id}
           projectSlug={project.slug}
           allowVideoUploads={allowVideoUploads}
+          maxVideoDuration={maxVideoDuration}
         />
       </Container>
     </Box>

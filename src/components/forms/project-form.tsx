@@ -148,9 +148,12 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
         background_color: backgroundColor,
         background_image_url: backgroundImageUrl,
         allow_video_uploads: allowVideoUploads,
+        max_video_duration: 12,
+        allow_video_finish: false,
         transition_duration: transitionDuration,
         animation_style: animationStyle,
         layout_template: layoutTemplate,
+        randomize_order: false,
       };
 
       // Validate project data

@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PresentationSlide } from './presentation-slide';
 import type { Database } from '@/types/database.types';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
+
+// Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 interface PresentationConfig {
   fontFamily: string;
@@ -15,6 +25,8 @@ interface PresentationConfig {
   backgroundImageUrl: string | null;
   transitionDuration: number;
   animationStyle: 'fade' | 'slide' | 'zoom';
+  randomizeOrder?: boolean;
+  allowVideoFinish?: boolean;
 }
 
 interface PresentationSlideshowProps {
@@ -32,11 +44,17 @@ export function PresentationSlideshow({
   submissions: initialSubmissions,
   config,
 }: PresentationSlideshowProps) {
-  const [submissions, setSubmissions] = useState<Submission[]>(initialSubmissions);
+  // Shuffle submissions once on mount if randomizeOrder is enabled
+  const shuffledSubmissions = useMemo(() => {
+    return config.randomizeOrder ? shuffleArray(initialSubmissions) : initialSubmissions;
+  }, []); // Empty dependency array ensures this only runs once on mount
+
+  const [submissions, setSubmissions] = useState<Submission[]>(shuffledSubmissions);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [displayedOnce, setDisplayedOnce] = useState<Set<string>>(new Set());
+  const [currentVideoDuration, setCurrentVideoDuration] = useState<number | null>(null);
 
   // Filter submissions: remove "once" items that have already been displayed
   const activeSubmissions = submissions.filter((submission) => {
@@ -49,10 +67,33 @@ export function PresentationSlideshow({
   const currentSubmission = activeSubmissions[currentIndex];
   const previousSubmission = previousIndex !== null ? activeSubmissions[previousIndex] : null;
 
+  // Callback for PresentationSlide to report video duration
+  const handleVideoDurationDetected = useCallback((duration: number) => {
+    setCurrentVideoDuration(duration);
+  }, []);
+
+  // Reset video duration when slide changes
+  useEffect(() => {
+    setCurrentVideoDuration(null);
+  }, [currentIndex]);
+
   // Get the duration for the current slide
   const getCurrentDuration = () => {
     if (!currentSubmission) return config.transitionDuration;
-    return currentSubmission.custom_timing || config.transitionDuration;
+
+    const baseDuration = currentSubmission.custom_timing || config.transitionDuration;
+
+    // If allowVideoFinish is enabled and we have a video with duration > baseDuration
+    if (
+      config.allowVideoFinish &&
+      currentSubmission.video_url &&
+      currentVideoDuration !== null &&
+      currentVideoDuration > baseDuration
+    ) {
+      return currentVideoDuration;
+    }
+
+    return baseDuration;
   };
 
   // Auto-advance to next slide
@@ -79,7 +120,7 @@ export function PresentationSlideshow({
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, activeSubmissions.length, currentSubmission]);
+  }, [currentIndex, activeSubmissions.length, currentSubmission, currentVideoDuration]);
 
   // Clear previous slide after transition completes
   useEffect(() => {
@@ -278,6 +319,7 @@ export function PresentationSlideshow({
           config={config}
           animationStyle={config.animationStyle}
           isExiting={true}
+          onVideoDurationDetected={handleVideoDurationDetected}
         />
       )}
 
@@ -288,6 +330,7 @@ export function PresentationSlideshow({
         config={config}
         animationStyle={config.animationStyle}
         isExiting={false}
+        onVideoDurationDetected={handleVideoDurationDetected}
       />
 
       {/* Hidden controls info (for admin testing) */}

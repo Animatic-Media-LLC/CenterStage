@@ -86,6 +86,15 @@ export const presentationConfigSchema = z.object({
   allow_video_uploads: z.boolean()
     .default(true),
 
+  max_video_duration: z.number()
+    .int('Max video duration must be an integer')
+    .min(1, 'Max video duration must be at least 1 second')
+    .max(60, 'Max video duration must be at most 60 seconds')
+    .default(12),
+
+  allow_video_finish: z.boolean()
+    .default(false),
+
   transition_duration: z.number()
     .int('Transition duration must be an integer')
     .min(1, 'Transition duration must be at least 1 second')
@@ -98,6 +107,9 @@ export const presentationConfigSchema = z.object({
   layout_template: z.string()
     .min(1, 'Layout template is required')
     .default('standard'),
+
+  randomize_order: z.boolean()
+    .default(false),
 });
 
 export type PresentationConfigInput = z.infer<typeof presentationConfigSchema>;
