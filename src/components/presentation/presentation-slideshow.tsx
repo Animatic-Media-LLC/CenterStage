@@ -26,6 +26,7 @@ interface PresentationConfig {
   transitionDuration: number;
   animationStyle: 'fade' | 'slide' | 'zoom';
   randomizeOrder?: boolean;
+  allowVideoFinish?: boolean;
 }
 
 interface PresentationSlideshowProps {
@@ -53,6 +54,7 @@ export function PresentationSlideshow({
   const [previousIndex, setPreviousIndex] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [displayedOnce, setDisplayedOnce] = useState<Set<string>>(new Set());
+  const [currentVideoDuration, setCurrentVideoDuration] = useState<number | null>(null);
 
   // Filter submissions: remove "once" items that have already been displayed
   const activeSubmissions = submissions.filter((submission) => {
@@ -65,10 +67,33 @@ export function PresentationSlideshow({
   const currentSubmission = activeSubmissions[currentIndex];
   const previousSubmission = previousIndex !== null ? activeSubmissions[previousIndex] : null;
 
+  // Callback for PresentationSlide to report video duration
+  const handleVideoDurationDetected = useCallback((duration: number) => {
+    setCurrentVideoDuration(duration);
+  }, []);
+
+  // Reset video duration when slide changes
+  useEffect(() => {
+    setCurrentVideoDuration(null);
+  }, [currentIndex]);
+
   // Get the duration for the current slide
   const getCurrentDuration = () => {
     if (!currentSubmission) return config.transitionDuration;
-    return currentSubmission.custom_timing || config.transitionDuration;
+
+    const baseDuration = currentSubmission.custom_timing || config.transitionDuration;
+
+    // If allowVideoFinish is enabled and we have a video with duration > baseDuration
+    if (
+      config.allowVideoFinish &&
+      currentSubmission.video_url &&
+      currentVideoDuration !== null &&
+      currentVideoDuration > baseDuration
+    ) {
+      return currentVideoDuration;
+    }
+
+    return baseDuration;
   };
 
   // Auto-advance to next slide
@@ -95,7 +120,7 @@ export function PresentationSlideshow({
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, activeSubmissions.length, currentSubmission]);
+  }, [currentIndex, activeSubmissions.length, currentSubmission, currentVideoDuration]);
 
   // Clear previous slide after transition completes
   useEffect(() => {
@@ -294,6 +319,7 @@ export function PresentationSlideshow({
           config={config}
           animationStyle={config.animationStyle}
           isExiting={true}
+          onVideoDurationDetected={handleVideoDurationDetected}
         />
       )}
 
@@ -304,6 +330,7 @@ export function PresentationSlideshow({
         config={config}
         animationStyle={config.animationStyle}
         isExiting={false}
+        onVideoDurationDetected={handleVideoDurationDetected}
       />
 
       {/* Hidden controls info (for admin testing) */}

@@ -21,6 +21,7 @@ interface PresentationSlideProps {
   config: PresentationConfig;
   animationStyle: 'fade' | 'slide' | 'zoom';
   isExiting: boolean;
+  onVideoDurationDetected?: (duration: number) => void;
 }
 
 export function PresentationSlide({
@@ -28,6 +29,7 @@ export function PresentationSlide({
   config,
   animationStyle,
   isExiting,
+  onVideoDurationDetected,
 }: PresentationSlideProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
@@ -249,6 +251,13 @@ export function PresentationSlide({
                 muted
                 playsInline
                 preload="auto"
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget;
+                  if (onVideoDurationDetected && video.duration) {
+                    const duration = Math.round(video.duration * 10) / 10; // Round to 1 decimal
+                    onVideoDurationDetected(duration);
+                  }
+                }}
                 style={{
                   maxWidth: '100%',
                   maxHeight: screenSize.isPortrait ? '40vh' : '50vh',

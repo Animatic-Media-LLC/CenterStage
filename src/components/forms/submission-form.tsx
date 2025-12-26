@@ -25,9 +25,10 @@ interface SubmissionFormProps {
   projectId: string;
   projectSlug: string;
   allowVideoUploads?: boolean;
+  maxVideoDuration?: number;
 }
 
-export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = true }: SubmissionFormProps) {
+export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = true, maxVideoDuration = 12 }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,13 +41,34 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'photo' | 'video' | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const characterCount = comment.length;
   const characterLimit = 500;
 
+  // Detect video duration using HTML5 Video API
+  const detectVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        const duration = Math.round(video.duration * 10) / 10; // Round to 1 decimal place
+        resolve(duration);
+      };
+
+      video.onerror = () => {
+        reject(new Error('Failed to load video metadata'));
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   // Handle media file selection (photo or video)
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -85,6 +107,29 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
       return;
     }
 
+    // Detect and validate video duration
+    if (isVideo) {
+      try {
+        const duration = await detectVideoDuration(file);
+        setVideoDuration(duration);
+
+        // Validate against max duration
+        if (duration > maxVideoDuration) {
+          setErrors({
+            ...errors,
+            media: `Your video is ${duration}s long. Please upload a video that's ${maxVideoDuration}s or less.`
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Error detecting video duration:', error);
+        setErrors({ ...errors, media: 'Failed to read video file. Please try a different video.' });
+        return;
+      }
+    } else {
+      setVideoDuration(null);
+    }
+
     setMediaFile(file);
     setMediaType(isImage ? 'photo' : 'video');
     setErrors({ ...errors, media: '' });
@@ -102,6 +147,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
+    setVideoDuration(null);
   };
 
   // Handle form submission
@@ -198,6 +244,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
+    setVideoDuration(null);
     setErrors({});
     setServerError(null);
   };
@@ -305,11 +352,18 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                       className={styles.photoPreview}
                     />
                   ) : (
-                    <video
-                      src={mediaPreview}
-                      controls
-                      className={styles.photoPreview}
-                    />
+                    <div>
+                      <video
+                        src={mediaPreview}
+                        controls
+                        className={styles.photoPreview}
+                      />
+                      {videoDuration !== null && (
+                        <Typography variant="body2" sx={{ mt: 1, color: '#6b7280', textAlign: 'center' }}>
+                          Duration: {videoDuration}s
+                        </Typography>
+                      )}
+                    </div>
                   )}
                   <Button
                     type="button"
@@ -345,7 +399,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   </div>
                   <span className={styles.uploadHint}>
                     {allowVideoUploads
-                      ? 'Images: JPEG, PNG, WebP, HEIC | Videos: MP4, MOV, WebM (Max 10MB)'
+                      ? `Images: JPEG, PNG, WebP, HEIC | Videos: MP4, MOV, WebM (Max ${maxVideoDuration}s, 10MB)`
                       : 'Images: JPEG, PNG, WebP, HEIC (Max 10MB)'}
                   </span>
                 </div>

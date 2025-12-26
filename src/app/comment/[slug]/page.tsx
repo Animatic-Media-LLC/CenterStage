@@ -61,6 +61,7 @@ export default async function CommentPage({ params }: CommentPageProps) {
   const textColor = config?.text_color || '#15598a';
   const backgroundColor = config?.background_color || '#e0ecf6';
   const allowVideoUploads = config?.allow_video_uploads ?? true;
+  const maxVideoDuration = config?.max_video_duration || 12;
 
   return (
     <Box
@@ -107,6 +108,7 @@ export default async function CommentPage({ params }: CommentPageProps) {
           projectId={project.id}
           projectSlug={project.slug}
           allowVideoUploads={allowVideoUploads}
+          maxVideoDuration={maxVideoDuration}
         />
       </Container>
     </Box>

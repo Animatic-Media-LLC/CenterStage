@@ -69,6 +69,7 @@ export default async function PresentationPage({ params }: PresentationPageProps
     transitionDuration: config?.transition_duration || 5,
     animationStyle: (config?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade',
     randomizeOrder: config?.randomize_order ?? false,
+    allowVideoFinish: config?.allow_video_finish ?? false,
   };
 
   return (

@@ -54,6 +54,8 @@ interface ProjectEditFormProps {
     background_color: string;
     background_image_url: string | null;
     allow_video_uploads: boolean;
+    max_video_duration?: number;
+    allow_video_finish?: boolean;
     transition_duration: number;
     animation_style: string;
     layout_template: string;
@@ -86,6 +88,8 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [allowVideoUploads, setAllowVideoUploads] = useState(presentationConfig?.allow_video_uploads ?? true);
+  const [maxVideoDuration, setMaxVideoDuration] = useState(presentationConfig?.max_video_duration || 12);
+  const [allowVideoFinish, setAllowVideoFinish] = useState(presentationConfig?.allow_video_finish ?? false);
   const [transitionDuration, setTransitionDuration] = useState(presentationConfig?.transition_duration || 5);
   const [animationStyle, setAnimationStyle] = useState<'fade' | 'slide' | 'zoom'>(
     (presentationConfig?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade'
@@ -192,6 +196,8 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
         background_color: backgroundColor,
         background_image_url: backgroundImageUrl,
         allow_video_uploads: allowVideoUploads,
+        max_video_duration: maxVideoDuration,
+        allow_video_finish: allowVideoFinish,
         transition_duration: transitionDuration,
         animation_style: animationStyle,
         layout_template: layoutTemplate,
@@ -578,19 +584,59 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
           {/* Media Upload Options */}
           <div className="mt-4">
             <Label>Media Upload Options</Label>
-            <div className="mt-2">
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={allowVideoUploads}
-                    onChange={(e) => setAllowVideoUploads(e.target.checked)}
-                  />
-                }
-                label="Allow video uploads on submission form"
-              />
-              <p className="text-sm text-gray-500 ml-8">
-                When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
-              </p>
+            <div className="mt-2 space-y-4">
+              <div>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={allowVideoUploads}
+                      onChange={(e) => setAllowVideoUploads(e.target.checked)}
+                    />
+                  }
+                  label="Allow video uploads on submission form"
+                />
+                <p className="text-sm text-gray-500 ml-8">
+                  When enabled, users can upload both photos and videos. When disabled, only photos are allowed.
+                </p>
+              </div>
+
+              {allowVideoUploads && (
+                <div className="ml-8 space-y-4">
+                  <div>
+                    <Label htmlFor="max_video_duration">Max video length (seconds)</Label>
+                    <div className="flex items-center gap-4 mt-2">
+                      <input
+                        id="max_video_duration"
+                        type="number"
+                        min={1}
+                        max={60}
+                        value={maxVideoDuration}
+                        onChange={(e) => setMaxVideoDuration(parseInt(e.target.value) || 12)}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <span className="text-sm text-gray-600">{maxVideoDuration}s</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Maximum allowed video duration. Videos longer than this will be rejected. (1-60 seconds)
+                    </p>
+                  </div>
+
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={allowVideoFinish}
+                          onChange={(e) => setAllowVideoFinish(e.target.checked)}
+                        />
+                      }
+                      label="Allow videos to finish before transition"
+                    />
+                    <p className="text-sm text-gray-500 ml-8">
+                      When enabled, if a video is longer than the transition duration, the slide will remain visible until the video finishes playing. When disabled, videos will loop or be cut off at the transition time.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

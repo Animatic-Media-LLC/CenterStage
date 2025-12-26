@@ -42,11 +42,13 @@ export async function GET(request: NextRequest) {
       deleted: 0,
     };
 
-    data.forEach((submission) => {
-      if (submission.status in counts) {
-        counts[submission.status as keyof typeof counts]++;
-      }
-    });
+    if (data) {
+      (data as { status: string }[]).forEach((submission) => {
+        if (submission.status in counts) {
+          counts[submission.status as keyof typeof counts]++;
+        }
+      });
+    }
 
     return NextResponse.json({ counts });
   } catch (error) {

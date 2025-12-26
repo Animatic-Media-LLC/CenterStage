@@ -918,32 +918,32 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
   - [x] Shuffle maintains consistent order during single session
   - [x] Re-shuffle on each new page load/session
 
-#### D. Video Upload Enhancements
-- [ ] Add video duration detection and validation
-  - [ ] Detect video duration client-side using HTML5 Video API
-  - [ ] Display video duration in upload summary (e.g., "video.mp4 - 8.5s")
-  - [ ] Add `max_video_duration` field to `presentation_config` table (default: 12)
+#### D. Video Upload Enhancements ✅
+- [x] Add video duration detection and validation
+  - [x] Detect video duration client-side using HTML5 Video API
+  - [x] Display video duration in upload summary (e.g., "video.mp4 - 8.5s")
+  - [x] Add `max_video_duration` field to `presentation_config` table (default: 12)
 
-- [ ] Add max video duration control in admin
-  - [ ] Add input field in project edit page: "Max video length (seconds)"
-  - [ ] Place below "Allow video uploads on submission form" toggle
-  - [ ] Default value: 12 seconds
-  - [ ] Validation: must be between 1-60 seconds
-  - [ ] Save to `presentation_config.max_video_duration`
+- [x] Add max video duration control in admin
+  - [x] Add input field in project edit page: "Max video length (seconds)"
+  - [x] Place below "Allow video uploads on submission form" toggle
+  - [x] Default value: 12 seconds
+  - [x] Validation: must be between 1-60 seconds
+  - [x] Save to `presentation_config.max_video_duration`
 
-- [ ] Update comment form with video duration validation
-  - [ ] Fetch max_video_duration from project config
-  - [ ] Show helper text: "Videos must be [X] seconds or less"
-  - [ ] Validate video duration before upload
-  - [ ] Show error if video exceeds limit: "Your video is [Y]s long. Please upload a video that's [X]s or less."
-  - [ ] Prevent form submission if video is too long
+- [x] Update comment form with video duration validation
+  - [x] Fetch max_video_duration from project config
+  - [x] Show helper text: "Videos must be [X] seconds or less"
+  - [x] Validate video duration before upload
+  - [x] Show error if video exceeds limit: "Your video is [Y]s long. Please upload a video that's [X]s or less."
+  - [x] Prevent form submission if video is too long
 
-- [ ] Add video duration override toggle
-  - [ ] Add toggle in `presentation_config`: "Allow videos to finish before transition"
-  - [ ] Add to project edit page below max duration setting
-  - [ ] When enabled: if video duration > transition duration, extend slide duration to match video length
-  - [ ] When disabled: video loops/cuts off at transition time (current behavior)
-  - [ ] Update presentation slideshow logic to respect this setting
+- [x] Add video duration override toggle
+  - [x] Add toggle in `presentation_config`: "Allow videos to finish before transition"
+  - [x] Add to project edit page below max duration setting
+  - [x] When enabled: if video duration > transition duration, extend slide duration to match video length
+  - [x] When disabled: video loops/cuts off at transition time (current behavior)
+  - [x] Update presentation slideshow logic to respect this setting
 
 **Deliverable:** Polished admin dashboard with improved project management, better UX, and comprehensive video handling
 
