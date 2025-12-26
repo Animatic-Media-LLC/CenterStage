@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PresentationSlide } from './presentation-slide';
 import type { Database } from '@/types/database.types';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
+
+// Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 interface PresentationConfig {
   fontFamily: string;
@@ -15,6 +25,7 @@ interface PresentationConfig {
   backgroundImageUrl: string | null;
   transitionDuration: number;
   animationStyle: 'fade' | 'slide' | 'zoom';
+  randomizeOrder?: boolean;
 }
 
 interface PresentationSlideshowProps {
@@ -32,7 +43,12 @@ export function PresentationSlideshow({
   submissions: initialSubmissions,
   config,
 }: PresentationSlideshowProps) {
-  const [submissions, setSubmissions] = useState<Submission[]>(initialSubmissions);
+  // Shuffle submissions once on mount if randomizeOrder is enabled
+  const shuffledSubmissions = useMemo(() => {
+    return config.randomizeOrder ? shuffleArray(initialSubmissions) : initialSubmissions;
+  }, []); // Empty dependency array ensures this only runs once on mount
+
+  const [submissions, setSubmissions] = useState<Submission[]>(shuffledSubmissions);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);

@@ -276,13 +276,39 @@ export async function archiveProject(id: string): Promise<Project> {
 }
 
 /**
+ * Reactivate an archived project
+ */
+export async function reactivateProject(id: string): Promise<Project> {
+  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from('projects')
+    .update({
+      status: 'active',
+      archived_at: null,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Failed to reactivate project:', error);
+    throw new Error('Failed to reactivate project');
+  }
+
+  return data as Project;
+}
+
+/**
  * Delete a project (soft delete by setting status)
  */
 export async function deleteProject(id: string): Promise<Project> {
   // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('projects')
     .update({ status: 'deleted' } as never)
     .eq('id', id)
@@ -299,11 +325,65 @@ export async function deleteProject(id: string): Promise<Project> {
 
 /**
  * Permanently delete a project (hard delete)
+ * Cascades to delete all submissions and associated media files
  */
 export async function permanentlyDeleteProject(id: string): Promise<void> {
   // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
   const supabase = createAdminClient();
 
+  // First, get all submissions for this project to delete their media files
+  const { data: submissions, error: fetchError } = await supabase
+    .from('submissions')
+    .select('photo_url, video_url')
+    .eq('project_id', id);
+
+  if (fetchError) {
+    console.error('Failed to fetch submissions for deletion:', fetchError);
+    throw new Error('Failed to fetch submissions for deletion');
+  }
+
+  // Delete media files from Supabase Storage
+  if (submissions && submissions.length > 0) {
+    const filesToDelete: string[] = [];
+
+    submissions.forEach((submission: { photo_url: string | null; video_url: string | null }) => {
+      // Extract file paths from URLs
+      if (submission.photo_url) {
+        const photoPath = extractStoragePath(submission.photo_url);
+        if (photoPath) filesToDelete.push(photoPath);
+      }
+      if (submission.video_url) {
+        const videoPath = extractStoragePath(submission.video_url);
+        if (videoPath) filesToDelete.push(videoPath);
+      }
+    });
+
+    // Delete files from storage bucket
+    if (filesToDelete.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from('submissions')
+        .remove(filesToDelete);
+
+      if (storageError) {
+        console.error('Failed to delete media files:', storageError);
+        // Don't throw - continue with database deletion even if storage fails
+      }
+    }
+  }
+
+  // Delete presentation config (will cascade from project deletion, but explicit is safer)
+  await supabase
+    .from('presentation_config')
+    .delete()
+    .eq('project_id', id);
+
+  // Delete all submissions (database will cascade from foreign key, but explicit is safer)
+  await supabase
+    .from('submissions')
+    .delete()
+    .eq('project_id', id);
+
+  // Finally, delete the project itself
   const { error } = await supabase
     .from('projects')
     .delete()
@@ -312,6 +392,20 @@ export async function permanentlyDeleteProject(id: string): Promise<void> {
   if (error) {
     console.error('Failed to permanently delete project:', error);
     throw new Error('Failed to permanently delete project');
+  }
+}
+
+/**
+ * Helper function to extract storage path from Supabase URL
+ */
+function extractStoragePath(url: string): string | null {
+  try {
+    // Supabase storage URLs follow pattern: https://{project}.supabase.co/storage/v1/object/public/{bucket}/{path}
+    const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/);
+    return match ? match[1] : null;
+  } catch (error) {
+    console.error('Failed to extract storage path:', error);
+    return null;
   }
 }
 

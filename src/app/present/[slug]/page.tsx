@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation';
 import { getProjectBySlug, getPresentationConfig } from '@/lib/db/projects';
 import { getApprovedSubmissions } from '@/lib/db/submissions';
 import { PresentationSlideshow } from '@/components/presentation/presentation-slideshow';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
 
 interface PresentationPageProps {
   params: Promise<{
@@ -18,9 +21,35 @@ export default async function PresentationPage({ params }: PresentationPageProps
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
 
-  // Redirect if project not found or not active
-  if (!project || project.status !== 'active') {
+  // Redirect if project not found
+  if (!project) {
     redirect('/');
+  }
+
+  // Show message if project is not active
+  if (project.status !== 'active') {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: '#1a1a1a',
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box sx={{ textAlign: 'center', p: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600, color: '#ffffff' }}>
+              Presentation Not Available
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#9ca3af', mt: 2 }}>
+              This presentation is currently unavailable.
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    );
   }
 
   // Fetch presentation config
@@ -39,6 +68,7 @@ export default async function PresentationPage({ params }: PresentationPageProps
     backgroundImageUrl: config?.background_image_url || null,
     transitionDuration: config?.transition_duration || 5,
     animationStyle: (config?.animation_style as 'fade' | 'slide' | 'zoom') || 'fade',
+    randomizeOrder: config?.randomize_order ?? false,
   };
 
   return (

@@ -856,6 +856,99 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 
 ---
 
+### Phase 5.2: Admin Dashboard UI Improvements
+**Goal:** Implement user feedback into the admin dashboard with improved UX
+
+#### A. Project Management Enhancements ✅
+- [x] Implement project archiving functionality
+  - [x] Add `archived_at` timestamp tracking to projects table (already exists in schema)
+  - [x] Update project status to reflect archived state
+  - [x] Add Archive/Reactivate button in project edit page
+  - [x] Add confirmation modal for archive action
+  - [x] Update project card UI to show "Archived" badge/indicator
+  - [x] Filter archived projects in projects list (show/hide toggle or separate tab)
+  - [x] Block public access to archived project pages
+    - [x] Comment page (`/comment/[slug]`) shows "This project is no longer available" message
+    - [x] Presentation page (`/present/[slug]`) shows "This project is no longer available" message
+  - [x] Allow admins to view archived projects and submissions in read-only mode
+
+- [x] Implement project deletion functionality
+  - [x] Add Delete button in project edit page (separate from archive)
+  - [x] Add confirmation modal with warning: "This action cannot be undone. This will permanently delete the project and all associated submissions."
+  - [x] Require typing project name to confirm deletion
+  - [x] Create API endpoint to delete project and cascade delete all submissions
+  - [x] Delete associated media files from Supabase Storage
+  - [x] Redirect to projects list after successful deletion
+
+- [x] Add URL copy functionality to project cards
+  - [x] Add "Copy" button next to comment URL on project card
+  - [x] Add "Copy" button next to presentation URL on project card
+  - [x] Show success toast/snackbar when URL is copied
+  - [x] Match the copy button style from QR page
+
+#### B. Review Interface Improvements ✅
+- [x] Update submission card button styling
+  - [x] Change Approve button from primary to standard (match Decline/Delete buttons)
+  - [x] Ensure consistent button styling across all actions
+
+- [x] Implement badge counts on all tabs
+  - [x] Fetch counts for all tabs (Pending, Approved, Declined, Archived, Deleted)
+  - [x] Display badge with count on each tab, even when count is 0
+  - [x] Update counts in real-time when submissions change status
+  - [x] Create API endpoint to fetch all counts efficiently
+
+- [x] Add real-time pending submission notifications
+  - [x] Poll for new pending submissions while on review page
+  - [x] Show in-app toast/snackbar notification when new pending submissions arrive
+  - [x] Notification message: "X new pending submission(s) received"
+  - [x] Clicking notification refreshes pending tab
+  - [x] Poll interval: 10-15 seconds (configurable)
+
+#### C. Project Edit Page Reorganization ✅
+- [x] Reorder form sections in project edit page
+  - [x] Move Preview section directly under Font section
+  - [x] Keep Preview section above Background section
+  - [x] Maintain logical flow: Details → Fonts → Preview → Background → Timing/Animation
+
+- [x] Add randomize posts toggle
+  - [x] Add toggle control: "Randomize post order" (default: off)
+  - [x] Add to `presentation_config` table: `randomize_order` boolean field
+  - [x] Update project edit form to save randomize setting
+  - [x] Update presentation page to shuffle submissions on load when enabled
+  - [x] Shuffle maintains consistent order during single session
+  - [x] Re-shuffle on each new page load/session
+
+#### D. Video Upload Enhancements
+- [ ] Add video duration detection and validation
+  - [ ] Detect video duration client-side using HTML5 Video API
+  - [ ] Display video duration in upload summary (e.g., "video.mp4 - 8.5s")
+  - [ ] Add `max_video_duration` field to `presentation_config` table (default: 12)
+
+- [ ] Add max video duration control in admin
+  - [ ] Add input field in project edit page: "Max video length (seconds)"
+  - [ ] Place below "Allow video uploads on submission form" toggle
+  - [ ] Default value: 12 seconds
+  - [ ] Validation: must be between 1-60 seconds
+  - [ ] Save to `presentation_config.max_video_duration`
+
+- [ ] Update comment form with video duration validation
+  - [ ] Fetch max_video_duration from project config
+  - [ ] Show helper text: "Videos must be [X] seconds or less"
+  - [ ] Validate video duration before upload
+  - [ ] Show error if video exceeds limit: "Your video is [Y]s long. Please upload a video that's [X]s or less."
+  - [ ] Prevent form submission if video is too long
+
+- [ ] Add video duration override toggle
+  - [ ] Add toggle in `presentation_config`: "Allow videos to finish before transition"
+  - [ ] Add to project edit page below max duration setting
+  - [ ] When enabled: if video duration > transition duration, extend slide duration to match video length
+  - [ ] When disabled: video loops/cuts off at transition time (current behavior)
+  - [ ] Update presentation slideshow logic to respect this setting
+
+**Deliverable:** Polished admin dashboard with improved project management, better UX, and comprehensive video handling
+
+---
+
 ### Phase 6: Polish, Testing & Deployment ✓
 **Goal:** Finalize the application, fix bugs, and deploy to production
 
@@ -864,6 +957,7 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
   - [ ] Mobile browsers (iOS Safari, Chrome Android)
 - [ ] Responsive design review
   - [ ] Test all pages on mobile, tablet, desktop
+  - [ ] Ensure all admin pages work on mobile view correctly
   - [ ] Fix layout issues
 - [ ] Accessibility audit
   - [ ] Keyboard navigation

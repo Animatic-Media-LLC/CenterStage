@@ -75,7 +75,14 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
       {/* Main Content */}
       <div className="px-8 py-6 max-w-4xl">
         <ProjectEditForm
-          project={project}
+          project={{
+            id: project.id,
+            name: project.name,
+            client_name: project.client_name,
+            slug: project.slug,
+            status: project.status,
+            archived_at: project.archived_at,
+          }}
           presentationConfig={presentationConfig}
           existingSlugs={existingSlugs}
         />

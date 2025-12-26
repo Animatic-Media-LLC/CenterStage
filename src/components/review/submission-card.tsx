@@ -204,8 +204,9 @@ export function SubmissionCard({
                 <>
                   <Button
                     size="sm"
+                    variant="outline"
                     onClick={() => onStatusChange(submission.id, 'approved')}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
                   >
                     <Check size={16} className="mr-1" />
                     Approve
@@ -214,6 +215,7 @@ export function SubmissionCard({
                     size="sm"
                     variant="outline"
                     onClick={() => onStatusChange(submission.id, 'declined')}
+                    className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
                   >
                     <X size={16} className="mr-1" />
                     Decline
@@ -246,8 +248,9 @@ export function SubmissionCard({
                 <>
                   <Button
                     size="sm"
+                    variant="outline"
                     onClick={() => onStatusChange(submission.id, 'approved')}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
                   >
                     <Check size={16} className="mr-1" />
                     Approve

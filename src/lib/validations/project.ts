@@ -98,6 +98,9 @@ export const presentationConfigSchema = z.object({
   layout_template: z.string()
     .min(1, 'Layout template is required')
     .default('standard'),
+
+  randomize_order: z.boolean()
+    .default(false),
 });
 
 export type PresentationConfigInput = z.infer<typeof presentationConfigSchema>;
