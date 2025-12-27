@@ -214,34 +214,31 @@ export function PresentationSlideshow({
     return () => clearInterval(pollInterval);
   }, [projectId]);
 
-  // Preload images and videos for next 3 slides
+  // Preload ALL images and videos upfront when component mounts
   useEffect(() => {
-    if (activeSubmissions.length === 0) return;
+    if (submissions.length === 0) return;
 
     const preloadImages: HTMLImageElement[] = [];
     const preloadVideos: HTMLVideoElement[] = [];
 
-    // Preload next 3 images and videos
-    for (let i = 1; i <= 3; i++) {
-      const nextIndex = (currentIndex + i) % activeSubmissions.length;
-      const nextSubmission = activeSubmissions[nextIndex];
-
+    // Preload ALL images and videos
+    submissions.forEach((submission) => {
       // Preload image
-      if (nextSubmission?.photo_url) {
+      if (submission.photo_url) {
         const img = new Image();
-        img.src = nextSubmission.photo_url;
+        img.src = submission.photo_url;
         preloadImages.push(img);
       }
 
       // Preload video
-      if (nextSubmission?.video_url) {
+      if (submission.video_url) {
         const video = document.createElement('video');
-        video.src = nextSubmission.video_url;
+        video.src = submission.video_url;
         video.preload = 'auto';
         video.muted = true;
         preloadVideos.push(video);
       }
-    }
+    });
 
     // Cleanup function to abort preloading if component unmounts
     return () => {
@@ -252,7 +249,7 @@ export function PresentationSlideshow({
         video.src = '';
       });
     };
-  }, [currentIndex, activeSubmissions]);
+  }, [submissions]); // Only re-run when submissions change
 
   // Show holding screen if no active submissions
   if (activeSubmissions.length === 0) {

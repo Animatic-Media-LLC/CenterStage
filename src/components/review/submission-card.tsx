@@ -20,7 +20,8 @@ import {
   Video as VideoIcon,
   User,
   MessageSquare,
-  Clock
+  Clock,
+  Download
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Database } from '@/types/database.types';
@@ -94,6 +95,24 @@ export function SubmissionCard({
     };
   }, []);
 
+  // Handle media download
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading media:', error);
+    }
+  };
+
   const hasMedia = submission.photo_url || submission.video_url;
 
   return (
@@ -120,6 +139,16 @@ export function SubmissionCard({
                       sx={{ bgcolor: 'white' }}
                     />
                   </div>
+                  <div className="absolute top-2 right-2 z-10">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDownload(submission.photo_url!, `${submission.full_name.replace(/\s+/g, '_')}_photo.jpg`)}
+                      sx={{ bgcolor: 'white', '&:hover': { bgcolor: '#e5e7eb' } }}
+                      aria-label="Download photo"
+                    >
+                      <Download size={16} />
+                    </IconButton>
+                  </div>
                 </div>
               )}
               {submission.video_url && (
@@ -137,6 +166,16 @@ export function SubmissionCard({
                       size="small"
                       sx={{ bgcolor: 'white' }}
                     />
+                  </div>
+                  <div className="absolute top-2 right-2 z-10">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDownload(submission.video_url!, `${submission.full_name.replace(/\s+/g, '_')}_video.mp4`)}
+                      sx={{ bgcolor: 'white', '&:hover': { bgcolor: '#e5e7eb' } }}
+                      aria-label="Download video"
+                    >
+                      <Download size={16} />
+                    </IconButton>
                   </div>
                 </div>
               )}

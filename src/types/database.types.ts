@@ -182,6 +182,7 @@ export interface Database {
           project_id: string
           full_name: string
           social_handle: string | null
+          email: string | null
           comment: string
           photo_url: string | null
           video_url: string | null
@@ -199,6 +200,7 @@ export interface Database {
           project_id: string
           full_name: string
           social_handle?: string | null
+          email?: string | null
           comment: string
           photo_url?: string | null
           video_url?: string | null
@@ -216,6 +218,7 @@ export interface Database {
           project_id?: string
           full_name?: string
           social_handle?: string | null
+          email?: string | null
           comment?: string
           photo_url?: string | null
           video_url?: string | null

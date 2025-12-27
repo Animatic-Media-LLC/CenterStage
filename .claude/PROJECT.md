@@ -1190,22 +1190,24 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 
 **Deliverable:** Polished user management system with improved UX and proper project access control ✅ COMPLETE
 
-
-
 ---
+
 ### Phase 7: Future Enhancements (Post-MVP)
 **Goal:** Additional features for future iterations
 
 #### Section A: Download/Export options
-- [ ] Download Comment Information
-  - [ ] When reviewing user's commented posts (any status - IE: Pending, Approved, Declined Archived) in the admin, the admin user should have an option to donwload the image locally.
-  - [ ] From the /review page on the admin site, there should be a button to download all of the images that were uploaded to that project in a zip file.
+- [x] Download Comment Information
+  - [x] When reviewing user's commented posts (any status - IE: Pending, Approved, Declined Archived) in the admin, the admin user should have an option to donwload the image locally.
+  - [x] From the /review page on the admin site, there should be a button to download all of the images that were uploaded to that project in a zip file.
   - On the comment /review page, add a button to export all comments.
-    - [ ] Once clicked, there should be dialog pop-up that allows the user to check off which subissions type (pending, approved, declined, archived) you want exported (no images or video uploaded in this export) - Pending and Approved are selected by default.
-    - [ ] The export should be in a xls format for download, to let the admin take offline.
-    - [ ] It should include: Full Name, date posted, date approved (if available), social handle, comment, email (if configured to be shown)
+    - [x] Once clicked, there should be dialog pop-up that allows the user to check off which subissions type (pending, approved, declined, archived) you want exported (no images or video uploaded in this export) - Pending and Approved are selected by default.
+    - [x] The export should be in a xls format for download, to let the admin take offline.
+    - [x] It should include: Full Name, date posted, date approved (if available), social handle, comment, email (if configured to be shown)
 
-#### Section B: Other Enhancements
+---
+
+### Phase 8: Future Enhancements 2 (Post-MVP)
+
 - [ ] Advanced analytics dashboard
   - [ ] Submission metrics over time
   - [ ] Popular presentation times
@@ -1237,8 +1239,6 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 - [ ] Multi-language support
   - [ ] Internationalization (i18n)
   - [ ] Language selector
-
-
 
 ---
 
