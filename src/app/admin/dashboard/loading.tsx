@@ -1,12 +1,13 @@
 import Box from '@mui/material/Box';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Skeleton from '@mui/material/Skeleton';
+import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 
 export default function DashboardLoading() {
   return (
-    <>
+    <AdminLoadingLayout>
       {/* Header Skeleton */}
-      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <Box sx={{
           px: { xs: 2, sm: 4 },
           py: 3,
@@ -73,6 +74,6 @@ export default function DashboardLoading() {
           </CardContent>
         </Card>
       </Box>
-    </>
+    </AdminLoadingLayout>
   );
 }

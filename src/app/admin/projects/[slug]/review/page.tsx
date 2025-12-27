@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { getProjectBySlug } from '@/lib/db/projects';
+import { getProjectBySlug, getProjects } from '@/lib/db/projects';
 import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ArrowLeft } from 'lucide-react';
@@ -40,8 +40,15 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
     redirect('/admin/projects');
   }
 
+  // Fetch all projects for sidebar
+  const allProjects = await getProjects(session.user.id);
+
   return (
-    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
+    <AdminLayout
+      userName={session.user.name || undefined}
+      userRole={user?.role}
+      projects={allProjects.map(p => ({ id: p.id, name: p.name, slug: p.slug }))}
+    >
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-8 py-6">

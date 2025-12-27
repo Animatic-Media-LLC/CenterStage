@@ -29,12 +29,20 @@ export default async function UsersPage() {
   return (
     <AdminLayout userName={session.user.name || undefined} userRole="super_admin">
       {/* Header */}
-      <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{
+        bgcolor: 'white',
+        borderBottom: 1,
+        borderColor: 'divider',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
         <Box sx={{ px: 4, py: 3 }}>
-          <Typography variant="h4" component="h1" fontWeight="bold" sx={{ fontSize: '1.5rem' }}>
+          <Typography variant="h4" component="h1" fontWeight="bold" sx={{
+            fontSize: '1.875rem',
+            color: '#0082ae'
+          }}>
             User Management
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
             Create and manage users, assign projects, and control access permissions.
           </Typography>
         </Box>
