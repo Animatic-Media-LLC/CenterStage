@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { auth } from '@/auth';
-import { getProjectBySlug } from '@/lib/db/projects';
+import { getProjectBySlug, getProjects } from '@/lib/db/projects';
 import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { QRCodeDisplay } from '@/components/admin/qr-code-display';
@@ -47,8 +47,15 @@ export default async function QRCodePage({ params }: QRCodePageProps) {
   const commentUrl = `${baseUrl}/comment/${project.slug}`;
   const presentUrl = `${baseUrl}/present/${project.slug}`;
 
+  // Fetch all projects for sidebar
+  const allProjects = await getProjects(session.user.id);
+
   return (
-    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
+    <AdminLayout
+      userName={session.user.name || undefined}
+      userRole={user?.role}
+      projects={allProjects.map(p => ({ id: p.id, name: p.name, slug: p.slug }))}
+    >
       {/* Header */}
       <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ px: 4, py: 3 }}>

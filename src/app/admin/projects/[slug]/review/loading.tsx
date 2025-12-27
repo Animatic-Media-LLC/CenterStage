@@ -1,12 +1,13 @@
 import Box from '@mui/material/Box';
 import { Card, CardContent } from '@/components/ui/card';
 import Skeleton from '@mui/material/Skeleton';
+import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 
 export default function ReviewLoading() {
   return (
-    <>
+    <AdminLoadingLayout>
       {/* Header Skeleton */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div className="px-4 sm:px-8 py-6">
           <Skeleton variant="text" width={120} height={20} className="mb-4" />
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -67,6 +68,6 @@ export default function ReviewLoading() {
           ))}
         </Box>
       </Box>
-    </>
+    </AdminLoadingLayout>
   );
 }

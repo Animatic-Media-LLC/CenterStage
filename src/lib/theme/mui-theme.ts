@@ -5,9 +5,9 @@ export const adminTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2563eb', // Blue-600
-      light: '#3b82f6',
-      dark: '#1d4ed8',
+      main: '#0082ae', // Brand Blue
+      light: '#52c2ef',
+      dark: '#006d94',
       contrastText: '#ffffff',
     },
     secondary: {
@@ -32,9 +32,9 @@ export const adminTheme = createTheme({
       dark: '#059669',
     },
     info: {
-      main: '#3b82f6', // Blue-500
-      light: '#60a5fa',
-      dark: '#2563eb',
+      main: '#0082ae', // Brand Blue
+      light: '#52c2ef',
+      dark: '#006d94',
     },
     background: {
       default: '#f9fafb', // Gray-50
@@ -108,7 +108,7 @@ export const adminTheme = createTheme({
         },
         containedPrimary: {
           '&:hover': {
-            backgroundColor: '#1d4ed8',
+            backgroundColor: '#006d94',
           },
         },
         sizeSmall: {
@@ -258,10 +258,10 @@ export const adminTheme = createTheme({
           borderRadius: '0.375rem',
           margin: '0.125rem 0',
           '&.Mui-selected': {
-            backgroundColor: '#eff6ff',
-            color: '#2563eb',
+            backgroundColor: 'rgba(0, 130, 174, 0.1)',
+            color: '#0082ae',
             '&:hover': {
-              backgroundColor: '#dbeafe',
+              backgroundColor: 'rgba(0, 130, 174, 0.15)',
             },
           },
         },
@@ -284,9 +284,9 @@ export const publicTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2563eb',
-      light: '#3b82f6',
-      dark: '#1d4ed8',
+      main: '#0082ae',
+      light: '#52c2ef',
+      dark: '#006d94',
       contrastText: '#ffffff',
     },
     secondary: {
