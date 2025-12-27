@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjects } from '@/lib/db/projects';
 import { getPendingCountsForProjects } from '@/lib/db/submissions';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ export default async function ProjectsPage() {
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
   const projects = await getProjects(session.user.id);
 
   // Get pending submission counts for all projects
@@ -32,7 +34,7 @@ export default async function ProjectsPage() {
   const pendingCounts = await getPendingCountsForProjects(projectIds);
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

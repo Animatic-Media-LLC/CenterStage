@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { getDashboardStats, getRecentPendingSubmissions } from '@/lib/db/submissions';
+import { getUserById } from '@/lib/db/users';
 import { formatDistanceToNow } from 'date-fns';
 
 /**
@@ -22,6 +23,9 @@ export default async function DashboardPage() {
     redirect('/admin/login');
   }
 
+  // Fetch user to get role
+  const user = await getUserById(session.user.id);
+
   // Fetch dashboard statistics
   const stats = await getDashboardStats(session.user.id);
 
@@ -29,7 +33,10 @@ export default async function DashboardPage() {
   const recentSubmissions = await getRecentPendingSubmissions(session.user.id, 10);
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout
+      userName={session.user.name || undefined}
+      userRole={user?.role}
+    >
       {/* Header */}
       <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{

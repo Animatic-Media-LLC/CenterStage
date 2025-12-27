@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjectBySlug } from '@/lib/db/projects';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ArrowLeft } from 'lucide-react';
 import { ReviewInterface } from '@/components/review/review-interface';
@@ -23,6 +24,8 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
+
   // Await params and fetch project data
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
@@ -32,7 +35,7 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
   }
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-8 py-6">

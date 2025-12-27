@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjectBySlug, getPresentationConfig, getAllSlugs } from '@/lib/db/projects';
 import { getPendingCountsForProjects } from '@/lib/db/submissions';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ProjectEditForm } from '@/components/forms/project-edit-form';
 import { ArrowLeft, FileText } from 'lucide-react';
@@ -25,6 +26,8 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
+
   // Await params and fetch project data
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
@@ -44,7 +47,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   const pendingCounts = await getPendingCountsForProjects([project.id]);
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-4 sm:px-8 py-6">

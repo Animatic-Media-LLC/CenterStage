@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { auth } from '@/auth';
 import { getProjectBySlug } from '@/lib/db/projects';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { QRCodeDisplay } from '@/components/admin/qr-code-display';
 import { ArrowLeft } from 'lucide-react';
@@ -25,6 +26,8 @@ export default async function QRCodePage({ params }: QRCodePageProps) {
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
+
   // Await params and fetch project data
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
@@ -39,7 +42,7 @@ export default async function QRCodePage({ params }: QRCodePageProps) {
   const presentUrl = `${baseUrl}/present/${project.slug}`;
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ px: 4, py: 3 }}>
