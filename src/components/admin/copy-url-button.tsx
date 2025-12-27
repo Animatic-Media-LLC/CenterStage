@@ -40,11 +40,12 @@ export function CopyUrlButton({ url, label = 'Copy URL' }: CopyUrlButtonProps) {
       onClick={handleCopy}
       className="h-6 px-2 text-xs"
       title={label}
+      aria-label={copied ? 'URL copied' : label}
     >
       {copied ? (
-        <Check className="h-3 w-3 text-green-600" />
+        <Check className="h-3 w-3 text-green-600" aria-hidden="true" />
       ) : (
-        <Copy className="h-3 w-3" />
+        <Copy className="h-3 w-3" aria-hidden="true" />
       )}
     </Button>
   );

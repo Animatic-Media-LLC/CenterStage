@@ -300,7 +300,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 disabled={isSubmitting}
               />
               {errors.full_name && (
-                <span className={styles.errorText}>
+                <span className={styles.errorText} role="alert" aria-live="polite">
                   {errors.full_name}
                 </span>
               )}
@@ -318,7 +318,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 disabled={isSubmitting}
               />
               {errors.social_handle && (
-                <span className={styles.errorText}>
+                <span className={styles.errorText} role="alert" aria-live="polite">
                   {errors.social_handle}
                 </span>
               )}
@@ -343,7 +343,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   Your email will NOT be posted publicly
                 </p>
                 {errors.email && (
-                  <span className={styles.errorText}>
+                  <span className={styles.errorText} role="alert" aria-live="polite">
                     {errors.email}
                   </span>
                 )}
@@ -352,11 +352,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
 
             {/* Comment */}
             <div className={styles.fieldContainer}>
-              <Label htmlFor="comment">
-                Your Comment <span className={styles.required}>*</span>
-              </Label>
               <TextField
                 id="comment"
+                label={<>Your Comment <span className={styles.required}>*</span></>}
                 multiline
                 rows={4}
                 value={comment}
@@ -367,6 +365,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 helperText={errors.comment || `${characterCount}/${characterLimit} characters`}
                 disabled={isSubmitting}
                 inputProps={{ maxLength: characterLimit }}
+                required
               />
             </div>
 
@@ -388,6 +387,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                         src={mediaPreview}
                         controls
                         className={styles.photoPreview}
+                        aria-label="Video preview"
                       />
                       {videoDuration !== null && (
                         <Typography variant="body2" sx={{ mt: 1, color: '#6b7280', textAlign: 'center' }}>
@@ -407,9 +407,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   </Button>
                 </div>
               ) : (
-                <div
+                <label
+                  htmlFor="media-input"
                   className={`${styles.uploadBox} ${errors.media ? styles.error : ''}`}
-                  onClick={() => document.getElementById('media-input')?.click()}
                 >
                   <input
                     id="media-input"
@@ -420,9 +420,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                     onChange={handleMediaChange}
                     disabled={isSubmitting}
                     className={styles.hiddenInput}
-                    
+                    aria-label={allowVideoUploads ? "Upload photo or video" : "Upload photo"}
                   />
-                  <CloudUpload size={48} className={styles.uploadIcon} />
+                  <CloudUpload size={48} className={styles.uploadIcon} aria-hidden="true" />
                   <div className={styles.uploadText}>
                     {allowVideoUploads
                       ? 'Click to upload or capture photo/video'
@@ -433,11 +433,11 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                       ? `Images: JPEG, PNG, WebP, HEIC | Videos: MP4, MOV, WebM (Max ${maxVideoDuration}s, 10MB)`
                       : 'Images: JPEG, PNG, WebP, HEIC (Max 10MB)'}
                   </span>
-                </div>
+                </label>
               )}
 
               {errors.media && (
-                <span className={styles.errorText}>
+                <span className={styles.errorText} role="alert" aria-live="polite">
                   {errors.media}
                 </span>
               )}

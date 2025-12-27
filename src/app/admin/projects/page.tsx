@@ -60,11 +60,12 @@ export default async function ProjectsPage() {
           <Input
             type="search"
             placeholder="Search projects..."
+            aria-label="Search projects"
             slotProps={{
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search className="h-4 w-4 text-gray-400" />
+                    <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
                   </InputAdornment>
                 ),
               },
@@ -200,8 +201,8 @@ export default async function ProjectsPage() {
                         </Button>
                       </Link>
                       <Link href={`/admin/projects/${project.slug}/qr`} className="sm:w-auto w-full">
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          <QrCode className="h-6 w-6" />
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto" aria-label="View QR code">
+                          <QrCode className="h-6 w-6" aria-hidden="true" />
                         </Button>
                       </Link>
                     </Box>

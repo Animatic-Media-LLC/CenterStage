@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,12 +84,14 @@ export function SubmissionCard({
             <div className="flex-shrink-0 w-full sm:w-auto">
               {submission.photo_url && (
                 <div className="relative w-full sm:w-48 h-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <img
+                  <Image
                     src={submission.photo_url}
                     alt="Submission"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 192px"
                   />
-                  <div className="absolute top-2 left-2">
+                  <div className="absolute top-2 left-2 z-10">
                     <Chip
                       icon={<ImageIcon size={14} />}
                       label="Photo"
@@ -104,6 +107,7 @@ export function SubmissionCard({
                     src={submission.video_url}
                     className="w-full h-full object-cover"
                     controls
+                    aria-label={`Video submission from ${submission.full_name}`}
                   />
                   <div className="absolute top-2 left-2">
                     <Chip

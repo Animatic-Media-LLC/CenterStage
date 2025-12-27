@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, FolderKanban, Settings, LogOut, Menu, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
@@ -128,6 +129,12 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
             <LogOut className="h-4 w-4" />
             Sign Out
           </button>
+        </div>
+
+        {/* Logo */}
+        <div className="p-4 border-t border-gray-200 flex justify-center items-center flex-shrink-0">
+          <span className="text-xs text-gray-500">Powered by </span>
+          <Image src="/animatic_logo.svg" alt="Animatic Logo" width={90} height={90} />
         </div>
       </aside>
 

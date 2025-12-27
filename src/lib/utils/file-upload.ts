@@ -54,6 +54,24 @@ export function validateFile(file: File, allowedTypes: string[] = [...ALLOWED_IM
 }
 
 /**
+ * Get file extension from MIME type to prevent extension spoofing
+ */
+function getExtensionFromMimeType(mimeType: string): string {
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'video/mp4': 'mp4',
+    'video/quicktime': 'mov',
+    'video/webm': 'webm',
+    'video/x-m4v': 'm4v',
+  };
+  return mimeToExt[mimeType] || 'bin';
+}
+
+/**
  * Upload file to Supabase Storage
  */
 export async function uploadSubmissionPhoto(
@@ -68,10 +86,10 @@ export async function uploadSubmissionPhoto(
 
   const supabase = createClient();
 
-  // Generate unique filename
+  // Generate unique filename using MIME type for extension (prevent spoofing)
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(7);
-  const extension = file.name.split('.').pop();
+  const extension = getExtensionFromMimeType(file.type);
   const filename = `${projectSlug}/${timestamp}-${randomStr}.${extension}`;
 
   // Upload to Supabase Storage
@@ -113,10 +131,10 @@ export async function uploadSubmissionVideo(
 
   const supabase = createClient();
 
-  // Generate unique filename
+  // Generate unique filename using MIME type for extension (prevent spoofing)
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(7);
-  const extension = file.name.split('.').pop();
+  const extension = getExtensionFromMimeType(file.type);
   const filename = `${projectSlug}/videos/${timestamp}-${randomStr}.${extension}`;
 
   // Upload to Supabase Storage
@@ -213,10 +231,10 @@ export async function uploadBackgroundImage(
 
   const supabase = createClient();
 
-  // Generate unique filename
+  // Generate unique filename using MIME type for extension (prevent spoofing)
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(7);
-  const extension = file.name.split('.').pop();
+  const extension = getExtensionFromMimeType(file.type);
   const filename = `${projectSlug}/background/${timestamp}-${randomStr}.${extension}`;
 
   // Upload to Supabase Storage (submissions bucket)

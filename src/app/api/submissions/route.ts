@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSubmission, getSubmissionsByStatus } from '@/lib/db/submissions';
 import { submissionSchema } from '@/lib/validations/submission';
 import { auth } from '@/auth';
+import { checkRateLimit, getClientIp } from '@/lib/utils/rate-limit';
 
 /**
  * GET /api/submissions
@@ -59,6 +60,33 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 5 submissions per minute per IP
+    const clientIp = getClientIp(request);
+    const rateLimitResult = checkRateLimit(clientIp, {
+      limit: 5,
+      window: 60000, // 1 minute
+    });
+
+    if (!rateLimitResult.success) {
+      const retryAfter = Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Please wait before submitting again',
+          retryAfter,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const { projectId, submission } = body;
 

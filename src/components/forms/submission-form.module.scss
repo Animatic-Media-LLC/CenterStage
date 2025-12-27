@@ -48,6 +48,7 @@
 }
 
 .uploadBox {
+  display: block;
   margin-top: 1rem;
   border: 2px dashed #d1d5db;
   border-radius: 0.5rem;
@@ -60,6 +61,11 @@
   &:hover {
     background-color: #f9fafb;
     border-color: #3b82f6;
+  }
+
+  &:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
   }
 
   &.error {

@@ -251,6 +251,7 @@ export function PresentationSlide({
                 muted
                 playsInline
                 preload="auto"
+                aria-label={`Video submission from ${submission.full_name}`}
                 onLoadedMetadata={(e) => {
                   const video = e.currentTarget;
                   if (onVideoDurationDetected && video.duration) {
