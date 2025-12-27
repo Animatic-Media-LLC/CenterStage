@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { auth } from '@/auth';
 import { getProjectBySlug } from '@/lib/db/projects';
-import { getUserById } from '@/lib/db/users';
+import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { QRCodeDisplay } from '@/components/admin/qr-code-display';
 import { ArrowLeft } from 'lucide-react';
@@ -32,7 +32,13 @@ export default async function QRCodePage({ params }: QRCodePageProps) {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
 
-  if (!project || project.created_by !== session.user.id) {
+  if (!project) {
+    redirect('/admin/projects');
+  }
+
+  // Check if user has access to this project
+  const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+  if (!accessibleProjectIds.includes(project.id)) {
     redirect('/admin/projects');
   }
 

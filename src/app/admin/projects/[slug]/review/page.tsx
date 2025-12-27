@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjectBySlug } from '@/lib/db/projects';
-import { getUserById } from '@/lib/db/users';
+import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ArrowLeft } from 'lucide-react';
 import { ReviewInterface } from '@/components/review/review-interface';
@@ -30,7 +30,13 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
 
-  if (!project || project.created_by !== session.user.id) {
+  if (!project) {
+    redirect('/admin/projects');
+  }
+
+  // Check if user has access to this project
+  const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+  if (!accessibleProjectIds.includes(project.id)) {
     redirect('/admin/projects');
   }
 

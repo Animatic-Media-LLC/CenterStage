@@ -1119,7 +1119,80 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 **Deliverable:** Complete multi-user management system with role-based access control ✅ COMPLETE
 
 ---
+### Phase 6.3: User Management Improvements
+**Goal:** Polish user management system and fix project creation for regular admins
 
+#### A. Project Creation #### A. Project Creation & Access Control Access Control ✅
+- [x] Fix project creation error for non-super admin users
+  - [x] Investigate and fix the error when regular admins try to create projects
+  - [x] Ensure proper permissions in project creation form
+
+- [x] Auto-assign project creators to their projects
+  - [x] When a regular admin creates a `project_users` entry
+  - [x] Assign the creator to the project so they can see it immediately
+  - [x] Super admins should NOT get auto-assigned (they see all projects anyway)
+
+#### B. User Management Interface Improvements ✅
+- [x] Consolidate user edit dialog
+  - [x] Add "Manage Project Assignments" section to edit dialog
+  - [x] Add password reset/update section to edit dialog
+  - [x] Remove standalone "Manage Project Assignments" icon from action buttons
+  - [x] Remove standalone "Reset Password" icon from action buttons
+  - [x] Keep only Edit and Delete icons in action column
+
+- [x] Display assigned projects in user list
+  - [x] Add a column/field showing assigned project names for regular admins
+  - [x] Display as comma-separated list or chips
+  - [x] Not needed for super admins (show "All Projects" or leave blank)
+
+- [x] Improve mobile responsiveness
+  - [x] Make user table horizontally scrollable on mobile
+  - [x] Stack action buttons below user info on mobile views
+  - [x] Ensure touch targets are appropriately sized
+
+- [x] Fix checkbox alignment in project assignments
+  - [x] Change checkboxes from center-aligned to top-aligned with content
+  - [x] Applies to project assignment dialog/section
+
+- [x] Disable self-deletion
+  - [x] Disable delete button for logged-in user's own account
+  - [x] Already implemented, verify it works correctly
+
+#### C. Dashboard Redesign ✅
+- [x] Redesign stat cards layout
+  - [x] Change card content to read "3 Total Projects" (number first, label after)
+  - [x] Remove "All time" and "Currently active" subtexts
+  - [x] Move icon to left side in its own flex container
+  - [x] Align icon to top of content
+  - [x] Ensure all cards have equal height regardless of content
+
+#### D. UI/UX Polish ✅
+- [x] Add pointer cursor to interactive elements
+  - [x] Sign Out button should show pointer cursor on hover
+  - [x] Audit all buttons and links for proper cursor styling
+
+- [x] Increase header font sizes
+  - [x] Change Dashboard, Projects, and Manage Users headers from 1.125rem to 1.5rem
+  - [x] Update Typography variant or custom styles as needed
+
+- [x] Change admin site font to Noto Sans Display
+  - [x] Add Google Font import for Noto Sans Display
+  - [x] Update MUI theme to use Noto Sans Display as primary font
+  - [x] Verify font loads correctly across all admin pages
+
+- [x] Edit User Dialog Changes
+  - [x] The headers for Password Management and Project Assignments should be the same styles as the User Information header at the top of the dialog
+
+- [x] Current Password UI Change
+  - [x] The display of the current password should be in a hidden format, until the user clicks a eye icon next to it to make it visible. By default, when the dialog opens, it should be a hidden text indicator, like a password field.
+
+- [x] Review page has display issue on the Dispay Settings interface, The Custom Timing input is a black background. This is not visible, it should be a standard input style, of whote background. There should also be a throttled post to the API after the value is updated.
+
+**Deliverable:** Polished user management system with improved UX and proper project access control ✅ COMPLETE
+
+
+
+---
 ### Phase 7: Future Enhancements (Post-MVP)
 **Goal:** Additional features for future iterations
 

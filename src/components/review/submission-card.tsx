@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,7 @@ export function SubmissionCard({
   const [displayMode, setDisplayMode] = useState<'once' | 'repeat'>(submission.display_mode);
   const [customTiming, setCustomTiming] = useState<number | null>(submission.custom_timing);
   const [isUpdating, setIsUpdating] = useState(false);
+  const timingDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle display mode change
   const handleDisplayModeChange = async (newMode: 'once' | 'repeat') => {
@@ -58,20 +59,40 @@ export function SubmissionCard({
     }
   };
 
-  // Handle custom timing change
-  const handleCustomTimingChange = async (value: string) => {
+  // Handle custom timing change with debouncing
+  const handleCustomTimingChange = (value: string) => {
     const numValue = value === '' ? null : parseInt(value, 10);
     if (numValue !== null && (isNaN(numValue) || numValue < 1 || numValue > 30)) {
       return; // Invalid value
     }
+
+    // Update local state immediately for responsive UI
     setCustomTiming(numValue);
-    setIsUpdating(true);
-    try {
-      await onInlineUpdate(submission.id, { custom_timing: numValue });
-    } finally {
-      setIsUpdating(false);
+
+    // Clear existing timeout
+    if (timingDebounceRef.current) {
+      clearTimeout(timingDebounceRef.current);
     }
+
+    // Set new timeout to update via API after 500ms
+    timingDebounceRef.current = setTimeout(async () => {
+      setIsUpdating(true);
+      try {
+        await onInlineUpdate(submission.id, { custom_timing: numValue });
+      } finally {
+        setIsUpdating(false);
+      }
+    }, 500);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timingDebounceRef.current) {
+        clearTimeout(timingDebounceRef.current);
+      }
+    };
+  }, []);
 
   const hasMedia = submission.photo_url || submission.video_url;
 
@@ -195,7 +216,7 @@ export function SubmissionCard({
                       onChange={(e) => handleCustomTimingChange(e.target.value)}
                       placeholder="Default"
                       disabled={isUpdating}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
                 </div>
