@@ -420,7 +420,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                     onChange={handleMediaChange}
                     disabled={isSubmitting}
                     className={styles.hiddenInput}
-                    capture="environment"
+                    
                   />
                   <CloudUpload size={48} className={styles.uploadIcon} />
                   <div className={styles.uploadText}>
