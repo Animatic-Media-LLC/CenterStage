@@ -375,7 +375,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
               className={errors.name ? 'border-red-500' : ''}
             />
             {errors.name && (
-              <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.name}</p>
             )}
           </div>
 
@@ -389,7 +389,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
               className={errors.client_name ? 'border-red-500' : ''}
             />
             {errors.client_name && (
-              <p className="text-sm text-red-600 mt-1">{errors.client_name}</p>
+              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.client_name}</p>
             )}
           </div>
 
@@ -408,7 +408,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
               className={errors.slug ? 'border-red-500' : ''}
             />
             {errors.slug && (
-              <p className="text-sm text-red-600 mt-1">{errors.slug}</p>
+              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.slug}</p>
             )}
             {slug && isValidSlug(slug) && !errors.slug && (
               <p className="text-sm text-gray-500 mt-1">
@@ -517,11 +517,11 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                 </Button>
               </div>
             ) : (
-              <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:bg-gray-50 ${
+              <label
+                htmlFor="background-image-input-edit"
+                className={`block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:bg-gray-50 focus-within:outline focus-within:outline-2 focus-within:outline-blue-500 focus-within:outline-offset-2 ${
                   errors.background_image_url ? 'border-red-500' : 'border-gray-300'
                 }`}
-                onClick={() => document.getElementById('background-image-input-edit')?.click()}
               >
                 <input
                   id="background-image-input-edit"
@@ -530,17 +530,18 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                   onChange={handleBackgroundImageChange}
                   disabled={isSubmitting}
                   className="hidden"
+                  aria-label="Upload background image"
                 />
-                <CloudUpload size={48} className="mx-auto mb-2 text-gray-400" />
+                <CloudUpload size={48} className="mx-auto mb-2 text-gray-400" aria-hidden="true" />
                 <p className="text-gray-600">Click to upload background image</p>
                 <p className="text-xs text-gray-400 mt-1">
                   JPEG, PNG, WebP, HEIC (Max 5MB)
                 </p>
-              </div>
+              </label>
             )}
 
             {errors.background_image_url && (
-              <p className="text-sm text-red-600 mt-1">{errors.background_image_url}</p>
+              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.background_image_url}</p>
             )}
           </div>
 

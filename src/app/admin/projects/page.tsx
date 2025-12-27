@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjects } from '@/lib/db/projects';
 import { getPendingCountsForProjects } from '@/lib/db/submissions';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ export default async function ProjectsPage() {
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
   const projects = await getProjects(session.user.id);
 
   // Get pending submission counts for all projects
@@ -32,7 +34,7 @@ export default async function ProjectsPage() {
   const pendingCounts = await getPendingCountsForProjects(projectIds);
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -60,11 +62,12 @@ export default async function ProjectsPage() {
           <Input
             type="search"
             placeholder="Search projects..."
+            aria-label="Search projects"
             slotProps={{
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search className="h-4 w-4 text-gray-400" />
+                    <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
                   </InputAdornment>
                 ),
               },
@@ -200,8 +203,8 @@ export default async function ProjectsPage() {
                         </Button>
                       </Link>
                       <Link href={`/admin/projects/${project.slug}/qr`} className="sm:w-auto w-full">
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          <QrCode className="h-6 w-6" />
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto" aria-label="View QR code">
+                          <QrCode className="h-6 w-6" aria-hidden="true" />
                         </Button>
                       </Link>
                     </Box>

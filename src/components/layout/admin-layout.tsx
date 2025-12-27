@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, LogOut, Menu, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils/cn';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
   userName?: string;
+  userRole?: 'admin' | 'super_admin';
 }
 
 const navItems = [
@@ -24,13 +26,14 @@ const navItems = [
     icon: FolderKanban,
   },
   {
-    title: 'Settings',
-    href: '/admin/settings',
-    icon: Settings,
+    title: 'Manage Users',
+    href: '/admin/users',
+    icon: Users,
+    superAdminOnly: true,
   },
 ];
 
-export function AdminLayout({ children, userName }: AdminLayoutProps) {
+export function AdminLayout({ children, userName, userRole }: AdminLayoutProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -41,6 +44,11 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  // Filter nav items based on user role
+  const visibleNavItems = navItems.filter(
+    (item) => !item.superAdminOnly || userRole === 'super_admin'
+  );
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -81,7 +89,7 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
 
@@ -128,6 +136,12 @@ export function AdminLayout({ children, userName }: AdminLayoutProps) {
             <LogOut className="h-4 w-4" />
             Sign Out
           </button>
+        </div>
+
+        {/* Logo */}
+        <div className="p-4 border-t border-gray-200 flex justify-center items-center flex-shrink-0">
+          <span className="text-xs text-gray-500">Powered by </span>
+          <Image src="/animatic_logo.svg" alt="Animatic Logo" width={90} height={90} />
         </div>
       </aside>
 

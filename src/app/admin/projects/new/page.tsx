@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { getAllSlugs } from '@/lib/db/projects';
+import { getUserById } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ProjectForm } from '@/components/forms/project-form';
 import { ArrowLeft } from 'lucide-react';
@@ -17,11 +18,13 @@ export default async function NewProjectPage() {
     redirect('/admin/login');
   }
 
+  const user = await getUserById(session.user.id);
+
   // Get existing slugs for validation
   const existingSlugs = await getAllSlugs();
 
   return (
-    <AdminLayout userName={session.user.name || undefined}>
+    <AdminLayout userName={session.user.name || undefined} userRole={user?.role}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-8 py-6">

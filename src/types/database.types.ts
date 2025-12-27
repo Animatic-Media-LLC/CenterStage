@@ -23,6 +23,7 @@ export interface Database {
           id: string
           email: string
           password_hash: string
+          password_plain: string | null
           name: string
           role: 'admin' | 'super_admin'
           created_at: string
@@ -32,6 +33,7 @@ export interface Database {
           id?: string
           email: string
           password_hash: string
+          password_plain?: string | null
           name: string
           role?: 'admin' | 'super_admin'
           created_at?: string
@@ -41,10 +43,34 @@ export interface Database {
           id?: string
           email?: string
           password_hash?: string
+          password_plain?: string | null
           name?: string
           role?: 'admin' | 'super_admin'
           created_at?: string
           updated_at?: string
+        }
+      }
+      project_users: {
+        Row: {
+          id: string
+          project_id: string
+          user_id: string
+          assigned_by: string | null
+          assigned_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          user_id: string
+          assigned_by?: string | null
+          assigned_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          user_id?: string
+          assigned_by?: string | null
+          assigned_at?: string
         }
       }
       projects: {

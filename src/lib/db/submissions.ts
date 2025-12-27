@@ -204,13 +204,13 @@ export async function getSubmissionById(submissionId: string) {
 export async function getDashboardStats(userId: string) {
   const supabase = createAdminClient();
 
-  // Get all projects for this user to filter submissions
-  const { data: projects, error: projectsError } = await supabase
-    .from('projects')
-    .select('id')
-    .eq('created_by', userId);
+  // Import getUserAccessibleProjects to get projects based on role
+  const { getUserAccessibleProjects, getUserById } = await import('@/lib/db/users');
 
-  if (projectsError || !projects || projects.length === 0) {
+  // Get accessible project IDs for this user (super admin sees all, regular admin sees assigned)
+  const projectIds = await getUserAccessibleProjects(userId);
+
+  if (projectIds.length === 0) {
     return {
       totalProjects: 0,
       activeProjects: 0,
@@ -219,18 +219,16 @@ export async function getDashboardStats(userId: string) {
     };
   }
 
-  const projectIds = projects.map((p: { id: string }) => p.id);
-
   // Get project counts
   const { count: totalProjects } = await supabase
     .from('projects')
     .select('*', { count: 'exact', head: true })
-    .eq('created_by', userId);
+    .in('id', projectIds);
 
   const { count: activeProjects } = await supabase
     .from('projects')
     .select('*', { count: 'exact', head: true })
-    .eq('created_by', userId)
+    .in('id', projectIds)
     .eq('status', 'active');
 
   // Get submission counts
@@ -261,17 +259,15 @@ export async function getDashboardStats(userId: string) {
 export async function getRecentPendingSubmissions(userId: string, limit: number = 10) {
   const supabase = createAdminClient();
 
-  // Get all projects for this user
-  const { data: projects, error: projectsError } = await supabase
-    .from('projects')
-    .select('id, name, slug')
-    .eq('created_by', userId);
+  // Import getUserAccessibleProjects to get projects based on role
+  const { getUserAccessibleProjects } = await import('@/lib/db/users');
 
-  if (projectsError || !projects || projects.length === 0) {
+  // Get accessible project IDs for this user (super admin sees all, regular admin sees assigned)
+  const projectIds = await getUserAccessibleProjects(userId);
+
+  if (projectIds.length === 0) {
     return [];
   }
-
-  const projectIds = projects.map((p: { id: string }) => p.id);
 
   // Get recent pending submissions with project info
   const { data, error } = await supabase

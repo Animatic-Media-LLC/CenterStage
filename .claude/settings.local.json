@@ -13,7 +13,8 @@
       "Bash(if [ -f .env.local ])",
       "Bash(then echo \"=== Environment variables \\(values hidden\\) ===\")",
       "Bash(else echo \".env.local file not found\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(grep:*)"
     ]
   }
 }

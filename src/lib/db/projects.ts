@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { Database } from '@/types/database.types';
+import { getUserById, getUserAccessibleProjects } from './users';
 
 type Project = Database['public']['Tables']['projects']['Row'];
 type ProjectInsert = Database['public']['Tables']['projects']['Insert'];
@@ -10,16 +11,40 @@ type PresentationConfig = Database['public']['Tables']['presentation_config']['R
 type PresentationConfigInsert = Database['public']['Tables']['presentation_config']['Insert'];
 
 /**
- * Get all projects for the current user
+ * Get all projects accessible by the current user
+ * Super admins see all projects, regular users see only assigned projects
  */
 export async function getProjects(userId: string): Promise<Project[]> {
-  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
   const supabase = createAdminClient();
+
+  // Check if user is super admin
+  const user = await getUserById(userId);
+  if (user?.role === 'super_admin') {
+    // Super admins can see all projects
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch projects:', error);
+      throw new Error('Failed to fetch projects');
+    }
+
+    return data;
+  }
+
+  // Regular users can only see assigned projects
+  const accessibleProjectIds = await getUserAccessibleProjects(userId);
+
+  if (accessibleProjectIds.length === 0) {
+    return [];
+  }
 
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('created_by', userId)
+    .in('id', accessibleProjectIds)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -31,16 +56,41 @@ export async function getProjects(userId: string): Promise<Project[]> {
 }
 
 /**
- * Get all active projects
+ * Get all active projects accessible by the current user
+ * Super admins see all active projects, regular users see only assigned active projects
  */
 export async function getActiveProjects(userId: string): Promise<Project[]> {
-  // Use admin client to bypass RLS since we're using NextAuth (not Supabase Auth)
   const supabase = createAdminClient();
+
+  // Check if user is super admin
+  const user = await getUserById(userId);
+  if (user?.role === 'super_admin') {
+    // Super admins can see all active projects
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch active projects:', error);
+      throw new Error('Failed to fetch active projects');
+    }
+
+    return data;
+  }
+
+  // Regular users can only see assigned active projects
+  const accessibleProjectIds = await getUserAccessibleProjects(userId);
+
+  if (accessibleProjectIds.length === 0) {
+    return [];
+  }
 
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('created_by', userId)
+    .in('id', accessibleProjectIds)
     .eq('status', 'active')
     .order('created_at', { ascending: false });
 
