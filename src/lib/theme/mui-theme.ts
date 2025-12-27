@@ -47,7 +47,7 @@ export const adminTheme = createTheme({
     divider: '#e5e7eb', // Gray-200
   },
   typography: {
-    fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: 'var(--font-noto-sans-display), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     h1: {
       fontSize: '2rem',
       fontWeight: 700,
@@ -301,7 +301,7 @@ export const publicTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: 'var(--font-noto-sans-display), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     h1: {
       fontSize: '1.75rem',
       fontWeight: 700,

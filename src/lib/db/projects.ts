@@ -269,6 +269,30 @@ export async function createProjectWithConfig(
 
   console.log('[DB] Presentation config created successfully');
 
+  // Auto-assign the creator to the project if they're not a super admin
+  if (project.created_by) {
+    const { getUserById } = await import('@/lib/db/users');
+    const creator = await getUserById(project.created_by);
+
+    if (creator && creator.role !== 'super_admin') {
+      console.log('[DB] Auto-assigning regular admin to project');
+      const { error: assignError } = await supabase
+        .from('project_users')
+        .insert({
+          project_id: typedProjectData.id,
+          user_id: project.created_by,
+          assigned_by: project.created_by,
+        } as never);
+
+      if (assignError) {
+        console.error('[DB] Failed to auto-assign user to project:', assignError);
+        // Don't fail the whole operation, just log the error
+      } else {
+        console.log('[DB] User auto-assigned to project successfully');
+      }
+    }
+  }
+
   return {
     project: typedProjectData,
     config: configData as PresentationConfig,

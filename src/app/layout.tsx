@@ -17,6 +17,7 @@ import {
   Oswald,
   Source_Sans_3,
   Bebas_Neue,
+  Noto_Sans_Display,
 } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import { ThemeProvider } from '@/components/providers/theme-provider';
@@ -49,6 +50,7 @@ const ptSans = PT_Sans({ weight: ['400', '700'], subsets: ["latin"], variable: "
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
 const sourceSans = Source_Sans_3({ subsets: ["latin"], variable: "--font-source-sans-pro" });
 const bebasNeue = Bebas_Neue({ weight: ['400'], subsets: ["latin"], variable: "--font-bebas-neue" });
+const notoSansDisplay = Noto_Sans_Display({ subsets: ["latin"], variable: "--font-noto-sans-display" });
 
 export const metadata: Metadata = {
   title: "CenterStage - Admin Dashboard",
@@ -68,7 +70,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable} ${openSans.variable} ${lato.variable} ${montserrat.variable} ${poppins.variable} ${raleway.variable} ${ubuntu.variable} ${nunito.variable} ${playfairDisplay.variable} ${merriweather.variable} ${ptSans.variable} ${oswald.variable} ${sourceSans.variable} ${bebasNeue.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable} ${openSans.variable} ${lato.variable} ${montserrat.variable} ${poppins.variable} ${raleway.variable} ${ubuntu.variable} ${nunito.variable} ${playfairDisplay.variable} ${merriweather.variable} ${ptSans.variable} ${oswald.variable} ${sourceSans.variable} ${bebasNeue.variable} ${notoSansDisplay.variable} antialiased`}
       >
         <AppRouterCacheProvider>
           <ThemeProvider>

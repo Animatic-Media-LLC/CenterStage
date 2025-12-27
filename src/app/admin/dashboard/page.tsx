@@ -49,7 +49,7 @@ export default async function DashboardPage() {
           gap: 2
         }}>
           <Box>
-            <Typography variant="h4" component="h1" fontWeight="bold">
+            <Typography variant="h4" component="h1" fontWeight="bold" sx={{ fontSize: '1.5rem' }}>
               Dashboard
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -81,88 +81,78 @@ export default async function DashboardPage() {
           }}
         >
           <Link href="/admin/projects" className="block">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                {/* Desktop: Icon on right, mobile: Count inline with title */}
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    <span className="md:hidden">{stats.totalProjects} </span>
-                    Total Projects
-                  </CardTitle>
-                  <FolderKanban className="hidden md:block h-4 w-4 text-gray-400" />
-                </div>
-              </CardHeader>
-              <CardContent className="hidden md:block">
-                {/* Desktop: Show large number */}
-                <Typography variant="h4" component="div" fontWeight="bold">
-                  {stats.totalProjects}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                  All time
-                </Typography>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" sx={{ height: '100%' }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {/* Icon container - left side, top aligned */}
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <FolderKanban className="h-8 w-8 text-gray-400" />
+                  </Box>
+
+                  {/* Content container - right side */}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h4" component="div" fontWeight="bold">
+                      {stats.totalProjects} Total Projects
+                    </Typography>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/admin/projects" className="block">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    <span className="md:hidden">{stats.activeProjects} </span>
-                    Active Projects
-                  </CardTitle>
-                  <Clock className="hidden md:block h-4 w-4 text-gray-400" />
-                </div>
-              </CardHeader>
-              <CardContent className="hidden md:block">
-                <Typography variant="h4" component="div" fontWeight="bold">
-                  {stats.activeProjects}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                  Currently active
-                </Typography>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" sx={{ height: '100%' }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {/* Icon container - left side, top aligned */}
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <Clock className="h-8 w-8 text-gray-400" />
+                  </Box>
+
+                  {/* Content container - right side */}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h4" component="div" fontWeight="bold">
+                      {stats.activeProjects} Active Projects
+                    </Typography>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
           </Link>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  <span className="md:hidden">{stats.pendingSubmissions} </span>
-                  Pending Submissions
-                </CardTitle>
-                <FileText className="hidden md:block h-4 w-4 text-gray-400" />
-              </div>
-            </CardHeader>
-            <CardContent className="hidden md:block">
-              <Typography variant="h4" component="div" fontWeight="bold">
-                {stats.pendingSubmissions}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                Awaiting review
-              </Typography>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {/* Icon container - left side, top aligned */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <FileText className="h-8 w-8 text-gray-400" />
+                </Box>
+
+                {/* Content container - right side */}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h4" component="div" fontWeight="bold">
+                    {stats.pendingSubmissions} Pending Submissions
+                  </Typography>
+                </Box>
+              </Box>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  <span className="md:hidden">{stats.approvedSubmissions} </span>
-                  Approved Submissions
-                </CardTitle>
-                <CheckCircle className="hidden md:block h-4 w-4 text-gray-400" />
-              </div>
-            </CardHeader>
-            <CardContent className="hidden md:block">
-              <Typography variant="h4" component="div" fontWeight="bold">
-                {stats.approvedSubmissions}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                Ready to present
-              </Typography>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {/* Icon container - left side, top aligned */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <CheckCircle className="h-8 w-8 text-gray-400" />
+                </Box>
+
+                {/* Content container - right side */}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h4" component="div" fontWeight="bold">
+                    {stats.approvedSubmissions} Approved Submissions
+                  </Typography>
+                </Box>
+              </Box>
             </CardContent>
           </Card>
         </Box>

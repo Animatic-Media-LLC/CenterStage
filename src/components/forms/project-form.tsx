@@ -213,7 +213,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
       const result = await response.json();
       success('Project created successfully!');
-      router.push(`/admin/projects/${result.project.id}`);
+      router.push(`/admin/projects/${result.project.slug}/edit`);
     } catch (error) {
       console.error('Create project error:', error);
       showError('An unexpected error occurred');

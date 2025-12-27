@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { getProjectBySlug, getPresentationConfig, getAllSlugs } from '@/lib/db/projects';
 import { getPendingCountsForProjects } from '@/lib/db/submissions';
-import { getUserById } from '@/lib/db/users';
+import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ProjectEditForm } from '@/components/forms/project-edit-form';
 import { ArrowLeft, FileText } from 'lucide-react';
@@ -32,7 +32,13 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
 
-  if (!project || project.created_by !== session.user.id) {
+  if (!project) {
+    redirect('/admin/projects');
+  }
+
+  // Check if user has access to this project
+  const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+  if (!accessibleProjectIds.includes(project.id)) {
     redirect('/admin/projects');
   }
 

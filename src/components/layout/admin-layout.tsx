@@ -56,7 +56,7 @@ export function AdminLayout({ children, userName, userRole }: AdminLayoutProps) 
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className={cn(
-          "md:hidden fixed top-4 z-50 p-2 bg-white rounded-md shadow-lg border border-gray-200 transition-all duration-300",
+          "md:hidden fixed top-4 z-50 p-2 bg-white rounded-md shadow-lg border border-gray-200 transition-all duration-300 cursor-pointer",
           isMobileMenuOpen ? "right-4" : "left-4"
         )}
         aria-label="Toggle menu"
@@ -131,7 +131,7 @@ export function AdminLayout({ children, userName, userRole }: AdminLayoutProps) 
           </div>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
             Sign Out

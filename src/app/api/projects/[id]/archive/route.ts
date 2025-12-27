@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProjectById, archiveProject, reactivateProject } from '@/lib/db/projects';
+import { getUserAccessibleProjects } from '@/lib/db/users';
 
 /**
  * POST /api/projects/[id]/archive
@@ -30,8 +31,9 @@ export async function POST(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -78,8 +80,9 @@ export async function DELETE(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }

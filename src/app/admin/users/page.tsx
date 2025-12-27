@@ -31,7 +31,7 @@ export default async function UsersPage() {
       {/* Header */}
       <Box sx={{ bgcolor: 'white', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ px: 4, py: 3 }}>
-          <Typography variant="h4" component="h1" fontWeight="bold">
+          <Typography variant="h4" component="h1" fontWeight="bold" sx={{ fontSize: '1.5rem' }}>
             User Management
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>

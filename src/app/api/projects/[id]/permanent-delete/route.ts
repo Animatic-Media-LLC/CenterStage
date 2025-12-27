@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProjectById, permanentlyDeleteProject } from '@/lib/db/projects';
+import { getUserAccessibleProjects } from '@/lib/db/users';
 
 /**
  * DELETE /api/projects/[id]/permanent-delete
@@ -31,8 +32,9 @@ export async function DELETE(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }

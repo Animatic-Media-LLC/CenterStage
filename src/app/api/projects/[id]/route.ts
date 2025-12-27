@@ -8,6 +8,7 @@ import {
   getPresentationConfig,
   updatePresentationConfig,
 } from '@/lib/db/projects';
+import { getUserAccessibleProjects } from '@/lib/db/users';
 import { updateProjectSchema, presentationConfigSchema } from '@/lib/validations/project';
 
 /**
@@ -38,8 +39,9 @@ export async function GET(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -90,8 +92,9 @@ export async function PATCH(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -181,8 +184,9 @@ export async function DELETE(
       );
     }
 
-    // Verify ownership
-    if (project.created_by !== session.user.id) {
+    // Verify access
+    const accessibleProjectIds = await getUserAccessibleProjects(session.user.id);
+    if (!accessibleProjectIds.includes(id)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
