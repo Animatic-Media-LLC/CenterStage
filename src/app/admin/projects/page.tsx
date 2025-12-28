@@ -56,12 +56,12 @@ export default async function ProjectsPage() {
           </Box>
           <Link href="/admin/projects/new">
             <StyledButton
-              className="text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+              sx={{ color: 'white', fontWeight: 600 }}
               style={{ background: 'linear-gradient(135deg, #0082ae 0%, #52c2ef 100%)', boxShadow: '0 10px 15px -3px rgba(0, 130, 174, 0.3)' }}
               defaultBackground="linear-gradient(135deg, #0082ae 0%, #52c2ef 100%)"
               hoverBackground="linear-gradient(135deg, #006d94 0%, #0082ae 100%)"
+              startIcon={<Plus className="h-4 w-4" />}
             >
-              <Plus className="h-4 w-4 mr-2" />
               New Project
             </StyledButton>
           </Link>
