@@ -32,6 +32,7 @@ export async function createSubmission(projectId: string, data: SubmissionInput)
     project_id: projectId,
     full_name: data.full_name,
     social_handle: data.social_handle || null,
+    email: data.email || null,
     comment: data.comment,
     photo_url: data.photo_url || null,
     video_url: data.video_url || null,

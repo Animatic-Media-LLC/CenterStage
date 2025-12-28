@@ -339,10 +339,6 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
 
   // Handle permanent deletion
   const handleDelete = async (submissionId: string) => {
-    if (!confirm('Are you sure you want to permanently delete this submission? This action cannot be undone.')) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/submissions/${submissionId}`, {
         method: 'DELETE',
@@ -357,6 +353,8 @@ export function ReviewInterface({ projectId, projectSlug }: ReviewInterfaceProps
 
       // Refresh tab counts
       fetchTabCounts();
+
+      showSuccess('Submission permanently deleted');
     } catch (err) {
       console.error('Error deleting submission:', err);
       setError('Failed to delete submission. Please try again.');

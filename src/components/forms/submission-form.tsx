@@ -156,8 +156,53 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
     setServerError(null);
+
+    // Validate all fields before submitting
+    const validationErrors: Record<string, string> = {};
+
+    // Validate full name
+    const trimmedName = fullName.trim();
+    if (!trimmedName) {
+      validationErrors.full_name = 'Name is required';
+    } else if (trimmedName.length < 2) {
+      validationErrors.full_name = 'Name must be at least 2 characters';
+    } else if (trimmedName.length > 100) {
+      validationErrors.full_name = 'Name must be less than 100 characters';
+    }
+
+    // Validate social handle
+    const trimmedHandle = socialHandle.trim();
+    if (trimmedHandle && trimmedHandle.length > 30) {
+      validationErrors.social_handle = 'Social handle must be less than 30 characters';
+    }
+
+    // Validate email
+    const trimmedEmail = email.trim();
+    if (requireEmail && !trimmedEmail) {
+      validationErrors.email = 'Email is required';
+    } else if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      validationErrors.email = 'Invalid email address';
+    }
+
+    // Validate comment
+    const trimmedComment = comment.trim();
+    if (!trimmedComment) {
+      validationErrors.comment = 'Comment is required';
+    } else if (trimmedComment.length < 10) {
+      validationErrors.comment = 'Comment must be at least 10 characters';
+    } else if (trimmedComment.length > 500) {
+      validationErrors.comment = 'Comment must be less than 500 characters';
+    }
+
+    // If there are validation errors, set them and stop submission
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setErrors({});
     setIsSubmitting(true);
 
     try {
@@ -195,8 +240,15 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
         video_url: videoUrl,
       };
 
+      // Create dynamic validation schema based on requireEmail
+      const dynamicSchema = requireEmail
+        ? submissionSchema.extend({
+            email: z.string().min(1, 'Email is required').email('Invalid email address'),
+          })
+        : submissionSchema;
+
       // Validate with Zod
-      const validation = submissionSchema.safeParse(submissionData);
+      const validation = dynamicSchema.safeParse(submissionData);
       if (!validation.success) {
         const fieldErrors: Record<string, string> = {};
         validation.error.issues.forEach((issue: z.ZodIssue) => {
@@ -275,7 +327,7 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <Card className={styles.submissionCard}>
         <CardContent>
           <div className={styles.formContainer}>
@@ -294,16 +346,29 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
               <Input
                 id="full_name"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  // Clear error when user starts typing
+                  if (errors.full_name) {
+                    setErrors({ ...errors, full_name: '' });
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validate on blur
+                  const value = e.target.value.trim();
+                  if (!value) {
+                    setErrors({ ...errors, full_name: 'Name is required' });
+                  } else if (value.length < 2) {
+                    setErrors({ ...errors, full_name: 'Name must be at least 2 characters' });
+                  } else if (value.length > 100) {
+                    setErrors({ ...errors, full_name: 'Name must be less than 100 characters' });
+                  }
+                }}
                 placeholder="John Doe"
-                className={errors.full_name ? 'border-red-500' : ''}
+                error={!!errors.full_name}
+                helperText={errors.full_name}
                 disabled={isSubmitting}
               />
-              {errors.full_name && (
-                <span className={styles.errorText} role="alert" aria-live="polite">
-                  {errors.full_name}
-                </span>
-              )}
             </div>
 
             {/* Social Handle (Optional) */}
@@ -312,16 +377,25 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
               <Input
                 id="social_handle"
                 value={socialHandle}
-                onChange={(e) => setSocialHandle(e.target.value)}
+                onChange={(e) => {
+                  setSocialHandle(e.target.value);
+                  // Clear error when user starts typing
+                  if (errors.social_handle) {
+                    setErrors({ ...errors, social_handle: '' });
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validate on blur
+                  const value = e.target.value.trim();
+                  if (value && value.length > 30) {
+                    setErrors({ ...errors, social_handle: 'Social handle must be less than 30 characters' });
+                  }
+                }}
                 placeholder="@username"
-                className={errors.social_handle ? 'border-red-500' : ''}
+                error={!!errors.social_handle}
+                helperText={errors.social_handle}
                 disabled={isSubmitting}
               />
-              {errors.social_handle && (
-                <span className={styles.errorText} role="alert" aria-live="polite">
-                  {errors.social_handle}
-                </span>
-              )}
             </div>
 
             {/* Email (Conditional) */}
@@ -334,19 +408,27 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    // Clear error when user starts typing
+                    if (errors.email) {
+                      setErrors({ ...errors, email: '' });
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Validate on blur
+                    const value = e.target.value.trim();
+                    if (requireEmail && !value) {
+                      setErrors({ ...errors, email: 'Email is required' });
+                    } else if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                      setErrors({ ...errors, email: 'Invalid email address' });
+                    }
+                  }}
                   placeholder="your.email@example.com"
-                  className={errors.email ? 'border-red-500' : ''}
+                  error={!!errors.email}
+                  helperText={errors.email || 'Your email will NOT be posted publicly'}
                   disabled={isSubmitting}
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Your email will NOT be posted publicly
-                </p>
-                {errors.email && (
-                  <span className={styles.errorText} role="alert" aria-live="polite">
-                    {errors.email}
-                  </span>
-                )}
               </div>
             )}
 
@@ -358,14 +440,30 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 multiline
                 rows={4}
                 value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                onChange={(e) => {
+                  setComment(e.target.value);
+                  // Clear error when user starts typing
+                  if (errors.comment) {
+                    setErrors({ ...errors, comment: '' });
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validate on blur
+                  const value = e.target.value.trim();
+                  if (!value) {
+                    setErrors({ ...errors, comment: 'Comment is required' });
+                  } else if (value.length < 10) {
+                    setErrors({ ...errors, comment: 'Comment must be at least 10 characters' });
+                  } else if (value.length > 500) {
+                    setErrors({ ...errors, comment: 'Comment must be less than 500 characters' });
+                  }
+                }}
                 placeholder="Share your thoughts..."
                 fullWidth
                 error={!!errors.comment}
                 helperText={errors.comment || `${characterCount}/${characterLimit} characters`}
                 disabled={isSubmitting}
-                inputProps={{ maxLength: characterLimit }}
-                required
+                slotProps={{ htmlInput: { maxLength: characterLimit } }}
               />
             </div>
 

@@ -10,6 +10,11 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
 import {
   Check,
   X,
@@ -21,7 +26,8 @@ import {
   User,
   MessageSquare,
   Clock,
-  Download
+  Download,
+  Mail
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Database } from '@/types/database.types';
@@ -47,6 +53,8 @@ export function SubmissionCard({
   const [displayMode, setDisplayMode] = useState<'once' | 'repeat'>(submission.display_mode);
   const [customTiming, setCustomTiming] = useState<number | null>(submission.custom_timing);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<'soft' | 'permanent'>('soft');
   const timingDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle display mode change
@@ -110,6 +118,21 @@ export function SubmissionCard({
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Error downloading media:', error);
+    }
+  };
+
+  // Handle delete confirmation
+  const handleDeleteClick = (type: 'soft' | 'permanent') => {
+    setDeleteType(type);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteDialogOpen(false);
+    if (deleteType === 'soft') {
+      await onStatusChange(submission.id, 'deleted');
+    } else {
+      await onDelete(submission.id);
     }
   };
 
@@ -198,6 +221,12 @@ export function SubmissionCard({
                     </Typography>
                   )}
                 </div>
+                {submission.email && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
+                    <Mail size={14} className="text-gray-400" />
+                    <span>{submission.email}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Clock size={14} />
                   <span>{formatDistanceToNow(new Date(submission.created_at), { addSuffix: true })}</span>
@@ -361,7 +390,7 @@ export function SubmissionCard({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onStatusChange(submission.id, 'deleted')}
+                  onClick={() => handleDeleteClick('soft')}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 size={16} className="mr-1" />
@@ -374,7 +403,7 @@ export function SubmissionCard({
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => onDelete(submission.id)}
+                  onClick={() => handleDeleteClick('permanent')}
                 >
                   <Trash2 size={16} className="mr-1" />
                   Delete Permanently
@@ -383,6 +412,36 @@ export function SubmissionCard({
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          maxWidth="sm"
+        >
+          <DialogTitle>
+            {deleteType === 'permanent' ? 'Permanently Delete Submission?' : 'Delete Submission?'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {deleteType === 'permanent'
+                ? 'This action cannot be undone. The submission will be permanently removed from the database.'
+                : 'This will move the submission to the Deleted tab. You can restore it later if needed.'}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              color="error"
+              variant="contained"
+            >
+              {deleteType === 'permanent' ? 'Delete Permanently' : 'Delete'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </CardContent>
     </Card>
   );

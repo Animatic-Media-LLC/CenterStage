@@ -161,6 +161,48 @@ Each submission card shows:
 - **Search**: Find submissions by name or comment text
 - **Filter by Date**: View submissions from specific time periods
 
+### Downloading and Exporting
+
+**Download Individual Media**
+- Click the download icon on any photo or video
+- Files are named with submitter's name for easy organization
+- Downloads directly to your browser's download folder
+
+**Download All Media (ZIP)**
+1. Click **"Download All Media"** button at the top of the review interface
+2. System collects all photos and videos from all submission statuses
+3. Files are organized in a ZIP archive named `[project-slug]_media.zip`
+4. Each file is named: `[Full_Name]_[submission-id].jpg` or `.mp4`
+5. Download starts automatically when ready
+
+**Export Comments to Excel**
+1. Click **"Export Comments"** button at the top of the review interface
+2. Select which submission types to include:
+   - **Pending** (default: selected)
+   - **Approved** (default: selected)
+   - **Declined**
+   - **Archived**
+   - **Deleted**
+3. Click **"Export"** to generate the file
+4. Excel file downloads as `[project-slug]_comments.xlsx`
+
+**Excel Export Columns:**
+- Full Name
+- Date Posted
+- Date Approved (if applicable)
+- Social Handle
+- Comment
+- Email (if collected)
+- Status
+
+**Use Cases for Exporting:**
+- Create backup of all testimonials
+- Share with marketing team
+- Include in reports or presentations
+- Archive campaign results
+- Follow up with email addresses
+- Analyze submission patterns and timing
+
 ---
 
 ## Presentation Display
@@ -340,8 +382,9 @@ If you encounter issues not covered here:
 
 3. **Post-Event**
    - Review all submissions within 48 hours
+   - Export comments to Excel for records and analysis
+   - Download all media files as backup
    - Archive project when campaign ends
-   - Export submission data if needed (future feature)
    - Analyze what worked well for next time
 
 ### Maximizing Submissions
