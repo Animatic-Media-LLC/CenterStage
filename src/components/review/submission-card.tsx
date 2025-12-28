@@ -2,14 +2,23 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectItem } from '@/components/ui/select';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
 import {
   Check,
   X,
@@ -20,7 +29,9 @@ import {
   Video as VideoIcon,
   User,
   MessageSquare,
-  Clock
+  Clock,
+  Download,
+  Mail
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { Database } from '@/types/database.types';
@@ -46,6 +57,8 @@ export function SubmissionCard({
   const [displayMode, setDisplayMode] = useState<'once' | 'repeat'>(submission.display_mode);
   const [customTiming, setCustomTiming] = useState<number | null>(submission.custom_timing);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<'soft' | 'permanent'>('soft');
   const timingDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle display mode change
@@ -94,6 +107,39 @@ export function SubmissionCard({
     };
   }, []);
 
+  // Handle media download
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading media:', error);
+    }
+  };
+
+  // Handle delete confirmation
+  const handleDeleteClick = (type: 'soft' | 'permanent') => {
+    setDeleteType(type);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteDialogOpen(false);
+    if (deleteType === 'soft') {
+      await onStatusChange(submission.id, 'deleted');
+    } else {
+      await onDelete(submission.id);
+    }
+  };
+
   const hasMedia = submission.photo_url || submission.video_url;
 
   return (
@@ -120,6 +166,16 @@ export function SubmissionCard({
                       sx={{ bgcolor: 'white' }}
                     />
                   </div>
+                  <div className="absolute top-2 right-2 z-10">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDownload(submission.photo_url!, `${submission.full_name.replace(/\s+/g, '_')}_photo.jpg`)}
+                      sx={{ bgcolor: 'white', '&:hover': { bgcolor: '#e5e7eb' } }}
+                      aria-label="Download photo"
+                    >
+                      <Download size={16} />
+                    </IconButton>
+                  </div>
                 </div>
               )}
               {submission.video_url && (
@@ -137,6 +193,16 @@ export function SubmissionCard({
                       size="small"
                       sx={{ bgcolor: 'white' }}
                     />
+                  </div>
+                  <div className="absolute top-2 right-2 z-10">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDownload(submission.video_url!, `${submission.full_name.replace(/\s+/g, '_')}_video.mp4`)}
+                      sx={{ bgcolor: 'white', '&:hover': { bgcolor: '#e5e7eb' } }}
+                      aria-label="Download video"
+                    >
+                      <Download size={16} />
+                    </IconButton>
                   </div>
                 </div>
               )}
@@ -159,6 +225,12 @@ export function SubmissionCard({
                     </Typography>
                   )}
                 </div>
+                {submission.email && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
+                    <Mail size={14} className="text-gray-400" />
+                    <span>{submission.email}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Clock size={14} />
                   <span>{formatDistanceToNow(new Date(submission.created_at), { addSuffix: true })}</span>
@@ -190,59 +262,78 @@ export function SubmissionCard({
 
             {/* Inline Editing for Approved Submissions */}
             {currentTab === 'approved' && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <Typography variant="caption" fontWeight="bold" className="block mb-2">
+              <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                <Typography variant="caption" fontWeight="bold" sx={{ display: 'block', mb: 1 }}>
                   Display Settings
                 </Typography>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-gray-600 block mb-1">Display Mode</label>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="display-mode-label">Display Mode</InputLabel>
                     <Select
+                      labelId="display-mode-label"
                       value={displayMode}
-                      onValueChange={(value) => handleDisplayModeChange(value as 'once' | 'repeat')}
+                      onChange={(e) => handleDisplayModeChange(e.target.value as 'once' | 'repeat')}
                       disabled={isUpdating}
+                      label="Display Mode"
                     >
-                      <SelectItem value="once">Show Once</SelectItem>
-                      <SelectItem value="repeat">Repeat</SelectItem>
+                      <MenuItem value="once">Show Once</MenuItem>
+                      <MenuItem value="repeat">Repeat</MenuItem>
                     </Select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-600 block mb-1">Custom Timing (seconds)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="30"
-                      value={customTiming || ''}
-                      onChange={(e) => handleCustomTimingChange(e.target.value)}
-                      placeholder="Default"
-                      disabled={isUpdating}
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-              </div>
+                  </FormControl>
+                  <TextField
+                    type="number"
+                    label="Custom Timing (seconds)"
+                    value={customTiming || ''}
+                    onChange={(e) => handleCustomTimingChange(e.target.value)}
+                    placeholder="Default"
+                    disabled={isUpdating}
+                    size="small"
+                    fullWidth
+                    slotProps={{
+                      htmlInput: {
+                        min: 1,
+                        max: 30
+                      }
+                    }}
+                  />
+                </Box>
+              </Box>
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-2 flex-wrap">
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {currentTab === 'pending' && (
                 <>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'approved')}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    sx={{
+                      color: 'success.main',
+                      borderColor: 'success.main',
+                      '&:hover': {
+                        backgroundColor: 'success.lighter',
+                        borderColor: 'success.dark'
+                      }
+                    }}
+                    startIcon={<Check size={16} />}
                   >
-                    <Check size={16} className="mr-1" />
                     Approve
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'declined')}
-                    className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                    sx={{
+                      color: 'warning.main',
+                      borderColor: 'warning.main',
+                      '&:hover': {
+                        backgroundColor: 'warning.lighter',
+                        borderColor: 'warning.dark'
+                      }
+                    }}
+                    startIcon={<X size={16} />}
                   >
-                    <X size={16} className="mr-1" />
                     Decline
                   </Button>
                 </>
@@ -251,19 +342,19 @@ export function SubmissionCard({
               {currentTab === 'approved' && (
                 <>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'pending')}
+                    startIcon={<RotateCcw size={16} />}
                   >
-                    <RotateCcw size={16} className="mr-1" />
                     Move to Pending
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'archived')}
+                    startIcon={<Archive size={16} />}
                   >
-                    <Archive size={16} className="mr-1" />
                     Archive
                   </Button>
                 </>
@@ -272,20 +363,27 @@ export function SubmissionCard({
               {currentTab === 'declined' && (
                 <>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'approved')}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    sx={{
+                      color: 'success.main',
+                      borderColor: 'success.main',
+                      '&:hover': {
+                        backgroundColor: 'success.lighter',
+                        borderColor: 'success.dark'
+                      }
+                    }}
+                    startIcon={<Check size={16} />}
                   >
-                    <Check size={16} className="mr-1" />
                     Approve
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'pending')}
+                    startIcon={<RotateCcw size={16} />}
                   >
-                    <RotateCcw size={16} className="mr-1" />
                     Move to Pending
                   </Button>
                 </>
@@ -294,11 +392,11 @@ export function SubmissionCard({
               {currentTab === 'archived' && (
                 <>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'approved')}
+                    startIcon={<RotateCcw size={16} />}
                   >
-                    <RotateCcw size={16} className="mr-1" />
                     Restore to Approved
                   </Button>
                 </>
@@ -307,11 +405,11 @@ export function SubmissionCard({
               {currentTab === 'deleted' && (
                 <>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="outlined"
                     onClick={() => onStatusChange(submission.id, 'pending')}
+                    startIcon={<RotateCcw size={16} />}
                   >
-                    <RotateCcw size={16} className="mr-1" />
                     Restore to Pending
                   </Button>
                 </>
@@ -320,12 +418,19 @@ export function SubmissionCard({
               {/* Delete button (soft delete - moves to deleted tab) */}
               {currentTab !== 'deleted' && (
                 <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onStatusChange(submission.id, 'deleted')}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => handleDeleteClick('soft')}
+                  sx={{
+                    color: 'error.main',
+                    borderColor: 'error.main',
+                    '&:hover': {
+                      backgroundColor: 'error.lighter',
+                      borderColor: 'error.dark'
+                    }
+                  }}
+                  startIcon={<Trash2 size={16} />}
                 >
-                  <Trash2 size={16} className="mr-1" />
                   Delete
                 </Button>
               )}
@@ -333,17 +438,48 @@ export function SubmissionCard({
               {/* Permanent delete (only in deleted tab) */}
               {currentTab === 'deleted' && (
                 <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => onDelete(submission.id)}
+                  size="small"
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDeleteClick('permanent')}
+                  startIcon={<Trash2 size={16} />}
                 >
-                  <Trash2 size={16} className="mr-1" />
                   Delete Permanently
                 </Button>
               )}
-            </div>
+            </Box>
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          maxWidth="sm"
+        >
+          <DialogTitle>
+            {deleteType === 'permanent' ? 'Permanently Delete Submission?' : 'Delete Submission?'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {deleteType === 'permanent'
+                ? 'This action cannot be undone. The submission will be permanently removed from the database.'
+                : 'This will move the submission to the Deleted tab. You can restore it later if needed.'}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              color="error"
+              variant="contained"
+            >
+              {deleteType === 'permanent' ? 'Delete Permanently' : 'Delete'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </CardContent>
     </Card>
   );
