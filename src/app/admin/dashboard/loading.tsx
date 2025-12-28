@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Skeleton from '@mui/material/Skeleton';
 import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 
@@ -34,18 +35,18 @@ export default function DashboardLoading() {
             gridTemplateColumns: {
               xs: '1fr',
               sm: 'repeat(2, 1fr)',
-              lg: 'repeat(4, 1fr)',
+              lg: 'repeat(3, 1fr)',
             },
             gap: 3,
             mb: 4,
           }}
         >
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Card key={i}>
-              <CardHeader className="pb-2">
+              <CardContent sx={{ pb: 1 }}>
                 <Skeleton variant="text" width="60%" height={20} />
-              </CardHeader>
-              <CardContent className="hidden md:block">
+              </CardContent>
+              <CardContent sx={{ display: { xs: 'none', md: 'block' } }}>
                 <Skeleton variant="text" width="40%" height={40} />
                 <Skeleton variant="text" width="50%" height={16} sx={{ mt: 0.5 }} />
               </CardContent>
@@ -55,9 +56,9 @@ export default function DashboardLoading() {
 
         {/* Recent Submissions Skeleton */}
         <Card>
-          <CardHeader>
+          <Box sx={{ p: 2.5 }}>
             <Skeleton variant="text" width={200} height={28} />
-          </CardHeader>
+          </Box>
           <CardContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {[1, 2, 3, 4, 5].map((i) => (

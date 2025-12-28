@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Skeleton from '@mui/material/Skeleton';
 import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 
@@ -23,11 +24,11 @@ export default function ProjectEditLoading() {
       {/* Main Content Skeleton */}
       <div className="px-4 sm:px-8 py-6 max-w-4xl">
         {/* Project Details Card */}
-        <Card className="mb-6">
-          <CardHeader>
+        <Card sx={{ mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
             <Skeleton variant="text" width={150} height={28} />
-          </CardHeader>
-          <CardContent className="space-y-4">
+          </Box>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
             <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
             <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
@@ -35,11 +36,11 @@ export default function ProjectEditLoading() {
         </Card>
 
         {/* Presentation Config Card */}
-        <Card className="mb-6">
-          <CardHeader>
+        <Card sx={{ mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
             <Skeleton variant="text" width={220} height={28} />
-          </CardHeader>
-          <CardContent className="space-y-4">
+          </Box>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
               <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
               <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />

@@ -7,7 +7,7 @@ import { getUserById, getUserAccessibleProjects } from '@/lib/db/users';
 import { AdminLayout } from '@/components/layout/admin-layout';
 import { ProjectEditForm } from '@/components/forms/project-edit-form';
 import { ArrowLeft, FileText, MessageSquare, Presentation } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Button from '@mui/material/Button';
 
 interface EditProjectPageProps {
   params: Promise<{
@@ -80,19 +80,19 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Link href={`/comment/${slug}`} target="_blank" className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-auto">
+                <Button variant="outlined" className="w-full sm:w-auto">
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Comment Page
                 </Button>
               </Link>
               <Link href={`/present/${slug}`} target="_blank" className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-auto">
+                <Button variant="outlined" className="w-full sm:w-auto">
                   <Presentation className="h-4 w-4 mr-2" />
                   Presentation
                 </Button>
               </Link>
               <Link href={`/admin/projects/${slug}/review`} className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-auto">
+                <Button variant="outlined" className="w-full sm:w-auto">
                   <FileText className="h-4 w-4 mr-2" />
                   Review Submissions {pendingCounts[project.id] > 0 && `(${pendingCounts[project.id]})`}
                 </Button>

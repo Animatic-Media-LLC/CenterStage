@@ -4,12 +4,9 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 import Box from '@mui/material/Box';
 
 /**
@@ -86,43 +83,37 @@ export function LoginForm() {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <FormControl fullWidth error={!!fieldErrors.email}>
-        <FormLabel htmlFor="email">Email Address</FormLabel>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={formData.email}
-          onChange={handleChange}
-          disabled={isLoading}
-          placeholder="admin@animatic.com"
-          error={!!fieldErrors.email}
-        />
-        {fieldErrors.email && (
-          <FormHelperText id="email-error">{fieldErrors.email}</FormHelperText>
-        )}
-      </FormControl>
+      <TextField
+        id="email"
+        name="email"
+        label="Email Address"
+        type="email"
+        autoComplete="email"
+        required
+        fullWidth
+        value={formData.email}
+        onChange={handleChange}
+        disabled={isLoading}
+        placeholder="admin@animatic.com"
+        error={!!fieldErrors.email}
+        helperText={fieldErrors.email}
+      />
 
-      <FormControl fullWidth error={!!fieldErrors.password}>
-        <FormLabel htmlFor="password">Password</FormLabel>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={formData.password}
-          onChange={handleChange}
-          disabled={isLoading}
-          placeholder="••••••••"
-          error={!!fieldErrors.password}
-        />
-        {fieldErrors.password && (
-          <FormHelperText id="password-error">{fieldErrors.password}</FormHelperText>
-        )}
-      </FormControl>
+      <TextField
+        id="password"
+        name="password"
+        label="Password"
+        type="password"
+        autoComplete="current-password"
+        required
+        fullWidth
+        value={formData.password}
+        onChange={handleChange}
+        disabled={isLoading}
+        placeholder="••••••••"
+        error={!!fieldErrors.password}
+        helperText={fieldErrors.password}
+      />
 
       {error && (
         <Alert severity="error" role="alert">
@@ -132,7 +123,8 @@ export function LoginForm() {
 
       <Button
         type="submit"
-        className="w-full"
+        variant="contained"
+        fullWidth
         disabled={isLoading}
         aria-busy={isLoading}
       >
