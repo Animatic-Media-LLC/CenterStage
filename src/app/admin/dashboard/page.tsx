@@ -92,7 +92,7 @@ export default async function DashboardPage() {
             gridTemplateColumns: {
               xs: '1fr',
               sm: 'repeat(2, 1fr)',
-              lg: 'repeat(4, 1fr)',
+              lg: 'repeat(3, 1fr)',
             },
             gap: 3,
             mb: 4,
@@ -161,36 +161,6 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           </Link>
-
-          <Card className="transition-all duration-300 hover:-translate-y-1" sx={{
-            height: '100%',
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            boxShadow: '0 4px 6px rgba(245, 158, 11, 0.3)',
-            '&:hover': { boxShadow: '0 10px 20px rgba(245, 158, 11, 0.4)' }
-          }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box sx={{
-                  bgcolor: 'rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
-                  p: 1.5,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <FileText className="h-8 w-8 text-white" />
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="h3" component="div" fontWeight="bold" sx={{ color: 'white', fontSize: '2rem' }}>
-                    {stats.pendingSubmissions}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
-                    Pending
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
 
           <Card className="transition-all duration-300 hover:-translate-y-1" sx={{
             height: '100%',
