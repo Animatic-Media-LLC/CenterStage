@@ -90,7 +90,7 @@ export function AdminLayout({ children, userName, userRole, projects = [] }: Adm
 
       {/* Sidebar - Hidden on mobile, slide in when menu open */}
       <aside className={cn(
-        "w-64 bg-gradient-to-b from-white to-slate-50/50 border-r border-gray-200 shadow-xl flex flex-col h-screen overflow-hidden transition-transform duration-300 z-40",
+        "w-64 bg-gradient-to-b from-slate-200 via-slate-100 to-white border-r border-gray-300 shadow-xl flex flex-col h-screen overflow-hidden transition-transform duration-300 z-40",
         "fixed md:relative",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import IconButton from '@mui/material/IconButton';
 import { Copy, Check } from 'lucide-react';
 import { useSnackbar } from '@/components/providers/snackbar-provider';
 
@@ -33,12 +33,11 @@ export function CopyUrlButton({ url, label = 'Copy URL' }: CopyUrlButtonProps) {
   };
 
   return (
-    <Button
+    <IconButton
       type="button"
-      variant="ghost"
-      size="sm"
+      size="small"
       onClick={handleCopy}
-      className="h-6 px-2 text-xs"
+      sx={{ p: 0.5 }}
       title={label}
       aria-label={copied ? 'URL copied' : label}
     >
@@ -47,6 +46,6 @@ export function CopyUrlButton({ url, label = 'Copy URL' }: CopyUrlButtonProps) {
       ) : (
         <Copy className="h-3 w-3" aria-hidden="true" />
       )}
-    </Button>
+    </IconButton>
   );
 }

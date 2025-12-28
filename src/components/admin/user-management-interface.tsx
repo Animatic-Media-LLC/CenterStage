@@ -573,13 +573,11 @@ export default function UserManagementInterface({
             {/* Project Assignments Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 3 }}>Project Assignments</Typography>
 
-            {formData.role === 'super_admin' && (
+            {formData.role === 'super_admin' ? (
               <Alert severity="info">
                 This user is a Super Admin and has automatic access to all projects. Assignments are not required.
               </Alert>
-            )}
-
-            {loadingProjects ? (
+            ) : loadingProjects ? (
               <Box display="flex" justifyContent="center" alignItems="center" minHeight={100}>
                 <CircularProgress />
               </Box>
@@ -602,7 +600,6 @@ export default function UserManagementInterface({
                       <Checkbox
                         checked={project.isAssigned}
                         onChange={() => handleToggleAssignment(project.id)}
-                        disabled={formData.role === 'super_admin'}
                       />
                     }
                     label={

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { Button } from '@/components/ui/button';
+import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { LogIn } from 'lucide-react';
@@ -66,8 +66,12 @@ export default async function HomePage() {
 
         {/* Login Button */}
         <Link href="/admin/login">
-          <Button size="lg" className="text-lg px-8 py-6">
-            <LogIn className="h-5 w-5 mr-2" />
+          <Button
+            variant="contained"
+            size="large"
+            sx={{ fontSize: '1.125rem', px: 4, py: 1.5 }}
+            startIcon={<LogIn className="h-5 w-5" />}
+          >
             Admin Login
           </Button>
         </Link>

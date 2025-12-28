@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { AdminLayout } from '@/components/layout/admin-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import { StyledButton } from '@/components/ui/styled-button';
 import { FolderKanban, FileText, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 import Box from '@mui/material/Box';
@@ -199,11 +200,18 @@ export default async function DashboardPage() {
           borderRadius: '16px',
           border: '1px solid rgba(0,0,0,0.05)'
         }}>
-          <CardHeader className="flex flex-row items-center justify-between" sx={{
+          <Box sx={{
+            p: 2.5,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             background: 'rgba(0, 130, 174, 0.05)',
             borderBottom: '1px solid rgba(0,0,0,0.05)'
           }}>
-            <CardTitle className="font-bold text-xl">Recent Pending Submissions</CardTitle>
+            <Typography variant="h6" fontWeight="bold">
+              Recent Pending Submissions
+            </Typography>
             {recentSubmissions.length > 0 && (
               <Chip
                 label={`${recentSubmissions.length} recent`}
@@ -215,7 +223,7 @@ export default async function DashboardPage() {
                 }}
               />
             )}
-          </CardHeader>
+          </Box>
           <CardContent>
             {recentSubmissions.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 6, fontWeight: 500 }}>
@@ -285,15 +293,15 @@ export default async function DashboardPage() {
                     </Box>
                     <Link href={`/admin/projects/${submission.projects.slug}/review`}>
                       <StyledButton
-                        variant="ghost"
-                        size="sm"
-                        className="font-semibold transition-colors"
+                        variant="text"
+                        size="small"
+                        sx={{ fontWeight: 600 }}
                         style={{ color: '#0082ae' }}
                         defaultBackground=""
                         hoverBackground="rgba(0, 130, 174, 0.1)"
+                        endIcon={<ArrowRight className="h-4 w-4" />}
                       >
                         Review
-                        <ArrowRight className="h-4 w-4 ml-1" />
                       </StyledButton>
                     </Link>
                   </Box>

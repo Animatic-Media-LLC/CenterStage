@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { Card, CardContent } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Skeleton from '@mui/material/Skeleton';
 import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 

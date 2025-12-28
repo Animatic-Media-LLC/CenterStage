@@ -2,7 +2,8 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Card, CardContent } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import type { FontFamily } from '@/lib/constants/fonts';
 
 interface FontPreviewProps {

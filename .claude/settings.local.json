@@ -15,7 +15,10 @@
       "Bash(else echo \".env.local file not found\")",
       "Bash(fi)",
       "Bash(grep:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(for file in button card input)",
+      "Bash(do echo \"=== $file.tsx ===\")",
+      "Bash(done)"
     ]
   }
 }

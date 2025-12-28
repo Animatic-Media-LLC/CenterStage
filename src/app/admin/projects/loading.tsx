@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Skeleton from '@mui/material/Skeleton';
 import { AdminLoadingLayout } from '@/components/layout/admin-loading-layout';
 
@@ -44,10 +45,10 @@ export default function ProjectsLoading() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Box key={i}>
               <Card>
-                <CardHeader>
+                <Box sx={{ p: 2.5 }}>
                   <Skeleton variant="text" width="60%" height={28} />
                   <Skeleton variant="text" width="40%" height={20} sx={{ mt: 1 }} />
-                </CardHeader>
+                </Box>
                 <CardContent>
                   <Box sx={{ mb: 2 }}>
                     <Skeleton variant="text" width="30%" height={16} />
