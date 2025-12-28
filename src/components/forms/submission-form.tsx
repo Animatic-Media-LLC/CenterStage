@@ -2,15 +2,9 @@
 
 import { useState } from 'react';
 import { z } from 'zod';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
@@ -18,7 +12,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { submissionSchema, type SubmissionInput } from '@/lib/validations/submission';
 import { uploadSubmissionPhoto, uploadSubmissionVideo } from '@/lib/utils/file-upload';
-import { CloudUpload, Video } from 'lucide-react';
+import { CloudUpload } from 'lucide-react';
 import styles from './submission-form.module.scss';
 
 interface SubmissionFormProps {
@@ -318,7 +312,12 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
           <Typography variant="body1" color="text.secondary" paragraph>
             Your submission has been received and will be reviewed shortly.
           </Typography>
-          <Button onClick={handleSubmitAnother} size="lg">
+          <Button
+            onClick={handleSubmitAnother}
+            variant="contained"
+            size="large"
+            sx={{ backgroundColor: buttonColor, color: '#ffffff' }}
+          >
             Submit Another
           </Button>
         </CardContent>
@@ -340,11 +339,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
 
             {/* Full Name */}
             <div className={styles.fieldContainer}>
-              <Label htmlFor="full_name">
-                Full Name <span className={styles.required}>*</span>
-              </Label>
-              <Input
+              <TextField
                 id="full_name"
+                label={<>Full Name <span className={styles.required}>*</span></>}
                 value={fullName}
                 onChange={(e) => {
                   setFullName(e.target.value);
@@ -368,14 +365,17 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 error={!!errors.full_name}
                 helperText={errors.full_name}
                 disabled={isSubmitting}
+                fullWidth
+                variant="outlined"
+                size="small"
               />
             </div>
 
             {/* Social Handle (Optional) */}
             <div className={styles.fieldContainer}>
-              <Label htmlFor="social_handle">Social Handle (Optional)</Label>
-              <Input
+              <TextField
                 id="social_handle"
+                label="Social Handle (Optional)"
                 value={socialHandle}
                 onChange={(e) => {
                   setSocialHandle(e.target.value);
@@ -395,17 +395,18 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                 error={!!errors.social_handle}
                 helperText={errors.social_handle}
                 disabled={isSubmitting}
+                fullWidth
+                variant="outlined"
+                size="small"
               />
             </div>
 
             {/* Email (Conditional) */}
             {requireEmail && (
               <div className={styles.fieldContainer}>
-                <Label htmlFor="email">
-                  Email Address <span className={styles.required}>*</span>
-                </Label>
-                <Input
+                <TextField
                   id="email"
+                  label={<>Email Address <span className={styles.required}>*</span></>}
                   type="email"
                   value={email}
                   onChange={(e) => {
@@ -428,6 +429,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   error={!!errors.email}
                   helperText={errors.email || 'Your email will NOT be posted publicly'}
                   disabled={isSubmitting}
+                  fullWidth
+                  variant="outlined"
+                  size="small"
                 />
               </div>
             )}
@@ -469,7 +473,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
 
             {/* Photo/Video Upload */}
             <div className={styles.fieldContainer}>
-              <Label>{allowVideoUploads ? 'Photo or Video (Optional)' : 'Photo (Optional)'}</Label>
+              <Typography variant="body2" component="label" sx={{ display: 'block', mb: 1, fontWeight: 500 }}>
+                {allowVideoUploads ? 'Photo or Video (Optional)' : 'Photo (Optional)'}
+              </Typography>
 
               {mediaPreview ? (
                 <div className={styles.photoPreviewContainer}>
@@ -496,10 +502,10 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                   )}
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="outlined"
                     onClick={handleRemoveMedia}
                     disabled={isSubmitting}
-                    className={styles.removePhotoButton}
+                    sx={{ mt: 1 }}
                   >
                     Remove {mediaType === 'photo' ? 'Photo' : 'Video'}
                   </Button>
@@ -545,18 +551,19 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
             <Button
               type="submit"
               disabled={isSubmitting || isUploading}
-              size="lg"
-              className={styles.submitButton}
-              style={{ backgroundColor: buttonColor, color: '#ffffff' }}
+              variant="contained"
+              size="large"
+              fullWidth
+              sx={{ backgroundColor: buttonColor, color: '#ffffff' }}
             >
               {isUploading ? (
                 <>
-                  <CircularProgress size={20} className={styles.buttonIcon} />
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
                   Uploading Photo...
                 </>
               ) : isSubmitting ? (
                 <>
-                  <CircularProgress size={20} className={styles.buttonIcon} />
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
                   Submitting...
                 </>
               ) : (

@@ -14,7 +14,8 @@
       "Bash(then echo \"=== Environment variables \\(values hidden\\) ===\")",
       "Bash(else echo \".env.local file not found\")",
       "Bash(fi)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

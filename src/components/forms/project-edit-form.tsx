@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useSnackbar } from '@/components/providers/snackbar-provider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectItem,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { Slider } from '@/components/ui/slider';
 import { ColorPicker } from '@/components/ui/color-picker';
 import {
@@ -28,14 +30,11 @@ import { CloudUpload, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContentText from '@mui/material/DialogContentText';
 
 interface ProjectEditFormProps {
   project: {
@@ -361,55 +360,46 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Project Details Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2 }}>Project Details</Typography>
+
           <div>
-            <Label htmlFor="name">Project Name</Label>
-            <Input
+            <TextField
               id="name"
+              label="Project Name"
               value={projectName}
               onChange={(e) => handleProjectNameChange(e.target.value)}
               placeholder="e.g., Summer Campaign 2024"
-              className={errors.name ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.name}
+              helperText={errors.name}
             />
-            {errors.name && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.name}</p>
-            )}
           </div>
 
           <div>
-            <Label htmlFor="client_name">Client Name</Label>
-            <Input
+            <TextField
               id="client_name"
+              label="Client Name"
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               placeholder="e.g., Acme Corporation"
-              className={errors.client_name ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.client_name}
+              helperText={errors.client_name}
             />
-            {errors.client_name && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.client_name}</p>
-            )}
           </div>
 
           <div>
-            <Label htmlFor="slug">
-              Slug
-              <span className="text-gray-500 text-xs ml-2">
-                (URL-friendly identifier)
-              </span>
-            </Label>
-            <Input
+            <TextField
               id="slug"
+              label="Slug (URL-friendly identifier)"
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               placeholder="e.g., summer-campaign-2024"
-              className={errors.slug ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.slug}
+              helperText={errors.slug}
             />
-            {errors.slug && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.slug}</p>
-            )}
             {slug && isValidSlug(slug) && !errors.slug && (
               <p className="text-sm text-gray-500 mt-1">
                 Preview URL: /submit/{slug}
@@ -421,28 +411,31 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
       {/* Presentation Configuration Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Presentation Configuration</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2 }}>Presentation Configuration</Typography>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="font_family">Font Family</Label>
-              <Select
-                id="font_family"
-                value={fontFamily}
-                onValueChange={(value) => setFontFamily(value as FontFamily)}
-              >
-                {AVAILABLE_FONTS.map((font) => (
-                  <SelectItem key={font} value={font}>
-                    {font}
-                  </SelectItem>
-                ))}
-              </Select>
+              <FormControl fullWidth>
+                <InputLabel id="font_family-label">Font Family</InputLabel>
+                <Select
+                  labelId="font_family-label"
+                  id="font_family"
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value as FontFamily)}
+                  label="Font Family"
+                >
+                  {AVAILABLE_FONTS.map((font) => (
+                    <MenuItem key={font} value={font}>
+                      {font}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
 
             <div>
-              <Label htmlFor="font_size">Font Size: {fontSize}px</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Font Size: {fontSize}px</Typography>
               <Slider
                 id="font_size"
                 min={16}
@@ -455,7 +448,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
 
             <div>
-              <Label htmlFor="text_color">Text Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Text Color</Typography>
               <ColorPicker
                 value={textColor}
                 onChange={setTextColor}
@@ -464,7 +457,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
 
             <div>
-              <Label htmlFor="outline_color">Outline Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Outline Color</Typography>
               <ColorPicker
                 value={outlineColor}
                 onChange={setOutlineColor}
@@ -473,7 +466,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
 
             <div>
-              <Label htmlFor="background_color">Background Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Background Color</Typography>
               <ColorPicker
                 value={backgroundColor}
                 onChange={setBackgroundColor}
@@ -495,7 +488,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
           {/* Background Image Upload */}
           <div className="mt-4">
-            <Label>Background Image (Optional)</Label>
+            <Typography variant="body2" sx={{ mb: 1 }}>Background Image (Optional)</Typography>
             <p className="text-sm text-gray-500 mb-2">
               Upload a background image for the presentation page (Max 5MB)
             </p>
@@ -509,7 +502,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
                 />
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="outlined"
                   onClick={handleRemoveBackgroundImage}
                   disabled={isSubmitting}
                 >
@@ -547,7 +540,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <Label htmlFor="transition_duration">Transition Duration: {transitionDuration}s</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Transition Duration: {transitionDuration}s</Typography>
               <Slider
                 id="transition_duration"
                 min={1}
@@ -560,34 +553,39 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
 
             <div>
-              <Label htmlFor="animation_style">Animation Style</Label>
-              <Select
-                id="animation_style"
-                value={animationStyle}
-                onValueChange={(value) =>
-                  setAnimationStyle(value as 'fade' | 'slide' | 'zoom')
-                }
-              >
-                <SelectItem value="fade">Fade</SelectItem>
-                <SelectItem value="slide">Slide</SelectItem>
-                <SelectItem value="zoom">Zoom</SelectItem>
-              </Select>
+              <FormControl fullWidth>
+                <InputLabel id="animation_style-label">Animation Style</InputLabel>
+                <Select
+                  labelId="animation_style-label"
+                  id="animation_style"
+                  value={animationStyle}
+                  onChange={(e) =>
+                    setAnimationStyle(e.target.value as 'fade' | 'slide' | 'zoom')
+                  }
+                  label="Animation Style"
+                >
+                  <MenuItem value="fade">Fade</MenuItem>
+                  <MenuItem value="slide">Slide</MenuItem>
+                  <MenuItem value="zoom">Zoom</MenuItem>
+                </Select>
+              </FormControl>
             </div>
 
             <div>
-              <Label htmlFor="layout_template">Layout Template</Label>
-              <Input
+              <TextField
                 id="layout_template"
+                label="Layout Template"
                 value={layoutTemplate}
                 onChange={(e) => setLayoutTemplate(e.target.value)}
                 placeholder="standard"
+                fullWidth
               />
             </div>
           </div>
 
           {/* Presentation Options */}
           <div className="mt-4">
-            <Label>Presentation Options</Label>
+            <Typography variant="body2" sx={{ mb: 1 }}>Presentation Options</Typography>
             <div className="mt-2">
               <FormControlLabel
                 control={
@@ -608,10 +606,8 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
       {/* Submission Configuration Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Submission Configuration</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2 }}>Submission Configuration</Typography>
           {/* Media Upload Options */}
           <div>
             <FormControlLabel
@@ -631,7 +627,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
           {allowVideoUploads && (
             <div className="ml-8 space-y-4">
               <div>
-                <Label htmlFor="max_video_duration">Max video length (seconds)</Label>
+                <Typography variant="body2" sx={{ mb: 1 }}>Max video length (seconds)</Typography>
                 <div className="flex items-center gap-4 mt-2">
                   <input
                     id="max_video_duration"
@@ -686,10 +682,8 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
 
       {/* Danger Zone - Archive/Delete Actions */}
       <Card className="border-red-200">
-        <CardHeader>
-          <CardTitle className="text-red-600">Danger Zone</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2, color: 'error.main' }}>Danger Zone</Typography>
           <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
             <div>
               <h4 className="font-medium text-gray-900">
@@ -703,7 +697,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
             <Button
               type="button"
-              variant="outline"
+              variant="outlined"
               onClick={() =>
                 project.status === 'archived'
                   ? setShowReactivateDialog(true)
@@ -735,7 +729,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
             </div>
             <Button
               type="button"
-              variant="outline"
+              variant="outlined"
               onClick={() => setShowDeleteDialog(true)}
               disabled={isSubmitting || isUploadingBackground}
               className="border-red-500 text-red-600 hover:bg-red-100"
@@ -751,7 +745,7 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
       <div className="flex gap-4 justify-end">
         <Button
           type="button"
-          variant="outline"
+          variant="outlined"
           onClick={() => router.back()}
           disabled={isSubmitting || isUploadingBackground}
         >
@@ -772,133 +766,127 @@ export function ProjectEditForm({ project, presentationConfig, existingSlugs }: 
       </div>
 
       {/* Archive Confirmation Dialog */}
-      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+      <Dialog open={showArchiveDialog} onClose={() => setShowArchiveDialog(false)}>
+        <DialogTitle>Archive Project</DialogTitle>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Archive Project</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to archive "{project.name}"? The project will be hidden from
-              public access, but you can reactivate it at any time.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowArchiveDialog(false)}
-              disabled={isArchiving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleArchive}
-              disabled={isArchiving}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {isArchiving ? (
-                <>
-                  <CircularProgress size={20} className="mr-2" />
-                  Archiving...
-                </>
-              ) : (
-                'Archive Project'
-              )}
-            </Button>
-          </DialogFooter>
+          <DialogContentText>
+            Are you sure you want to archive "{project.name}"? The project will be hidden from
+            public access, but you can reactivate it at any time.
+          </DialogContentText>
         </DialogContent>
+        <DialogActions>
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={() => setShowArchiveDialog(false)}
+            disabled={isArchiving}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleArchive}
+            disabled={isArchiving}
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            {isArchiving ? (
+              <>
+                <CircularProgress size={20} className="mr-2" />
+                Archiving...
+              </>
+            ) : (
+              'Archive Project'
+            )}
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* Reactivate Confirmation Dialog */}
-      <Dialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
+      <Dialog open={showReactivateDialog} onClose={() => setShowReactivateDialog(false)}>
+        <DialogTitle>Reactivate Project</DialogTitle>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reactivate Project</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to reactivate "{project.name}"? The project will be accessible
-              to the public again.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowReactivateDialog(false)}
-              disabled={isArchiving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleReactivate}
-              disabled={isArchiving}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {isArchiving ? (
-                <>
-                  <CircularProgress size={20} className="mr-2" />
-                  Reactivating...
-                </>
-              ) : (
-                'Reactivate Project'
-              )}
-            </Button>
-          </DialogFooter>
+          <DialogContentText>
+            Are you sure you want to reactivate "{project.name}"? The project will be accessible
+            to the public again.
+          </DialogContentText>
         </DialogContent>
+        <DialogActions>
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={() => setShowReactivateDialog(false)}
+            disabled={isArchiving}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleReactivate}
+            disabled={isArchiving}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isArchiving ? (
+              <>
+                <CircularProgress size={20} className="mr-2" />
+                Reactivating...
+              </>
+            ) : (
+              'Reactivate Project'
+            )}
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <DialogTitle sx={{ color: 'error.main' }}>Delete Project Permanently</DialogTitle>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-red-600">Delete Project Permanently</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete the project, all
-              submissions, and all associated media files.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogContentText>
+            This action cannot be undone. This will permanently delete the project, all
+            submissions, and all associated media files.
+          </DialogContentText>
           <div className="py-4">
-            <Label htmlFor="delete-confirmation">
+            <Typography variant="body2" sx={{ mb: 1 }}>
               Type <strong>{project.name}</strong> to confirm deletion
-            </Label>
-            <Input
+            </Typography>
+            <TextField
               id="delete-confirmation"
               value={deleteConfirmation}
               onChange={(e) => setDeleteConfirmation(e.target.value)}
               placeholder={project.name}
-              className="mt-2"
+              fullWidth
               disabled={isDeleting}
             />
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setShowDeleteDialog(false);
-                setDeleteConfirmation('');
-              }}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handlePermanentDelete}
-              disabled={isDeleting || deleteConfirmation !== project.name}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isDeleting ? (
-                <>
-                  <CircularProgress size={20} className="mr-2" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete Forever'
-              )}
-            </Button>
-          </DialogFooter>
         </DialogContent>
+        <DialogActions>
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={() => {
+              setShowDeleteDialog(false);
+              setDeleteConfirmation('');
+            }}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handlePermanentDelete}
+            disabled={isDeleting || deleteConfirmation !== project.name}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {isDeleting ? (
+              <>
+                <CircularProgress size={20} className="mr-2" />
+                Deleting...
+              </>
+            ) : (
+              'Delete Forever'
+            )}
+          </Button>
+        </DialogActions>
       </Dialog>
     </form>
   );

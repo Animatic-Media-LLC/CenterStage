@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useSnackbar } from '@/components/providers/snackbar-provider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectItem,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { Slider } from '@/components/ui/slider';
 import { ColorPicker } from '@/components/ui/color-picker';
 import {
@@ -225,55 +227,46 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Project Details Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2 }}>Project Details</Typography>
+
           <div>
-            <Label htmlFor="name">Project Name</Label>
-            <Input
+            <TextField
               id="name"
+              label="Project Name"
               value={projectName}
               onChange={(e) => handleProjectNameChange(e.target.value)}
               placeholder="e.g., Summer Campaign 2024"
-              className={errors.name ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.name}
+              helperText={errors.name}
             />
-            {errors.name && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.name}</p>
-            )}
           </div>
 
           <div>
-            <Label htmlFor="client_name">Client Name</Label>
-            <Input
+            <TextField
               id="client_name"
+              label="Client Name"
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               placeholder="e.g., Acme Corporation"
-              className={errors.client_name ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.client_name}
+              helperText={errors.client_name}
             />
-            {errors.client_name && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.client_name}</p>
-            )}
           </div>
 
           <div>
-            <Label htmlFor="slug">
-              Slug
-              <span className="text-gray-500 text-xs ml-2">
-                (URL-friendly identifier)
-              </span>
-            </Label>
-            <Input
+            <TextField
               id="slug"
+              label="Slug (URL-friendly identifier)"
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               placeholder="e.g., summer-campaign-2024"
-              className={errors.slug ? 'border-red-500' : ''}
+              fullWidth
+              error={!!errors.slug}
+              helperText={errors.slug}
             />
-            {errors.slug && (
-              <p className="text-sm text-red-600 mt-1" role="alert" aria-live="polite">{errors.slug}</p>
-            )}
             {slug && isValidSlug(slug) && !errors.slug && (
               <p className="text-sm text-gray-500 mt-1">
                 Preview URL: /submit/{slug}
@@ -285,28 +278,31 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
       {/* Presentation Configuration Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Presentation Configuration</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
+          <Typography variant="h6" sx={{ mb: 2 }}>Presentation Configuration</Typography>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="font_family">Font Family</Label>
-              <Select
-                id="font_family"
-                value={fontFamily}
-                onValueChange={(value) => setFontFamily(value as FontFamily)}
-              >
-                {AVAILABLE_FONTS.map((font) => (
-                  <SelectItem key={font} value={font}>
-                    {font}
-                  </SelectItem>
-                ))}
-              </Select>
+              <FormControl fullWidth>
+                <InputLabel id="font_family-label">Font Family</InputLabel>
+                <Select
+                  labelId="font_family-label"
+                  id="font_family"
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value as FontFamily)}
+                  label="Font Family"
+                >
+                  {AVAILABLE_FONTS.map((font) => (
+                    <MenuItem key={font} value={font}>
+                      {font}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
 
             <div>
-              <Label htmlFor="font_size">Font Size: {fontSize}px</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Font Size: {fontSize}px</Typography>
               <Slider
                 id="font_size"
                 min={16}
@@ -319,7 +315,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
             </div>
 
             <div>
-              <Label htmlFor="text_color">Text Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Text Color</Typography>
               <ColorPicker
                 value={textColor}
                 onChange={setTextColor}
@@ -328,7 +324,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
             </div>
 
             <div>
-              <Label htmlFor="outline_color">Outline Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Outline Color</Typography>
               <ColorPicker
                 value={outlineColor}
                 onChange={setOutlineColor}
@@ -337,7 +333,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
             </div>
 
             <div>
-              <Label htmlFor="background_color">Background Color</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Background Color</Typography>
               <ColorPicker
                 value={backgroundColor}
                 onChange={setBackgroundColor}
@@ -348,7 +344,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
           {/* Background Image Upload */}
           <div className="mt-4">
-            <Label>Background Image (Optional)</Label>
+            <Typography variant="body2" sx={{ mb: 1 }}>Background Image (Optional)</Typography>
             <p className="text-sm text-gray-500 mb-2">
               Upload a background image for the presentation page (Max 5MB)
             </p>
@@ -362,7 +358,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
                 />
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="outlined"
                   onClick={handleRemoveBackgroundImage}
                   disabled={isSubmitting}
                 >
@@ -400,7 +396,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <Label htmlFor="transition_duration">Transition Duration: {transitionDuration}s</Label>
+              <Typography variant="body2" sx={{ mb: 1 }}>Transition Duration: {transitionDuration}s</Typography>
               <Slider
                 id="transition_duration"
                 min={1}
@@ -413,34 +409,39 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
             </div>
 
             <div>
-              <Label htmlFor="animation_style">Animation Style</Label>
-              <Select
-                id="animation_style"
-                value={animationStyle}
-                onValueChange={(value) =>
-                  setAnimationStyle(value as 'fade' | 'slide' | 'zoom')
-                }
-              >
-                <SelectItem value="fade">Fade</SelectItem>
-                <SelectItem value="slide">Slide</SelectItem>
-                <SelectItem value="zoom">Zoom</SelectItem>
-              </Select>
+              <FormControl fullWidth>
+                <InputLabel id="animation_style-label">Animation Style</InputLabel>
+                <Select
+                  labelId="animation_style-label"
+                  id="animation_style"
+                  value={animationStyle}
+                  onChange={(e) =>
+                    setAnimationStyle(e.target.value as 'fade' | 'slide' | 'zoom')
+                  }
+                  label="Animation Style"
+                >
+                  <MenuItem value="fade">Fade</MenuItem>
+                  <MenuItem value="slide">Slide</MenuItem>
+                  <MenuItem value="zoom">Zoom</MenuItem>
+                </Select>
+              </FormControl>
             </div>
 
             <div>
-              <Label htmlFor="layout_template">Layout Template</Label>
-              <Input
+              <TextField
                 id="layout_template"
+                label="Layout Template"
                 value={layoutTemplate}
                 onChange={(e) => setLayoutTemplate(e.target.value)}
                 placeholder="standard"
+                fullWidth
               />
             </div>
           </div>
 
           {/* Media Upload Options */}
           <div className="mt-4">
-            <Label>Media Upload Options</Label>
+            <Typography variant="body2" sx={{ mb: 1 }}>Media Upload Options</Typography>
             <div className="mt-2">
               <FormControlLabel
                 control={
@@ -474,7 +475,7 @@ export function ProjectForm({ existingSlugs }: ProjectFormProps) {
       <div className="flex gap-4 justify-end">
         <Button
           type="button"
-          variant="outline"
+          variant="outlined"
           onClick={() => router.back()}
           disabled={isSubmitting || isUploadingBackground}
         >

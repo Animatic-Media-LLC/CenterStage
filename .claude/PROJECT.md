@@ -1339,3 +1339,57 @@ Currently using custom Radix UI components with Tailwind styling. This phase rep
 - Total submissions per project
 - Approval rate
 - Client satisfaction rating
+
+---
+
+## Technical Decisions & Architecture Notes
+
+### UI Component Library Migration (December 2025)
+
+**Decision:** Migrate from shadcn/ui components to Material-UI (MUI) exclusively
+
+**Rationale:**
+- **Type Safety Issues:** shadcn components use different variant types than MUI, causing TypeScript build errors
+- **Styling Conflicts:** Two design systems create inconsistent UI/UX
+- **Bundle Size:** Reducing to single UI library decreases bundle size
+- **Maintenance:** Single component library simplifies maintenance and upgrades
+- **Documentation:** MUI has comprehensive documentation and wider community support
+- **Existing Usage:** Application already heavily uses MUI for complex components (Dialog, TextField, Select, etc.)
+
+**Migration Strategy:**
+
+1. **Component Mapping:**
+   - `@/components/ui/button` → `@mui/material/Button`
+   - `@/components/ui/card` → `@mui/material/Card` + `CardContent`
+   - `@/components/ui/input` → `@mui/material/TextField`
+   - `@/components/ui/select` → `@mui/material/Select` + `MenuItem`
+   - `@/components/ui/label` → `@mui/material/InputLabel` or TextField's `label` prop
+   - `@/components/ui/dialog` → `@mui/material/Dialog` (already migrated)
+
+2. **Styling Approach:**
+   - Use MUI's `sx` prop for component-specific styles
+   - Maintain Tailwind for layout/spacing utilities
+   - Use MUI theme customization for global styles
+   - Preserve existing className-based Tailwind utilities where appropriate
+
+3. **Priority Order:**
+   - ✅ Dialog components (already using MUI)
+   - 🔄 Input/TextField components (critical for forms)
+   - 🔄 Button components (high usage, multiple variants)
+   - 🔄 Card components (consistent container styling)
+   - 🔄 Select components (form inputs)
+   - Custom components (ColorPicker, FontPreview, etc.) - keep as-is
+
+4. **Testing Requirements:**
+   - Visual regression testing for each migrated component
+   - Form validation still works correctly
+   - Responsive design maintained
+   - Accessibility features preserved
+   - No breaking changes to user workflows
+
+**Status:** Migration in progress (started December 27, 2025)
+
+**Future Considerations:**
+- Consider MUI theme customization to match current design system
+- Evaluate MUI's dark mode support for future features
+- Document custom MUI styling patterns for team consistency

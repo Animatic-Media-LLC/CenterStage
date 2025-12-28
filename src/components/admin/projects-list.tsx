@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import { FolderKanban, Plus, Search, Edit, QrCode, ExternalLink, FileText } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { CopyUrlButton } from '@/components/admin/copy-url-button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -51,8 +52,7 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
               Get started by creating your first CenterStage project.
             </Typography>
             <Link href="/admin/projects/new">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button variant="contained" startIcon={<Plus className="h-4 w-4" />}>
                 Create Project
               </Button>
             </Link>
@@ -66,12 +66,14 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
     <>
       {/* Search */}
       <Box sx={{ mb: 3, maxWidth: 480 }}>
-        <Input
+        <TextField
           type="search"
           placeholder="Search projects..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           aria-label="Search projects"
+          fullWidth
+          size="small"
           slotProps={{
             input: {
               startAdornment: (
@@ -125,13 +127,14 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
                   borderColor: 'rgba(0, 130, 174, 0.3)'
                 }
               }}>
-                <CardHeader sx={{
+                <CardContent sx={{
                   background: 'rgba(0, 130, 174, 0.03)',
-                  borderBottom: '1px solid rgba(0,0,0,0.05)'
+                  borderBottom: '1px solid rgba(0,0,0,0.05)',
+                  pb: 2
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <Box sx={{ flex: 1 }}>
-                      <CardTitle className="text-lg font-bold">{project.name}</CardTitle>
+                      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 'bold' }}>{project.name}</Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
                         {project.client_name}
                       </Typography>
@@ -157,8 +160,8 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
                       }}
                     />
                   </Box>
-                </CardHeader>
-                <CardContent>
+                </CardContent>
+                <CardContent sx={{ pt: 0 }}>
                   {/* Slug */}
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="caption" color="text.secondary" display="block" gutterBottom sx={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>
@@ -224,27 +227,39 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
                   <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, pt: 2, borderTop: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
                     <Link href={`/admin/projects/${project.slug}/edit`} style={{ flex: 1 }}>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full h-9 font-semibold transition-colors"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(0, 130, 174, 0.1)';
-                          e.currentTarget.style.color = '#0082ae';
-                          e.currentTarget.style.borderColor = 'rgba(0, 130, 174, 0.3)';
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          height: '36px',
+                          fontWeight: 600,
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 130, 174, 0.1)',
+                            color: '#0082ae',
+                            borderColor: 'rgba(0, 130, 174, 0.3)'
+                          }
                         }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '';
-                          e.currentTarget.style.color = '';
-                          e.currentTarget.style.borderColor = '';
-                        }}
+                        startIcon={<Edit className="h-4 w-4" />}
                       >
-                        <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
                     </Link>
                     <Link href={`/admin/projects/${project.slug}/review`} style={{ flex: 1 }}>
-                      <Button variant="outline" size="sm" className="w-full h-9 font-semibold hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300">
-                        <FileText className="h-4 w-4 mr-1" />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          height: '36px',
+                          fontWeight: 600,
+                          '&:hover': {
+                            bgcolor: 'rgba(147, 51, 234, 0.05)',
+                            color: 'rgb(126, 34, 206)',
+                            borderColor: 'rgba(147, 51, 234, 0.3)'
+                          }
+                        }}
+                        startIcon={<FileText className="h-4 w-4" />}
+                      >
                         Review {pendingCounts[project.id] > 0 && (
                           <Chip
                             label={pendingCounts[project.id]}
@@ -263,20 +278,19 @@ export function ProjectsList({ projects, pendingCounts }: ProjectsListProps) {
                     </Link>
                     <Link href={`/admin/projects/${project.slug}/qr`} className="sm:w-auto w-full">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full sm:w-auto h-9 font-semibold transition-colors"
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          height: '36px',
+                          fontWeight: 600,
+                          minWidth: { xs: '100%', sm: 'auto' },
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 130, 174, 0.1)',
+                            color: '#0082ae',
+                            borderColor: 'rgba(0, 130, 174, 0.3)'
+                          }
+                        }}
                         aria-label="View QR code"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(0, 130, 174, 0.1)';
-                          e.currentTarget.style.color = '#0082ae';
-                          e.currentTarget.style.borderColor = 'rgba(0, 130, 174, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '';
-                          e.currentTarget.style.color = '';
-                          e.currentTarget.style.borderColor = '';
-                        }}
                       >
                         <QrCode className="h-5 w-5" aria-hidden="true" />
                       </Button>
