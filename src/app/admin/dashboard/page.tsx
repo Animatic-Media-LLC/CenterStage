@@ -72,12 +72,12 @@ export default async function DashboardPage() {
           </Box>
           <Link href="/admin/projects/new">
             <StyledButton
-              className="w-full sm:w-auto text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+              sx={{ color: 'white', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
               style={{ background: 'linear-gradient(135deg, #0082ae 0%, #52c2ef 100%)', boxShadow: '0 10px 15px -3px rgba(0, 130, 174, 0.3)' }}
               defaultBackground="linear-gradient(135deg, #0082ae 0%, #52c2ef 100%)"
               hoverBackground="linear-gradient(135deg, #006d94 0%, #0082ae 100%)"
+              startIcon={<FolderKanban className="h-4 w-4" />}
             >
-              <FolderKanban className="h-4 w-4 mr-2" />
               New Project
             </StyledButton>
           </Link>
