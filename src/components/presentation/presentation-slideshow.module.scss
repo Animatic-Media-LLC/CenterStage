@@ -1,0 +1,48 @@
+// CSS Variables
+:root {
+  --slideshow-padding-sm: 0.5rem;
+  --slideshow-padding-md: 1rem;
+  --slideshow-padding-lg: 2rem;
+  --controls-bg: rgba(0, 0, 0, 0.5);
+  --controls-opacity: 0.7;
+  --controls-font-size: 0.75rem;
+  --controls-border-radius: 0.25rem;
+}
+
+.container {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.holdingScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+
+  .holdingContent {
+    text-align: center;
+    padding: var(--slideshow-padding-lg);
+
+    .holdingTitle {
+      margin-bottom: var(--slideshow-padding-md);
+    }
+  }
+}
+
+.controls {
+  position: fixed;
+  bottom: var(--slideshow-padding-md);
+  right: var(--slideshow-padding-md);
+  background: var(--controls-bg);
+  color: white;
+  padding: var(--slideshow-padding-sm);
+  border-radius: var(--controls-border-radius);
+  font-size: var(--controls-font-size);
+  opacity: var(--controls-opacity);
+}

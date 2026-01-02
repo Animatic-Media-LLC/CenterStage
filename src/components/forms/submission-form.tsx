@@ -519,8 +519,9 @@ export function SubmissionForm({ projectId, projectSlug, allowVideoUploads = tru
                     id="media-input"
                     type="file"
                     accept={allowVideoUploads
-                      ? "image/jpeg,image/jpg,image/png,image/webp,image/heic,video/mp4,video/quicktime,video/webm,video/x-m4v"
-                      : "image/jpeg,image/jpg,image/png,image/webp,image/heic"}
+                      ? "image/*,video/*"
+                      : "image/*"}
+                    capture="environment"
                     onChange={handleMediaChange}
                     disabled={isSubmitting}
                     className={styles.hiddenInput}
