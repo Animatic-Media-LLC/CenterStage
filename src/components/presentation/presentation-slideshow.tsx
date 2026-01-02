@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PresentationSlide } from './presentation-slide';
 import type { Database } from '@/types/database.types';
+import styles from './presentation-slideshow.module.scss';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
 
@@ -255,27 +256,22 @@ export function PresentationSlideshow({
   if (activeSubmissions.length === 0) {
     return (
       <div
+        className={styles.holdingScreen}
         style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           backgroundColor: config.backgroundColor,
           backgroundImage: config.backgroundImageUrl
             ? `url(${config.backgroundImageUrl})`
             : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
           fontFamily: config.fontFamily,
         }}
       >
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div className={styles.holdingContent}>
           <h1
+            className={styles.holdingTitle}
             style={{
               fontSize: config.fontSize * 2,
               color: config.textColor,
               textShadow: `2px 2px 4px ${config.outlineColor}`,
-              marginBottom: '1rem',
             }}
           >
             {clientName}
@@ -296,16 +292,12 @@ export function PresentationSlideshow({
 
   return (
     <div
+      className={styles.container}
       style={{
-        minHeight: '100vh',
         backgroundColor: config.backgroundColor,
         backgroundImage: config.backgroundImageUrl
           ? `url(${config.backgroundImageUrl})`
           : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        position: 'relative',
-        overflow: 'hidden',
       }}
     >
       {/* Previous slide - exiting */}
@@ -332,19 +324,7 @@ export function PresentationSlideshow({
 
       {/* Hidden controls info (for admin testing) */}
       {!isFullscreen && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '1rem',
-            right: '1rem',
-            background: 'rgba(0, 0, 0, 0.5)',
-            color: 'white',
-            padding: '0.5rem',
-            borderRadius: '0.25rem',
-            fontSize: '0.75rem',
-            opacity: 0.7,
-          }}
-        >
+        <div className={styles.controls}>
           <div>Press Space for fullscreen</div>
           <div>Arrows to navigate</div>
           <div>

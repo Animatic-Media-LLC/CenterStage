@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useScreenSize } from '@/hooks/use-screen-size';
 import type { Database } from '@/types/database.types';
+import styles from './presentation-slide.module.scss';
 
 type Submission = Database['public']['Tables']['submissions']['Row'];
 
@@ -23,6 +24,8 @@ interface PresentationSlideProps {
   isExiting: boolean;
   onVideoDurationDetected?: (duration: number) => void;
 }
+
+const LONG_COMMENT_THRESHOLD = 200;
 
 export function PresentationSlide({
   submission,
@@ -68,22 +71,76 @@ export function PresentationSlide({
   const hasMedia = Boolean(submission.photo_url || submission.video_url);
   const hasText = Boolean(submission.comment);
 
-  // Calculate font size adjustment based on comment length
-  const getCommentFontSizeMultiplier = () => {
-    if (!submission.comment) return 1;
+  // Calculate dynamic font size based on available container space
+  const getDynamicFontSize = (
+    isVerticalLayout: boolean,
+    hasMedia: boolean,
+    scaleFactor: number
+  ): number => {
+    if (!submission.comment && !submission.full_name) return config.fontSize * scaleFactor;
 
-    const commentLength = submission.comment.length;
+    // Calculate available height based on layout - more conservative for vertical with media
+    const availableHeight = isVerticalLayout
+      ? (hasMedia ? screenSize.height * 0.25 : screenSize.height * 0.75) // Increased from 0.18 to 0.25 for more text space
+      : screenSize.height * 0.62; // Side-by-side - account for padding
 
-    if (commentLength > 250) {
-      return 0.5; // 50% smaller
-    } else if (commentLength > 150) {
-      return 0.75; // 25% smaller
+    // Calculate available width based on layout - much more generous
+    const availableWidth = isVerticalLayout
+      ? screenSize.width * 0.75
+      : screenSize.width * 0.42; // ~42% for side-by-side text area - very wide estimate
+
+    // Estimate content size
+    const fullText = submission.comment || '';
+    const nameLength = submission.full_name?.length || 0;
+    const totalCharacters = fullText.length + nameLength;
+
+    // Start with a much larger base font size
+    let baseFontSize = config.fontSize * scaleFactor * 2.2; // 120% larger starting point
+
+    // For side-by-side layout, we have even more vertical space
+    if (!isVerticalLayout) {
+      baseFontSize *= 2.8; // Start 180% larger for side-by-side
     }
 
-    return 1; // Normal size
-  };
+    // For vertical layout without media, we can go much larger
+    if (isVerticalLayout && !hasMedia) {
+      baseFontSize *= 1.3; // 30% boost for text-only cards
+    }
 
-  const fontSizeMultiplier = getCommentFontSizeMultiplier();
+    // Calculate how many characters can fit per line (rough estimate)
+    // Average character width is approximately 0.4 * fontSize for even tighter wrapping
+    const avgCharWidth = baseFontSize * (isVerticalLayout ? 0.45 : 0.4);
+    const charsPerLine = Math.floor(availableWidth / avgCharWidth);
+
+    if (charsPerLine <= 0) return baseFontSize * 0.5; // Safety fallback
+
+    // Calculate how many lines we need
+    const estimatedLines = Math.ceil(totalCharacters / charsPerLine);
+
+    // Use actual line height from CSS (1.125 for both layouts)
+    const lineHeight = baseFontSize * 1.125;
+    const estimatedHeight = estimatedLines * lineHeight;
+
+    // Minimal buffer - use only 3% buffer for very aggressive sizing
+    const bufferFactor = 1.03;
+    const requiredHeight = estimatedHeight * bufferFactor;
+
+    // If content fits, return base font size
+    if (requiredHeight <= availableHeight) {
+      return baseFontSize;
+    }
+
+    // Calculate scale-down factor needed to fit
+    const scaleDown = availableHeight / requiredHeight;
+    const adjustedFontSize = baseFontSize * scaleDown;
+
+    // Set minimum font size to maintain readability - lower minimum for vertical to allow more wrapping
+    const minFontSize = isVerticalLayout
+      ? config.fontSize * 0.55 * scaleFactor // Reduced from 0.8 to 0.55 to allow smaller text and less image cropping
+      : config.fontSize * 1.6 * scaleFactor; // Increased from 1.4 to 1.6 (160% minimum for side-by-side)
+
+    return Math.max(adjustedFontSize, minFontSize);
+  };
 
   // Calculate responsive scaling factors based on screen size
   const getResponsiveScaling = () => {
@@ -180,68 +237,40 @@ export function PresentationSlide({
     }
   };
 
-  // Text styles without outline
+  // Text styles
   const textStyle: React.CSSProperties = {
     fontFamily: config.fontFamily,
     color: config.textColor,
   };
 
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: `${4 * paddingScale}rem ${2 * paddingScale}rem`,
-        pointerEvents: isExiting ? 'none' : 'auto',
-      }}
-    >
-      {/* Card Container */}
-      <div
-        style={{
-          maxWidth: `${maxWidthPercent}vw`,
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: `${1.5 * paddingScale}rem`,
-          border: `${6 * paddingScale}px solid ${config.outlineColor}`,
-          padding: `${3 * paddingScale}rem`,
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-          backdropFilter: 'blur(10px)',
-          ...getAnimationStyle(),
-        }}
-      >
-        {/* Media Section */}
-        {hasMedia && (
-          <div
-            style={{
-              marginBottom: hasText ? `${2 * paddingScale}rem` : `${1 * paddingScale}rem`,
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
+  // Determine if this is a long comment that needs side-by-side layout
+  const isLongComment = submission.comment && submission.comment.length > LONG_COMMENT_THRESHOLD;
+  const useSideBySideLayout = isLongComment && hasMedia;
+
+  // Calculate dynamic font sizes for both layouts
+  const sideBySideFontSize = getDynamicFontSize(false, hasMedia, scaleFactor);
+  const verticalFontSize = getDynamicFontSize(true, hasMedia, scaleFactor);
+
+  // Instagram-style card render
+  const renderInstagramCard = () => {
+    if (useSideBySideLayout) {
+      // Side-by-side layout for long comments with media
+      return (
+        <div
+          className={styles.cardSideBySide}
+          style={{
+            borderRadius: `${1.5 * paddingScale}rem`,
+            ...getAnimationStyle(),
+          }}
+        >
+          {/* Left: Media - Flexible width up to 50% */}
+          <div className={styles.mediaLeft}>
             {submission.photo_url && (
-              <div style={{ position: 'relative', maxWidth: '100%', maxHeight: screenSize.isPortrait ? '40vh' : '50vh' }}>
-                <Image
-                  src={submission.photo_url}
-                  alt="Submission"
-                  width={1920}
-                  height={1080}
-                  priority={!isExiting}
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: screenSize.isPortrait ? '40vh' : '50vh',
-                    width: 'auto',
-                    height: 'auto',
-                    objectFit: 'contain',
-                    borderRadius: `${0.75 * paddingScale}rem`,
-                  }}
-                />
-              </div>
+              <img
+                src={submission.photo_url}
+                alt="Submission"
+                className={styles.mediaImage}
+              />
             )}
             {submission.video_url && shouldLoadVideo && (
               <video
@@ -255,68 +284,211 @@ export function PresentationSlide({
                 onLoadedMetadata={(e) => {
                   const video = e.currentTarget;
                   if (onVideoDurationDetected && video.duration) {
-                    const duration = Math.round(video.duration * 10) / 10; // Round to 1 decimal
+                    const duration = Math.round(video.duration * 10) / 10;
                     onVideoDurationDetected(duration);
                   }
                 }}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: screenSize.isPortrait ? '40vh' : '50vh',
-                  objectFit: 'contain',
-                  borderRadius: `${0.75 * paddingScale}rem`,
-                }}
+                className={styles.mediaVideo}
               />
             )}
-          </div>
-        )}
 
-        {/* Content Section */}
-        <div
-          style={{
-            textAlign: 'center',
-          }}
-        >
-          {/* Comment */}
-          {hasText && (
-            <blockquote
-              style={{
-                ...textStyle,
-                fontSize: (hasMedia ? config.fontSize * 1.2 : config.fontSize * 1.8) * fontSizeMultiplier * scaleFactor,
-                lineHeight: 1.6,
-                marginBottom: `${1.5 * paddingScale}rem`,
-                fontStyle: 'italic',
-                margin: `0 0 ${1.5 * paddingScale}rem 0`,
-              }}
-            >
-              &ldquo;{submission.comment}&rdquo;
-            </blockquote>
-          )}
-
-          {/* Attribution */}
-          <div
-            style={{
-              ...textStyle,
-              fontSize: (hasMedia ? config.fontSize * 0.9 : config.fontSize * 1.2) * scaleFactor,
-              fontWeight: 600,
-            }}
-          >
-            <div style={{ marginBottom: `${0.5 * paddingScale}rem` }}>
-              &mdash; {submission.full_name}
-            </div>
+            {/* Social handle overlay on media */}
             {submission.social_handle && (
               <div
+                className={styles.socialHandleSideBySide}
                 style={{
-                  ...textStyle,
-                  fontSize: (hasMedia ? config.fontSize * 0.7 : config.fontSize * 0.9) * scaleFactor,
-                  opacity: 0.8,
+                  top: `${1.5 * paddingScale}rem`,
+                  right: `${1.5 * paddingScale}rem`,
+                  padding: `${0.5 * paddingScale}rem ${1.2 * paddingScale}rem`,
+                  borderRadius: `${1.5 * paddingScale}rem`,
+                  fontSize: `${config.fontSize * 0.9 * scaleFactor}px`,
+                  fontFamily: config.fontFamily,
                 }}
               >
                 {submission.social_handle}
               </div>
             )}
           </div>
+
+          {/* Right: Content - Flexible width, minimum to maintain readability */}
+          <div
+            className={styles.contentRight}
+            style={{
+              padding: `${3 * paddingScale}rem`,
+              background: `linear-gradient(135deg, ${config.backgroundColor} 0%, ${config.backgroundColor} 50%, ${config.outlineColor}F2 100%)`,
+              borderTopRightRadius: `${1.5 * paddingScale}rem`,
+              borderBottomRightRadius: `${1.5 * paddingScale}rem`,
+            }}
+          >
+            {hasText && (
+              <blockquote
+                className={styles.commentSideBySide}
+                style={{
+                  ...textStyle,
+                  // fontSize: `${sideBySideFontSize}px`,
+                  marginBottom: `${2 * paddingScale}rem`,
+                }}
+              >
+                {submission.comment}
+              </blockquote>
+            )}
+
+            {/* Attribution */}
+            <div
+              className={styles.sideBySideAttribution}
+              style={{
+                ...textStyle,
+                // fontSize: `${sideBySideFontSize * 0.85}px`,
+                marginTop: `${1.5 * paddingScale}rem`,
+              }}
+            >
+              &mdash; {submission.full_name}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Standard Instagram-style vertical layout
+    return (
+      <div
+        className={styles.cardVertical}
+        style={{
+          // maxWidth: `${maxWidthPercent}vw`,
+          borderRadius: `${1.5 * paddingScale}rem`,
+          ...getAnimationStyle(),
+        }}
+      >
+        {/* Media Section - Full Width, No Padding */}
+        {hasMedia && (
+          <div
+            className={styles.mediaTop}
+            style={
+              {
+                '--background-image': `url(${submission.photo_url || submission.video_url})`,
+              } as React.CSSProperties
+            }
+          >
+            {submission.photo_url && (
+              <img
+                src={submission.photo_url}
+                alt="Submission"
+                className={styles.mediaTopImage}
+              />
+            )}
+            {submission.video_url && shouldLoadVideo && (
+              <video
+                src={submission.video_url}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                aria-label={`Video submission from ${submission.full_name}`}
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget;
+                  if (onVideoDurationDetected && video.duration) {
+                    const duration = Math.round(video.duration * 10) / 10;
+                    onVideoDurationDetected(duration);
+                  }
+                }}
+                className={styles.mediaTopVideo}
+              />
+            )}
+
+            {/* Social handle overlay on top-right of media */}
+            {submission.social_handle && (
+              <div
+                className={styles.socialHandleVertical}
+                style={{
+                  top: `${1.5 * paddingScale}rem`,
+                  right: `${1.5 * paddingScale}rem`,
+                  padding: `${0.5 * paddingScale}rem ${1.2 * paddingScale}rem`,
+                  borderRadius: `${1.5 * paddingScale}rem`,
+                  fontSize: `${config.fontSize * 0.8125 * scaleFactor}px`,
+                  fontFamily: config.fontFamily,
+                }}
+              >
+                {submission.social_handle}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Content Section - Padded */}
+        <div
+          className={styles.contentBottom}
+          style={{
+            padding: `${2.5 * paddingScale}rem ${3 * paddingScale}rem`,
+            background: `linear-gradient(135deg, ${config.backgroundColor} 0%, ${config.backgroundColor} 50%, ${config.outlineColor}F2 100%)`,
+            borderBottomLeftRadius: `${1.5 * paddingScale}rem`,
+            borderBottomRightRadius: `${1.5 * paddingScale}rem`,
+          }}
+        >
+          {/* Comment */}
+          {hasText && (
+            <blockquote
+              className={styles.commentVertical}
+              style={{
+                ...textStyle,
+                marginBottom: `${1.5 * paddingScale}rem`,
+              }}
+            >
+              {submission.comment}
+            </blockquote>
+          )}
+
+          {/* Attribution - below comment or standalone */}
+          {hasText && (
+            <div
+              className={styles.attribution}
+              style={{
+                ...textStyle,
+              }}
+            >
+              &mdash; {submission.full_name}
+            </div>
+          )}
+
+          {/* Just name if no comment */}
+          {!hasText && (
+            <div
+              className={styles.nameOnly}
+              style={{
+                ...textStyle,
+              }}
+            >
+              {submission.full_name}
+            </div>
+          )}
+
+          {/* Social handle below if no media (since it's not overlaid) */}
+          {!hasMedia && submission.social_handle && (
+            <div
+              className={styles.socialHandleBelow}
+              style={{
+                ...textStyle,
+                fontSize: `${verticalFontSize * 0.7}px`,
+                marginTop: `${0.5 * paddingScale}rem`,
+              }}
+            >
+              {submission.social_handle}
+            </div>
+          )}
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div
+      className={styles.slideContainer}
+      style={{
+        padding: `${4 * paddingScale}rem ${2 * paddingScale}rem`,
+        pointerEvents: isExiting ? 'none' : 'auto',
+      }}
+    >
+      {renderInstagramCard()}
     </div>
   );
 }
